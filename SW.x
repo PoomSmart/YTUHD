@@ -43,11 +43,11 @@
 %hook YTUserDefaults
 
 - (int)manualQualitySelectionChosenResolution {
-	return MAX_HEIGHT;
+    return MAX_HEIGHT;
 }
 
 - (int)manualQualitySelectionPrecedingResolution {
-	return MAX_HEIGHT;
+    return MAX_HEIGHT;
 }
 
 %end
@@ -55,7 +55,7 @@
 %hook MLManualFormatSelectionMetadata
 
 - (int)stickyCeilingResolution {
-	return MAX_HEIGHT;
+    return MAX_HEIGHT;
 }
 
 %end
@@ -63,11 +63,11 @@
 %hook UIDevice
 
 - (NSString *)systemVersion {
-	return @"14.0";
+    return @"14.0";
 }
 
 - (NSString *)model {
-	return @(DEVICE_MACHINE);
+    return @(DEVICE_MACHINE);
 }
 
 %end
@@ -75,11 +75,11 @@
 %hook NSProcessInfo
 
 - (NSOperatingSystemVersion)operatingSystemVersion {
-	NSOperatingSystemVersion version;
-	version.majorVersion = 14;
-	version.minorVersion = 0;
-	version.patchVersion = 0;
-	return version;
+    NSOperatingSystemVersion version;
+    version.majorVersion = 14;
+    version.minorVersion = 0;
+    version.patchVersion = 0;
+    return version;
 }
 
 %end
@@ -87,34 +87,34 @@
 %hook YTVersionUtils
 
 + (NSString *)OSBuild {
-	return @(IOS_BUILD);
+    return @(IOS_BUILD);
 }
 
 %end
 
 %hookf(int, sysctlbyname, const char *name, void *oldp, size_t *oldlenp, void *newp, size_t newlen) {
     if (strcmp(name, "kern.osversion") == 0) {
-    	if (oldp)
-        	strcpy((char *)oldp, IOS_BUILD);
+        if (oldp)
+            strcpy((char *)oldp, IOS_BUILD);
         *oldlenp = strlen(IOS_BUILD);
     }
-	else if (strcmp(name, "hw.machine") == 0) {
-		if (oldp)
-			strcpy((char *)oldp, DEVICE_MACHINE);
-		*oldlenp = strlen(DEVICE_MACHINE);
-	}
-	else if (strcmp(name, "hw.model") == 0) {
-		if (oldp)
-			strcpy((char *)oldp, DEVICE_MODEL);
-		*oldlenp = strlen(DEVICE_MODEL);
-	}
+    else if (strcmp(name, "hw.machine") == 0) {
+        if (oldp)
+            strcpy((char *)oldp, DEVICE_MACHINE);
+        *oldlenp = strlen(DEVICE_MACHINE);
+    }
+    else if (strcmp(name, "hw.model") == 0) {
+        if (oldp)
+            strcpy((char *)oldp, DEVICE_MODEL);
+        *oldlenp = strlen(DEVICE_MODEL);
+    }
     return %orig(name, oldp, oldlenp, newp, newlen);
 }
 
 %hookf(int, uname, struct utsname *buf) {
-	int r = %orig(buf);
-	strcpy(buf->machine, DEVICE_MACHINE);
-	return r;
+    int r = %orig(buf);
+    strcpy(buf->machine, DEVICE_MACHINE);
+    return r;
 }
 
 %ctor {
