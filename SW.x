@@ -8,7 +8,7 @@
 #define MAX_HEIGHT 2160 // 4k
 #define MAX_PIXELS 8294400 // 3840 x 2160 (4k)
 
-%group HamplayerStreamFilter
+%group LateHook
 
 %hook YTIHamplayerStreamFilter
 
@@ -21,20 +21,6 @@
 }
 
 %end
-
-%end
-
-%hook YTIHamplayerStreamFilter
-
-+ (id)descriptor {
-    id r = %orig;
-    %init(HamplayerStreamFilter);
-    return r;
-}
-
-%end
-
-%group HamplayerSoftwareStreamFilter
 
 %hook YTIHamplayerSoftwareStreamFilter
 
@@ -50,12 +36,11 @@
 
 %end
 
-%hook YTIHamplayerSoftwareStreamFilter
+%hook YTBaseInnerTubeService
 
-+ (id)descriptor {
-    id r = %orig;
-    %init(HamplayerSoftwareStreamFilter);
-    return r;
++ (void)initialize {
+    %orig;
+    %init(LateHook);
 }
 
 %end
@@ -69,16 +54,6 @@
 }
 
 %end
-
-%end
-
-%hook YTIMediaQualitySettingsHotConfig
-
-+ (id)descriptor {
-    id r = %orig;
-    %init(MediaQualitySettingsHotConfig);
-    return r;
-}
 
 %end
 
