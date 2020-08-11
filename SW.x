@@ -8,6 +8,8 @@
 #define MAX_HEIGHT 2160 // 4k
 #define MAX_PIXELS 8294400 // 3840 x 2160 (4k)
 
+%group HamplayerStreamFilter
+
 %hook YTIHamplayerStreamFilter
 
 - (BOOL)enableVideoCodecSplicing {
@@ -20,6 +22,20 @@
 
 %end
 
+%end
+
+%hook YTIHamplayerStreamFilter
+
++ (id)descriptor {
+    id r = %orig;
+    %init(HamplayerStreamFilter);
+    return r;
+}
+
+%end
+
+%group HamplayerSoftwareStreamFilter
+
 %hook YTIHamplayerSoftwareStreamFilter
 
 - (int)maxFps {
@@ -31,6 +47,48 @@
 }
 
 %end
+
+%end
+
+%hook YTIHamplayerSoftwareStreamFilter
+
++ (id)descriptor {
+    id r = %orig;
+    %init(HamplayerSoftwareStreamFilter);
+    return r;
+}
+
+%end
+
+/*%group MediaQualitySettingsHotConfig
+
+%hook YTIMediaQualitySettingsHotConfig
+
+- (BOOL)enablePersistentVideoQualitySettings {
+    return YES;
+}
+
+%end
+
+%end
+
+%hook YTIMediaQualitySettingsHotConfig
+
++ (id)descriptor {
+    id r = %orig;
+    %init(MediaQualitySettingsHotConfig);
+    return r;
+}
+
+%end
+
+%hook MLUserFeaturesSnapshot
+
+- (int)persistentVideoQualityWifi {
+    return 3;
+}
+
+%end*/
 
 %hook YTSettings
 
@@ -66,10 +124,6 @@
     return @"14.0";
 }
 
-- (NSString *)model {
-    return @(DEVICE_MACHINE);
-}
-
 %end
 
 %hook NSProcessInfo
@@ -98,23 +152,7 @@
             strcpy((char *)oldp, IOS_BUILD);
         *oldlenp = strlen(IOS_BUILD);
     }
-    else if (strcmp(name, "hw.machine") == 0) {
-        if (oldp)
-            strcpy((char *)oldp, DEVICE_MACHINE);
-        *oldlenp = strlen(DEVICE_MACHINE);
-    }
-    else if (strcmp(name, "hw.model") == 0) {
-        if (oldp)
-            strcpy((char *)oldp, DEVICE_MODEL);
-        *oldlenp = strlen(DEVICE_MODEL);
-    }
     return %orig(name, oldp, oldlenp, newp, newlen);
-}
-
-%hookf(int, uname, struct utsname *buf) {
-    int r = %orig(buf);
-    strcpy(buf->machine, DEVICE_MACHINE);
-    return r;
 }
 
 %ctor {
