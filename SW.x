@@ -1,12 +1,5 @@
 #import <sys/sysctl.h>
-#include <sys/utsname.h>
-
-#define IOS_BUILD "18A5342e"
-#define DEVICE_MACHINE "iPhone12,1"
-#define DEVICE_MODEL "A2221"
-#define MAX_FPS 60
-#define MAX_HEIGHT 2160 // 4k
-#define MAX_PIXELS 8294400 // 3840 x 2160 (4k)
+#import "Header.h"
 
 %group LateHook
 
@@ -44,26 +37,6 @@
 }
 
 %end
-
-/*%group MediaQualitySettingsHotConfig
-
-%hook YTIMediaQualitySettingsHotConfig
-
-- (BOOL)enablePersistentVideoQualitySettings {
-    return YES;
-}
-
-%end
-
-%end
-
-%hook MLUserFeaturesSnapshot
-
-- (int)persistentVideoQualityWifi {
-    return 3;
-}
-
-%end*/
 
 %hook YTSettings
 
