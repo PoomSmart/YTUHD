@@ -4,8 +4,8 @@
 @end
 
 @interface YTIHamplayerStreamFilter : NSObject
+@property(nonatomic, strong, readwrite) YTIHamplayerSoftwareStreamFilter *vp9;
 @property BOOL enableVideoCodecSplicing;
-@property BOOL hasVp9;
 @end
 
 @interface YTIHamplayerConfig : NSObject
