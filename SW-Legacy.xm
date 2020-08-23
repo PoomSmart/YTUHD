@@ -1,5 +1,13 @@
 #import "Header.h"
 
+%hook YTIHamplayerConfig
+
+- (int)renderViewType {
+    return 2;
+}
+
+%end
+
 %hook MLABRPolicy
 
 - (void)setFormats:(NSArray <MLFormat *> *)formats {
