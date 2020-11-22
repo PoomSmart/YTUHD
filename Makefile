@@ -1,6 +1,6 @@
 TARGET := iphone:clang:latest:11.0
 ARCHS = arm64 arm64e
-PACKAGE_VERSION = 0.0.3.5~b1
+PACKAGE_VERSION = 0.0.3.6
 
 include $(THEOS)/makefiles/common.mk
 
