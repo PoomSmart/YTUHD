@@ -1,4 +1,5 @@
 #import <sys/sysctl.h>
+#import <version.h>
 #import "Header.h"
 
 %hook YTSettings
@@ -28,6 +29,8 @@
 }
 
 %end
+
+%group Spoofing
 
 %hook UIDevice
 
@@ -66,6 +69,11 @@
     return %orig(name, oldp, oldlenp, newp, newlen);
 }
 
+%end
+
 %ctor {
     %init;
+    if (!IS_IOS_OR_NEWER(iOS_14_0)) {
+        %init(Spoofing);
+    }
 }
