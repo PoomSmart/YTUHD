@@ -16,7 +16,15 @@
     return MAX_HEIGHT;
 }
 
+- (int)ml_manualQualitySelectionChosenResolution {
+    return MAX_HEIGHT;
+}
+
 - (int)manualQualitySelectionPrecedingResolution {
+    return MAX_HEIGHT;
+}
+
+- (int)ml_manualQualitySelectionPrecedingResolution {
     return MAX_HEIGHT;
 }
 
