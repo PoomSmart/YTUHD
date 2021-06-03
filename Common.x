@@ -43,7 +43,7 @@
 %hook UIDevice
 
 - (NSString *)systemVersion {
-    return @"14.2";
+    return @"14.5";
 }
 
 %end
@@ -53,7 +53,7 @@
 - (NSOperatingSystemVersion)operatingSystemVersion {
     NSOperatingSystemVersion version;
     version.majorVersion = 14;
-    version.minorVersion = 2;
+    version.minorVersion = 5;
     version.patchVersion = 0;
     return version;
 }
