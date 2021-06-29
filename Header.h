@@ -34,7 +34,7 @@
 - (void)ABRPolicy:(MLABRPolicy *)policy selectableFormatsDidChange:(NSArray <MLFormat *> *)formats;
 @end
 
-#define IOS_BUILD "18E182"
+#define IOS_BUILD "18F72"
 #define MAX_FPS 60
 #define MAX_HEIGHT 2160 // 4k
 #define MAX_PIXELS 8294400 // 3840 x 2160 (4k)
