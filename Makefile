@@ -6,7 +6,7 @@ include $(THEOS)/makefiles/common.mk
 
 TWEAK_NAME = YTUHD
 
-YTUHD_FILES = Common.x SW-Legacy.x
+YTUHD_FILES = Common.x Tweak.x
 YTUHD_CFLAGS = -fobjc-arc
 
 include $(THEOS_MAKE_PATH)/tweak.mk
