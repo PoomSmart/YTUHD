@@ -2,38 +2,12 @@
 #import <version.h>
 #import "Header.h"
 
+extern BOOL UseVP9();
+
 %hook YTSettings
 
-- (bool)isWebMEnabled {
-    return YES;
-}
-
-%end
-
-%hook YTUserDefaults
-
-- (int)manualQualitySelectionChosenResolution {
-    return MAX_HEIGHT;
-}
-
-- (int)ml_manualQualitySelectionChosenResolution {
-    return MAX_HEIGHT;
-}
-
-- (int)manualQualitySelectionPrecedingResolution {
-    return MAX_HEIGHT;
-}
-
-- (int)ml_manualQualitySelectionPrecedingResolution {
-    return MAX_HEIGHT;
-}
-
-%end
-
-%hook MLManualFormatSelectionMetadata
-
-- (int)stickyCeilingResolution {
-    return MAX_HEIGHT;
+- (BOOL)isWebMEnabled {
+    return UseVP9() ? YES : %orig;
 }
 
 %end
@@ -43,7 +17,7 @@
 %hook UIDevice
 
 - (NSString *)systemVersion {
-    return @"14.6";
+    return @"14.7";
 }
 
 %end
@@ -53,7 +27,7 @@
 - (NSOperatingSystemVersion)operatingSystemVersion {
     NSOperatingSystemVersion version;
     version.majorVersion = 14;
-    version.minorVersion = 6;
+    version.minorVersion = 7;
     version.patchVersion = 0;
     return version;
 }
