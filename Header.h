@@ -10,4 +10,4 @@
 #define MAX_HEIGHT 2160 // 4k
 #define MAX_PIXELS 8294400 // 3840 x 2160 (4k)
 
-#define ENABLE_VP9_KEY @"EnableVP9"
+#define UseVP9Key @"EnableVP9"

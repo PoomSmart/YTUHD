@@ -1,7 +1,7 @@
 #import "Header.h"
 
 BOOL UseVP9() {
-    return [[NSUserDefaults standardUserDefaults] boolForKey:ENABLE_VP9_KEY];
+    return [[NSUserDefaults standardUserDefaults] boolForKey:UseVP9Key];
 }
 
 %hook YTIHamplayerConfig
