@@ -7,7 +7,7 @@ extern BOOL UseVP9();
 %hook YTSettings
 
 - (BOOL)isWebMEnabled {
-    return UseVP9() ? YES : %orig;
+    return YES;
 }
 
 %end
@@ -54,8 +54,10 @@ extern BOOL UseVP9();
 %end
 
 %ctor {
-    %init;
-    if (!IS_IOS_OR_NEWER(iOS_14_0)) {
-        %init(Spoofing);
+    if (UseVP9()) {
+        %init;
+        if (!IS_IOS_OR_NEWER(iOS_14_0)) {
+            %init(Spoofing);
+        }
     }
 }
