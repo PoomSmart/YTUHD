@@ -1,3 +1,6 @@
+#ifndef YTUHD_H_
+#define YTUHD_H_
+
 #import "../YouTubeHeader/YTIHamplayerSoftwareStreamFilter.h"
 #import "../YouTubeHeader/YTIHamplayerConfig.h"
 #import "../YouTubeHeader/MLABRPolicy.h"
@@ -11,3 +14,5 @@
 #define MAX_PIXELS 8294400 // 3840 x 2160 (4k)
 
 #define UseVP9Key @"EnableVP9"
+
+#endif

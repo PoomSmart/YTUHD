@@ -1,6 +1,10 @@
+#import "Header.h"
+// #import "../PSHeader/Misc.h"
 #import <sys/sysctl.h>
 #import <version.h>
-#import "Header.h"
+
+// typedef struct __SecTask *SecTaskRef;
+// extern CFTypeRef SecTaskCopyValueForEntitlement(SecTaskRef, CFStringRef, CFErrorRef *);
 
 extern BOOL UseVP9();
 
@@ -52,6 +56,13 @@ extern BOOL UseVP9();
 }
 
 %end
+
+// %hookf(CFTypeRef, SecTaskCopyValueForEntitlement, SecTaskRef task, CFStringRef entitlement, CFErrorRef *error) {
+//     if (CFStringEqual(entitlement, CFSTR("com.apple.coremedia.allow-alternate-video-decoder-selection"))) {
+//         return kCFBooleanTrue;
+//     }
+//     return %orig;
+// }
 
 %ctor {
     if (UseVP9()) {

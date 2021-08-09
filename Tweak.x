@@ -8,8 +8,6 @@ BOOL UseVP9() {
 
 - (void)setFormats:(NSArray <MLFormat *> *)formats {
     YTIHamplayerConfig *config = [self valueForKey:@"_hamplayerConfig"];
-    // YTIHamplayerABRConfig *abrConfig = config.videoAbrConfig;
-    // abrConfig.preferSoftwareHdrOverHardwareSdr = YES;
     YTIHamplayerStreamFilter *filter = config.streamFilter;
     filter.enableVideoCodecSplicing = YES;
     filter.vp9.maxArea = MAX_PIXELS;
