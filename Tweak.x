@@ -4,6 +4,17 @@ BOOL UseVP9() {
     return [[NSUserDefaults standardUserDefaults] boolForKey:UseVP9Key];
 }
 
+%hook MLHAMPlayerItem
+
+- (void)load {
+    MLInnerTubePlayerConfig *config = [self config];
+    YTIMediaCommonConfig *mediaCommonConfig = [config mediaCommonConfig];
+    mediaCommonConfig.useServerDrivenAbr = NO;
+    %orig;
+}
+
+%end
+
 %hook MLABRPolicy
 
 - (void)setFormats:(NSArray <MLFormat *> *)formats {

@@ -6,7 +6,7 @@
 #import "../YouTubeHeader/MLABRPolicy.h"
 #import "../YouTubeHeader/MLFormat.h"
 #import "../YouTubeHeader/MLVideo.h"
-#import "../YouTubeHeader/MLInnerTubePlayerConfig.h"
+#import "../YouTubeHeader/MLHAMPlayerItem.h"
 
 #define IOS_BUILD "18G69"
 #define MAX_FPS 60
