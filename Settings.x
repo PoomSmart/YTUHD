@@ -9,7 +9,12 @@ extern BOOL UseVP9();
 %hook YTSettingsSectionItemManager
 
 - (void)updateVideoQualitySectionWithEntry:(id)entry {
-    YTHotConfig *hotConfig = [self valueForKey:@"_hotConfig"];
+    YTHotConfig *hotConfig;
+    @try {
+        hotConfig = [self valueForKey:@"_hotConfig"];
+    } @catch (id ex) {
+        hotConfig = [self.gimme instanceForType:%c(YTHotConfig)];
+    }
     YTIMediaQualitySettingsHotConfig *mediaQualitySettingsHotConfig = [hotConfig hotConfigGroup].mediaHotConfig.mediaQualitySettingsHotConfig;
     BOOL defaultValue = mediaQualitySettingsHotConfig.enablePersistentVideoQualitySettings;
     mediaQualitySettingsHotConfig.enablePersistentVideoQualitySettings = YES;
