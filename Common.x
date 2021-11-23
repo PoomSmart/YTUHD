@@ -1,10 +1,6 @@
 #import "Header.h"
-// #import "../PSHeader/Misc.h"
 #import <sys/sysctl.h>
 #import <version.h>
-
-// typedef struct __SecTask *SecTaskRef;
-// extern CFTypeRef SecTaskCopyValueForEntitlement(SecTaskRef, CFStringRef, CFErrorRef *);
 
 extern BOOL UseVP9();
 
@@ -57,16 +53,32 @@ extern BOOL UseVP9();
 
 %end
 
-// %hookf(CFTypeRef, SecTaskCopyValueForEntitlement, SecTaskRef task, CFStringRef entitlement, CFErrorRef *error) {
-//     if (CFStringEqual(entitlement, CFSTR("com.apple.coremedia.allow-alternate-video-decoder-selection"))) {
-//         return kCFBooleanTrue;
-//     }
-//     return %orig;
-// }
+#ifdef SIDELOADED
+
+#import "../PSHeader/Misc.h"
+
+typedef struct __SecTask *SecTaskRef;
+extern CFTypeRef SecTaskCopyValueForEntitlement(SecTaskRef, CFStringRef, CFErrorRef *);
+
+%group VP9ENT
+
+%hookf(CFTypeRef, SecTaskCopyValueForEntitlement, SecTaskRef task, CFStringRef entitlement, CFErrorRef *error) {
+    if (CFStringEqual(entitlement, CFSTR("com.apple.coremedia.allow-alternate-video-decoder-selection"))) {
+        return kCFBooleanTrue;
+    }
+    return %orig;
+}
+
+%end
+
+#endif
 
 %ctor {
     if (UseVP9()) {
         %init;
+#ifdef SIDELOADED
+        %init(VP9ENT);
+#endif
         if (!IS_IOS_OR_NEWER(iOS_14_0)) {
             %init(Spoofing);
         }
