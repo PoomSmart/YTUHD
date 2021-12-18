@@ -63,7 +63,8 @@ extern CFTypeRef SecTaskCopyValueForEntitlement(SecTaskRef, CFStringRef, CFError
 %group VP9ENT
 
 %hookf(CFTypeRef, SecTaskCopyValueForEntitlement, SecTaskRef task, CFStringRef entitlement, CFErrorRef *error) {
-    if (CFStringEqual(entitlement, CFSTR("com.apple.coremedia.allow-alternate-video-decoder-selection"))) {
+    if (CFStringEqual(entitlement, CFSTR("com.apple.developer.coremedia.allow-alternate-video-decoder-selection"))
+        || CFStringEqual(entitlement, CFSTR("com.apple.coremedia.allow-alternate-video-decoder-selection"))) {
         return kCFBooleanTrue;
     }
     return %orig;
