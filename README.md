@@ -13,7 +13,6 @@ YTUHD attemps to bypass those restrictions for all 64-bit devices running iOS 11
 
 Hardware accelerated VP9 decoder is technically added as of iOS 14 and YouTube has been utilizing it through a private entitlement `com.apple.coremedia.allow-alternate-video-decoder-selection` (All apps are equal is a lie).
 This decoder handles the resolutions up to 4K, although not all devices that can run iOS 14 get this decoder. iPhone SE (1st gen) is one example that hardware VP9 decoder is entirely absent from the firmware.
-To verify that your video is indeed VP9 hardware-accelerated, enable Stats for nerds and look for "HV" string in the Mystery field of your video. "HV" stands for hardware VP9.
 
 ## Server ABR
 
