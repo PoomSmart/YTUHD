@@ -1,4 +1,5 @@
 #import "Header.h"
+#import <VideoToolbox/VideoToolbox.h>
 #import <sys/sysctl.h>
 #import <version.h>
 
@@ -34,14 +35,6 @@ extern BOOL UseVP9();
 
 %end
 
-%hook YTVersionUtils
-
-+ (NSString *)OSBuild {
-    return @(IOS_BUILD);
-}
-
-%end
-
 %hookf(int, sysctlbyname, const char *name, void *oldp, size_t *oldlenp, void *newp, size_t newlen) {
     if (strcmp(name, "kern.osversion") == 0) {
         if (oldp)
@@ -57,20 +50,8 @@ extern BOOL UseVP9();
 
 #import "../PSHeader/Misc.h"
 
-typedef struct __SecTask *SecTaskRef;
-extern CFTypeRef SecTaskCopyValueForEntitlement(SecTaskRef, CFStringRef, CFErrorRef *);
-
-%group VP9ENT
-
-%hookf(CFTypeRef, SecTaskCopyValueForEntitlement, SecTaskRef task, CFStringRef entitlement, CFErrorRef *error) {
-    if (CFStringEqual(entitlement, CFSTR("com.apple.developer.coremedia.allow-alternate-video-decoder-selection"))
-        || CFStringEqual(entitlement, CFSTR("com.apple.coremedia.allow-alternate-video-decoder-selection"))) {
-        return kCFBooleanTrue;
-    }
-    return %orig;
-}
-
-%end
+typedef struct OpaqueVTVideoDecoder VTVideoDecoderRef;
+extern OSStatus VTSelectAndCreateVideoDecoderInstance(CMVideoCodecType codecType, CFAllocatorRef allocator, CFDictionaryRef videoDecoderSpecification, VTVideoDecoderRef *decoderInstanceOut);
 
 #endif
 
@@ -78,7 +59,13 @@ extern CFTypeRef SecTaskCopyValueForEntitlement(SecTaskRef, CFStringRef, CFError
     if (UseVP9()) {
         %init;
 #ifdef SIDELOADED
-        %init(VP9ENT);
+        CFMutableDictionaryRef payload = CFDictionaryCreateMutable(kCFAllocatorDefault, 1, &kCFTypeDictionaryKeyCallBacks, &kCFTypeDictionaryValueCallBacks);
+        if (payload) {
+            CFDictionarySetValue(payload, CFSTR("RequireHardwareAcceleratedVideoDecoder"), kCFBooleanTrue);
+            CFDictionarySetValue(payload, CFSTR("AllowAlternateDecoderSelection"), kCFBooleanTrue);
+            VTSelectAndCreateVideoDecoderInstance(kCMVideoCodecType_VP9, kCFAllocatorDefault, payload, NULL);
+            CFRelease(payload);
+        }
 #endif
         if (!IS_IOS_OR_NEWER(iOS_14_0)) {
             %init(Spoofing);

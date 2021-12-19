@@ -1,7 +1,7 @@
 TARGET := iphone:clang:latest:11.0
 ARCHS = arm64
 INSTALL_TARGET_PROCESSES = YouTube
-PACKAGE_VERSION = 1.2.5
+PACKAGE_VERSION = 1.2.6
 
 EXTRA_CFLAGS =
 ifeq ($(SIDELOADED),1)
@@ -13,5 +13,6 @@ include $(THEOS)/makefiles/common.mk
 TWEAK_NAME = YTUHD
 $(TWEAK_NAME)_FILES = Common.x Tweak.x Settings.x
 $(TWEAK_NAME)_CFLAGS = -fobjc-arc $(EXTRA_CFLAGS)
+$(TWEAK_NAME)_FRAMEWORKS = VideoToolbox
 
 include $(THEOS_MAKE_PATH)/tweak.mk
