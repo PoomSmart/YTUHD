@@ -1,6 +1,5 @@
 #import "Header.h"
 #import <VideoToolbox/VideoToolbox.h>
-#import <dlfcn.h>
 #import "../YouTubeHeader/YTHotConfig.h"
 #import "../YouTubeHeader/YTSettingsViewController.h"
 #import "../YouTubeHeader/YTSettingsSectionItem.h"
@@ -31,10 +30,9 @@ extern BOOL UseVP9();
 - (void)setSectionItems:(NSMutableArray <YTSettingsSectionItem *> *)sectionItems forCategory:(NSInteger)category title:(NSString *)title titleDescription:(NSString *)titleDescription headerHidden:(BOOL)headerHidden {
     if (category == 14) {
         BOOL hasVP9 = VTIsHardwareDecodeSupported(kCMVideoCodecType_VP9);
-        void *avd = dlopen("/System/Library/VideoDecoders/AVD.videodecoder", RTLD_NOW);
         YTSettingsSectionItem *vp9 = [%c(YTSettingsSectionItem) switchItemWithTitle:@"Use VP9 codec"
             titleDescription:[NSString stringWithFormat:@"Enable VP9 codec which supports up to 4K resolutions. App restart is required.\
-                \n\nVP9 Support: %d, Decoder: %d", hasVP9, avd != NULL]
+                \n\nVP9 Support: %d", hasVP9]
             accessibilityIdentifier:nil
             switchOn:UseVP9()
             switchBlock:^BOOL (YTSettingsCell *cell, BOOL enabled) {

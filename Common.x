@@ -18,7 +18,7 @@ extern BOOL UseVP9();
 %hook UIDevice
 
 - (NSString *)systemVersion {
-    return @"14.8";
+    return @"14.8.1";
 }
 
 %end
@@ -29,7 +29,7 @@ extern BOOL UseVP9();
     NSOperatingSystemVersion version;
     version.majorVersion = 14;
     version.minorVersion = 8;
-    version.patchVersion = 0;
+    version.patchVersion = 1;
     return version;
 }
 
@@ -46,27 +46,27 @@ extern BOOL UseVP9();
 
 %end
 
-#ifdef SIDELOADED
+// #ifdef SIDELOADED
 
-#import "../PSHeader/Misc.h"
+// #import "../PSHeader/Misc.h"
 
-typedef struct OpaqueVTVideoDecoder VTVideoDecoderRef;
-extern OSStatus VTSelectAndCreateVideoDecoderInstance(CMVideoCodecType codecType, CFAllocatorRef allocator, CFDictionaryRef videoDecoderSpecification, VTVideoDecoderRef *decoderInstanceOut);
+// typedef struct OpaqueVTVideoDecoder VTVideoDecoderRef;
+// extern OSStatus VTSelectAndCreateVideoDecoderInstance(CMVideoCodecType codecType, CFAllocatorRef allocator, CFDictionaryRef videoDecoderSpecification, VTVideoDecoderRef *decoderInstanceOut);
 
-#endif
+// #endif
 
 %ctor {
     if (UseVP9()) {
         %init;
-#ifdef SIDELOADED
-        CFMutableDictionaryRef payload = CFDictionaryCreateMutable(kCFAllocatorDefault, 1, &kCFTypeDictionaryKeyCallBacks, &kCFTypeDictionaryValueCallBacks);
-        if (payload) {
-            CFDictionarySetValue(payload, CFSTR("RequireHardwareAcceleratedVideoDecoder"), kCFBooleanTrue);
-            CFDictionarySetValue(payload, CFSTR("AllowAlternateDecoderSelection"), kCFBooleanTrue);
-            VTSelectAndCreateVideoDecoderInstance(kCMVideoCodecType_VP9, kCFAllocatorDefault, payload, NULL);
-            CFRelease(payload);
-        }
-#endif
+// #ifdef SIDELOADED
+//         CFMutableDictionaryRef payload = CFDictionaryCreateMutable(kCFAllocatorDefault, 1, &kCFTypeDictionaryKeyCallBacks, &kCFTypeDictionaryValueCallBacks);
+//         if (payload) {
+//             CFDictionarySetValue(payload, CFSTR("RequireHardwareAcceleratedVideoDecoder"), kCFBooleanTrue);
+//             CFDictionarySetValue(payload, CFSTR("AllowAlternateDecoderSelection"), kCFBooleanTrue);
+//             VTSelectAndCreateVideoDecoderInstance(kCMVideoCodecType_VP9, kCFAllocatorDefault, payload, NULL);
+//             CFRelease(payload);
+//         }
+// #endif
         if (!IS_IOS_OR_NEWER(iOS_14_0)) {
             %init(Spoofing);
         }

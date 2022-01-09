@@ -15,4 +15,7 @@ $(TWEAK_NAME)_FILES = Common.x Tweak.x Settings.x
 $(TWEAK_NAME)_CFLAGS = -fobjc-arc $(EXTRA_CFLAGS)
 $(TWEAK_NAME)_FRAMEWORKS = VideoToolbox
 
+# SUBPROJECTS = YTUHD-AVD
+
 include $(THEOS_MAKE_PATH)/tweak.mk
+# include $(THEOS_MAKE_PATH)/aggregate.mk

@@ -14,6 +14,8 @@ YTUHD attemps to bypass those restrictions for all 64-bit devices running iOS 11
 Hardware accelerated VP9 decoder is technically added as of iOS 14 and YouTube has been utilizing it through a private entitlement `com.apple.coremedia.allow-alternate-video-decoder-selection` (All apps are equal is a lie).
 This decoder handles the resolutions up to 4K, although not all devices that can run iOS 14 get this decoder. iPhone SE (1st gen) is one example that hardware VP9 decoder is entirely absent from the firmware.
 
+Also, for those old devices they don't get `AppleAVD` driver which is essential for VP9 decoding to work. Such attempt to load VP9 decoder from `/System/Library/VideoDecoders/AVD.videodecoder` (provided that you can extract that from dyld_shared_cache of a new device) will result in `AVDRegister - AppleAVDCheckPlatform() returned FALSE`.
+
 ## Server ABR
 
 If you look at the source code, there is an enforcement to not use server ABR. The author has yet to figure out what ABR stands for but its purpose is to fetch the available formats (resolutions) of a video.
@@ -27,5 +29,4 @@ The history has shaped YTUHD to spoof the device as iOS 14 for those running low
 ## Sideloading
 
 It's been reported that the sideloaded version of YouTube will not get 2K/4K even with YTUHD included. This is because of a big reason: VP9.
-Normally when an app is sideloaded, the private entitlements get removed (`com.apple.coremedia.allow-alternate-video-decoder-selection`, too) and the app won't be allowed to access hardware VP9 decoder.
-YTUHD includes the code to spoof this entitlement for VP9 to be working again.
+Normally when an app is sideloaded, the private entitlements get removed (`com.apple.coremedia.allow-alternate-video-decoder-selection`, too) and the app won't be allowed to access hardware VP9 decoder. No known solution for bypassing this, yet.
