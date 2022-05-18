@@ -20,7 +20,7 @@ BOOL UseVP9() {
 - (void)setFormats:(NSArray <MLFormat *> *)formats {
     // TODO: HAX to just enable 720p+ (non-HDR) for UHD HDR videos
     for (MLFormat *format in formats) {
-        if ([format singleDimensionResolution] >= 720 && [format FPS] >= 60 && format.formatStream.colorInfo.transferCharacteristics == 1) {
+        if (format.singleDimensionResolution >= 720 && format.FPS >= 60 && format.formatStream.colorInfo.transferCharacteristics == 1) {
             format.formatStream.colorInfo.transferCharacteristics = 16;
         }
     }
