@@ -31,8 +31,8 @@ extern BOOL UseVP9();
     if (category == 14) {
         BOOL hasVP9 = VTIsHardwareDecodeSupported(kCMVideoCodecType_VP9);
         YTSettingsSectionItem *vp9 = [%c(YTSettingsSectionItem) switchItemWithTitle:@"Use VP9 codec"
-            titleDescription:[NSString stringWithFormat:@"Enable VP9 codec which supports up to 4K resolutions. App restart is required.\
-                \n\nVP9 Support: %d", hasVP9]
+            titleDescription:[NSString stringWithFormat:@"Enable VP9 codec that supports up to 4K resolutions. Works best with devices with Apple CPU A11 and higher. App restart is required.\
+                \n\nHardware VP9 Support: %d", hasVP9]
             accessibilityIdentifier:nil
             switchOn:UseVP9()
             switchBlock:^BOOL (YTSettingsCell *cell, BOOL enabled) {
@@ -40,7 +40,6 @@ extern BOOL UseVP9();
                 return YES;
             }
             settingItemId:0];
-        // vp9.enabled = hasVP9;
         [sectionItems addObject:vp9];
     }
     %orig(sectionItems, category, title, titleDescription, headerHidden);
