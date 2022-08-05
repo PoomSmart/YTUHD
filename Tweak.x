@@ -15,15 +15,28 @@ BOOL UseVP9() {
 
 %end
 
-%hook MLABRPolicy
-
-- (void)setFormats:(NSArray <MLFormat *> *)formats {
+static void hookFormats(MLABRPolicy *self) {
     YTIHamplayerConfig *config = [self valueForKey:@"_hamplayerConfig"];
     config.videoAbrConfig.preferSoftwareHdrOverHardwareSdr = YES;
     YTIHamplayerStreamFilter *filter = config.streamFilter;
     filter.enableVideoCodecSplicing = YES;
     filter.vp9.maxArea = MAX_PIXELS;
     filter.vp9.maxFps = MAX_FPS;
+}
+
+%hook MLABRPolicy
+
+- (void)setFormats:(NSArray *)formats {
+    hookFormats(self);
+    %orig;
+}
+
+%end
+
+%hook MLABRPolicyNew
+
+- (void)setFormats:(NSArray *)formats {
+    hookFormats(self);
     %orig;
 }
 

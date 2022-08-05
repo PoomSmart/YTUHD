@@ -3,8 +3,7 @@
 
 #import "../YouTubeHeader/YTIHamplayerSoftwareStreamFilter.h"
 #import "../YouTubeHeader/YTIHamplayerConfig.h"
-#import "../YouTubeHeader/MLABRPolicy.h"
-#import "../YouTubeHeader/MLFormat.h"
+#import "../YouTubeHeader/MLABRPolicyNew.h"
 #import "../YouTubeHeader/MLVideo.h"
 #import "../YouTubeHeader/MLHAMPlayerItem.h"
 
