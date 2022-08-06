@@ -33,6 +33,15 @@ static void hookFormats(MLABRPolicy *self) {
 
 %end
 
+%hook MLABRPolicyOld
+
+- (void)setFormats:(NSArray *)formats {
+    hookFormats(self);
+    %orig;
+}
+
+%end
+
 %hook MLABRPolicyNew
 
 - (void)setFormats:(NSArray *)formats {

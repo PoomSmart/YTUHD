@@ -4,6 +4,7 @@
 #import "../YouTubeHeader/YTIHamplayerSoftwareStreamFilter.h"
 #import "../YouTubeHeader/YTIHamplayerConfig.h"
 #import "../YouTubeHeader/MLABRPolicyNew.h"
+#import "../YouTubeHeader/MLABRPolicyOld.h"
 #import "../YouTubeHeader/MLVideo.h"
 #import "../YouTubeHeader/MLHAMPlayerItem.h"
 
