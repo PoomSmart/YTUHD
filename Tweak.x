@@ -18,6 +18,8 @@ BOOL UseVP9() {
 static void hookFormats(MLABRPolicy *self) {
     YTIHamplayerConfig *config = [self valueForKey:@"_hamplayerConfig"];
     config.videoAbrConfig.preferSoftwareHdrOverHardwareSdr = YES;
+    if ([config respondsToSelector:@selector(setDisableResolveOverlappingQualitiesByCodec:)])
+        config.disableResolveOverlappingQualitiesByCodec = NO;
     YTIHamplayerStreamFilter *filter = config.streamFilter;
     filter.enableVideoCodecSplicing = YES;
     filter.vp9.maxArea = MAX_PIXELS;
