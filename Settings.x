@@ -5,7 +5,25 @@
 #import "../YouTubeHeader/YTSettingsSectionItem.h"
 #import "../YouTubeHeader/YTSettingsSectionItemManager.h"
 
+#define LOC(x) [tweakBundle localizedStringForKey:x value:nil table:nil]
+
 extern BOOL UseVP9();
+
+NSBundle *YTUHDBundle() {
+    static NSBundle *bundle = nil;
+    static dispatch_once_t onceToken;
+	dispatch_once(&onceToken, ^{
+        NSString *tweakBundlePath = [[NSBundle mainBundle] pathForResource:@"YTUHD" ofType:@"bundle"];
+        if (tweakBundlePath)
+            bundle = [NSBundle bundleWithPath:tweakBundlePath];
+        else {
+            bundle = [NSBundle bundleWithPath:@"/Library/Application Support/YTUHD.bundle"];
+            if (!bundle)
+                bundle = [NSBundle bundleWithPath:@"/var/jb/Library/Application Support/YTUHD.bundle"];
+        }
+    });
+    return bundle;
+}
 
 %hook YTSettingsSectionItemManager
 
@@ -29,10 +47,10 @@ extern BOOL UseVP9();
 
 - (void)setSectionItems:(NSMutableArray <YTSettingsSectionItem *> *)sectionItems forCategory:(NSInteger)category title:(NSString *)title titleDescription:(NSString *)titleDescription headerHidden:(BOOL)headerHidden {
     if (category == 14) {
+        NSBundle *tweakBundle = YTUHDBundle();
         BOOL hasVP9 = VTIsHardwareDecodeSupported(kCMVideoCodecType_VP9);
-        YTSettingsSectionItem *vp9 = [%c(YTSettingsSectionItem) switchItemWithTitle:@"Use VP9 codec"
-            titleDescription:[NSString stringWithFormat:@"Enable VP9 codec that supports up to 4K resolutions. Works best with devices with Apple CPU A11 and higher. App restart is required.\
-                \n\nHardware VP9 Support: %d", hasVP9]
+        YTSettingsSectionItem *vp9 = [%c(YTSettingsSectionItem) switchItemWithTitle:LOC(@"USE_VP9")
+            titleDescription:[NSString stringWithFormat:@"%@\n\n%@: %d", LOC(@"USE_VP9_DESC"), LOC(@"HW_VP9_SUPPORT"), hasVP9]
             accessibilityIdentifier:nil
             switchOn:UseVP9()
             switchBlock:^BOOL (YTSettingsCell *cell, BOOL enabled) {

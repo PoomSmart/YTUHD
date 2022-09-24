@@ -29,4 +29,4 @@ The history has shaped YTUHD to spoof the device as iOS 14 (or higher) for those
 ## Sideloading
 
 It's been reported that the sideloaded version of YouTube will not get 2K/4K even with YTUHD included. This is because of a big reason: VP9.
-Normally when an app is sideloaded, the private entitlements get removed (`com.apple.coremedia.allow-alternate-video-decoder-selection`, too) and the app won't be allowed to access hardware VP9 decoder. No known solution for bypassing this, yet.
+Normally when an app is sideloaded, the private entitlements get removed (`com.apple.coremedia.allow-alternate-video-decoder-selection`, too) and the app won't be allowed to access hardware VP9 decoder. No known solution for bypassing this, unless you use [TrollStore](https://github.com/opa334/TrollStore) which allows for practically any entitlements, including the aforementioned, to be in your sideloaded app.
