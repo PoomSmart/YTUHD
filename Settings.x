@@ -16,11 +16,8 @@ NSBundle *YTUHDBundle() {
         NSString *tweakBundlePath = [[NSBundle mainBundle] pathForResource:@"YTUHD" ofType:@"bundle"];
         if (tweakBundlePath)
             bundle = [NSBundle bundleWithPath:tweakBundlePath];
-        else {
+        else
             bundle = [NSBundle bundleWithPath:@"/Library/Application Support/YTUHD.bundle"];
-            if (!bundle)
-                bundle = [NSBundle bundleWithPath:@"/var/jb/Library/Application Support/YTUHD.bundle"];
-        }
     });
     return bundle;
 }
@@ -60,7 +57,7 @@ NSBundle *YTUHDBundle() {
             settingItemId:0];
         [sectionItems addObject:vp9];
     }
-    %orig(sectionItems, category, title, titleDescription, headerHidden);
+    %orig;
 }
 
 %end

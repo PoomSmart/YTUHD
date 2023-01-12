@@ -18,7 +18,7 @@ extern BOOL UseVP9();
 %hook UIDevice
 
 - (NSString *)systemVersion {
-    return @"15.7";
+    return @"15.7.2";
 }
 
 %end
@@ -29,7 +29,7 @@ extern BOOL UseVP9();
     NSOperatingSystemVersion version;
     version.majorVersion = 15;
     version.minorVersion = 7;
-    version.patchVersion = 0;
+    version.patchVersion = 2;
     return version;
 }
 
@@ -67,7 +67,7 @@ extern BOOL UseVP9();
 //             CFRelease(payload);
 //         }
 // #endif
-        if (!IS_IOS_OR_NEWER(iOS_14_0)) {
+        if (!IS_IOS_OR_NEWER(iOS_15_0)) {
             %init(Spoofing);
         }
     }
