@@ -1,4 +1,5 @@
 #import "Header.h"
+#import <rootless.h>
 #import <VideoToolbox/VideoToolbox.h>
 #import "../YouTubeHeader/YTHotConfig.h"
 #import "../YouTubeHeader/YTSettingsViewController.h"
@@ -17,7 +18,7 @@ NSBundle *YTUHDBundle() {
         if (tweakBundlePath)
             bundle = [NSBundle bundleWithPath:tweakBundlePath];
         else
-            bundle = [NSBundle bundleWithPath:@"/Library/Application Support/YTUHD.bundle"];
+            bundle = [NSBundle bundleWithPath:ROOT_PATH_NS(@"/Library/Application Support/YTUHD.bundle")];
     });
     return bundle;
 }
