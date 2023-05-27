@@ -4,6 +4,14 @@ BOOL UseVP9() {
     return [[NSUserDefaults standardUserDefaults] boolForKey:UseVP9Key];
 }
 
+// Remove any <= 1080p VP9 formats
+NSArray *filteredFormats(NSArray <MLFormat *> *formats) {
+    NSPredicate *predicate = [NSPredicate predicateWithBlock:^BOOL(MLFormat *format, NSDictionary *bindings) {
+        return [format height] > 1080 || [[format MIMEType] videoCodec] != 'vp09';
+    }];
+    return [formats filteredArrayUsingPredicate:predicate];
+}
+
 %hook MLHAMPlayerItem
 
 - (void)load {
@@ -30,7 +38,7 @@ static void hookFormats(MLABRPolicy *self) {
 
 - (void)setFormats:(NSArray *)formats {
     hookFormats(self);
-    %orig;
+    %orig(filteredFormats(formats));
 }
 
 %end
@@ -39,16 +47,19 @@ static void hookFormats(MLABRPolicy *self) {
 
 - (void)setFormats:(NSArray *)formats {
     hookFormats(self);
-    %orig;
+    %orig(filteredFormats(formats));
 }
 
 %end
 
-%hook MLABRPolicyNew
+%hook YTHotConfig
 
-- (void)setFormats:(NSArray *)formats {
-    hookFormats(self);
-    %orig;
+- (BOOL)iosClientGlobalConfigEnableNewMlabrpolicy {
+    return NO;
+}
+
+- (BOOL)iosPlayerClientSharedConfigEnableNewMlabrpolicy {
+    return NO;
 }
 
 %end
