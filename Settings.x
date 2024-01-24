@@ -41,9 +41,7 @@ NSBundle *YTUHDBundle() {
 
 %end
 
-%hook YTSettingsViewController
-
-- (void)setSectionItems:(NSMutableArray <YTSettingsSectionItem *> *)sectionItems forCategory:(NSInteger)category title:(NSString *)title titleDescription:(NSString *)titleDescription headerHidden:(BOOL)headerHidden {
+static void addSectionItem(NSMutableArray <YTSettingsSectionItem *> *sectionItems, NSInteger category) {
     if (category == 14) {
         NSBundle *tweakBundle = YTUHDBundle();
         BOOL hasVP9 = VTIsHardwareDecodeSupported(kCMVideoCodecType_VP9);
@@ -58,6 +56,17 @@ NSBundle *YTUHDBundle() {
             settingItemId:0];
         [sectionItems addObject:vp9];
     }
+}
+
+%hook YTSettingsViewController
+
+- (void)setSectionItems:(NSMutableArray <YTSettingsSectionItem *> *)sectionItems forCategory:(NSInteger)category title:(NSString *)title titleDescription:(NSString *)titleDescription headerHidden:(BOOL)headerHidden {
+    addSectionItem(sectionItems, category);
+    %orig;
+}
+
+- (void)setSectionItems:(NSMutableArray <YTSettingsSectionItem *> *)sectionItems forCategory:(NSInteger)category title:(NSString *)title icon:(YTIIcon *)icon titleDescription:(NSString *)titleDescription headerHidden:(BOOL)headerHidden {
+    addSectionItem(sectionItems, category);
     %orig;
 }
 
