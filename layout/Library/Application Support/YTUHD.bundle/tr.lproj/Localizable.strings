@@ -2,4 +2,5 @@
 
 "USE_VP9" = "VP9'u etkinleştir";
 "USE_VP9_DESC" = "4K çözünürlüğe kadar destekleyen VP9 kodek bileşenini etkinleştirin. Apple CPU A11 ve üzeri cihazlarla en iyi şekilde çalışır. Uygulamanın yeniden başlatılması gerekir.";
+"YOUPIP_DESC" = "YouPiP tweak etkin olduğunda ve ya Eski PiP seçeneği etkin olduğunda veya iOS sürümü 13'ten düşük olduğunda çalışmaz.";
 "HW_VP9_SUPPORT" = "Donanımsal VP9 Desteği";
