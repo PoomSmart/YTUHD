@@ -1,12 +1,12 @@
 #ifndef YTUHD_H_
 #define YTUHD_H_
 
-#import "../YouTubeHeader/YTIHamplayerSoftwareStreamFilter.h"
-#import "../YouTubeHeader/YTIHamplayerConfig.h"
-#import "../YouTubeHeader/MLABRPolicyNew.h"
-#import "../YouTubeHeader/MLABRPolicyOld.h"
-#import "../YouTubeHeader/MLVideo.h"
-#import "../YouTubeHeader/MLHAMPlayerItem.h"
+#import <YouTubeHeader/YTIHamplayerSoftwareStreamFilter.h>
+#import <YouTubeHeader/YTIHamplayerConfig.h>
+#import <YouTubeHeader/MLABRPolicyNew.h>
+#import <YouTubeHeader/MLABRPolicyOld.h>
+#import <YouTubeHeader/MLVideo.h>
+#import <YouTubeHeader/MLHAMPlayerItem.h>
 
 #define IOS_BUILD "19H380"
 #define MAX_FPS 60
