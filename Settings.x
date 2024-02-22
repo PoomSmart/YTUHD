@@ -1,10 +1,10 @@
 #import "Header.h"
 #import <rootless.h>
 #import <VideoToolbox/VideoToolbox.h>
-#import "../YouTubeHeader/YTHotConfig.h"
-#import "../YouTubeHeader/YTSettingsViewController.h"
-#import "../YouTubeHeader/YTSettingsSectionItem.h"
-#import "../YouTubeHeader/YTSettingsSectionItemManager.h"
+#import <YouTubeHeader/YTHotConfig.h>
+#import <YouTubeHeader/YTSettingsViewController.h>
+#import <YouTubeHeader/YTSettingsSectionItem.h>
+#import <YouTubeHeader/YTSettingsSectionItemManager.h>
 
 #define LOC(x) [tweakBundle localizedStringForKey:x value:nil table:nil]
 
@@ -13,7 +13,7 @@ extern BOOL UseVP9();
 NSBundle *YTUHDBundle() {
     static NSBundle *bundle = nil;
     static dispatch_once_t onceToken;
-	dispatch_once(&onceToken, ^{
+    dispatch_once(&onceToken, ^{
         NSString *tweakBundlePath = [[NSBundle mainBundle] pathForResource:@"YTUHD" ofType:@"bundle"];
         if (tweakBundlePath)
             bundle = [NSBundle bundleWithPath:tweakBundlePath];

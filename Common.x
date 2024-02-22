@@ -18,7 +18,7 @@ extern BOOL UseVP9();
 %hook UIDevice
 
 - (NSString *)systemVersion {
-    return @"15.8.0";
+    return @"15.8.1";
 }
 
 %end
@@ -29,7 +29,7 @@ extern BOOL UseVP9();
     NSOperatingSystemVersion version;
     version.majorVersion = 15;
     version.minorVersion = 8;
-    version.patchVersion = 0;
+    version.patchVersion = 1;
     return version;
 }
 
