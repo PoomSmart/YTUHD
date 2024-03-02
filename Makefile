@@ -1,12 +1,7 @@
 TARGET := iphone:clang:latest:11.0
-PACKAGE_VERSION = 1.4.3
+PACKAGE_VERSION = 1.5.0
 ARCHS = arm64
 INSTALL_TARGET_PROCESSES = YouTube
-
-EXTRA_CFLAGS =
-ifeq ($(SIDELOADED),1)
-EXTRA_CFLAGS += -DSIDELOADED
-endif
 
 include $(THEOS)/makefiles/common.mk
 

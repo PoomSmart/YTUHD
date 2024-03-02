@@ -4,3 +4,6 @@
 "USE_VP9_DESC" = "最大で4K解像度までに対応するVP9コーデックを有効にします。Apple CPU A11以降のチップを搭載した端末で最適に動作します。アプリの再起動が必要です。";
 "YOUPIP_DESC" = "YouPiP tweakが有効であり、レガシーPiPオプションが有効またはiOSのバージョンが13より低い場合には機能しません。";
 "HW_VP9_SUPPORT" = "端末のVP9対応";
+
+"ALL_VP9" = "VP9 for all";
+"ALL_VP9_DESC" = "Use VP9 codec for all video resolutions. This is recommended to be enabled for hardware VP9 supported devices (A11 and higher) AND when YouTube app has VP9 entitlement.";

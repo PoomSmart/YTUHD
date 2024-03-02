@@ -4,3 +4,6 @@
 "USE_VP9_DESC" = "Sử dụng bộ giải mã VP9 để có thể tải video với chất lượng 2K/4K. Hoạt động tốt nhất với chip A11 trở lên và ứng dụng được cài đặt bằng TrollStore. Cần khởi động lại ứng dụng.";
 "YOUPIP_DESC" = "Không hoạt động khi bật YouPiP tweak và một trong hai tùy chọn PiP cũ được bật hoặc phiên bản iOS thấp hơn 13.";
 "HW_VP9_SUPPORT" = "Hỗ trợ bộ giải mã VP9";
+
+"ALL_VP9" = "VP9 for all";
+"ALL_VP9_DESC" = "Use VP9 codec for all video resolutions. This is recommended to be enabled for hardware VP9 supported devices (A11 and higher) AND when YouTube app has VP9 entitlement.";

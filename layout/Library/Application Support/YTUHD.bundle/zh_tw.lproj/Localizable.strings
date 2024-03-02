@@ -4,3 +4,6 @@
 "USE_VP9_DESC" = "支援 4K 解析度的 VP9 編解碼器並且建議使用 A11 晶片（含）以上的機型。需重新啟動應用程式。";
 "YOUPIP_DESC" = "啟用 YouPiP tweak 且啟用任一遺留 PiP 選項或 iOS 版本低於 13 時無法使用。";
 "HW_VP9_SUPPORT" = "硬體 VP9 編碼支援狀態";
+
+"ALL_VP9" = "VP9 for all";
+"ALL_VP9_DESC" = "Use VP9 codec for all video resolutions. This is recommended to be enabled for hardware VP9 supported devices (A11 and higher) AND when YouTube app has VP9 entitlement.";

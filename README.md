@@ -7,7 +7,7 @@ Unlock 1440p (2K) and 2160p (4K) resolutions in iOS YouTube app.
 For a few years, YouTube has been testing 2K/4K resolutions on iOS as A/B (Alpha/Beta testing). The first group of users will see 2K/4K options while the other won't.
 There are certain prerequisites for those options to show; (1) Whether a device support VP9 video decoding (which implies on Apple's end to be at least on iOS 14) and
 (2) Whether YouTube decides on their end to include those options for that particular device.
-YTUHD attemps to bypass those restrictions for all 64-bit devices running iOS 11 or higher, as the performance points of those devices are at most reasonable to be able to keep up with 2K/4K, at least, optimistically.
+YTUHD attempts to bypass those restrictions for all 64-bit devices running iOS 11 or higher, as the performance points of those devices are at most reasonable to be able to keep up with 2K/4K, at least, optimistically.
 
 ## VP9
 

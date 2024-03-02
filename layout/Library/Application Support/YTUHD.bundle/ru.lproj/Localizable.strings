@@ -4,3 +4,6 @@
 "USE_VP9_DESC" = "Активирует кодек VP9, поддерживающий разрешения до 4K. Не рекомендуется включение на устройствах с процессором ниже A11. Потребуется перезапуск приложения.";
 "YOUPIP_DESC" = "Не работает, когда включен YouPiP и включена одна из опций Legacy PiP или версия iOS ниже 13.";
 "HW_VP9_SUPPORT" = "Поддержка VP9 железом";
+
+"ALL_VP9" = "VP9 for all";
+"ALL_VP9_DESC" = "Use VP9 codec for all video resolutions. This is recommended to be enabled for hardware VP9 supported devices (A11 and higher) AND when YouTube app has VP9 entitlement.";
