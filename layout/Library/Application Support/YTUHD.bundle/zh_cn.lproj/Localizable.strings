@@ -5,5 +5,5 @@
 "YOUPIP_DESC" = "在搭配 YouPiP 插件使用时，如果启用“传统视频框架”或系统版本低于 iOS 13， VP9 编码器将无法运行。";
 "HW_VP9_SUPPORT" = "硬件 VP9 编码支持状态";
 
-"ALL_VP9" = "VP9 for all";
-"ALL_VP9_DESC" = "Use VP9 codec for all video resolutions. This is recommended to be enabled for hardware VP9 supported devices (A11 and higher) AND when YouTube app has VP9 entitlement.";
+"ALL_VP9" = "始终首选 VP9";
+"ALL_VP9_DESC" = "使用 VP9 编解码器播放任何分辨率的视频。建议在使用支持硬件 VP9 编解码器的机型（搭载 A11 芯片或以上）并且 YouTube App 拥有 VP9 权限时启用。请参考“硬件 VP9 编码支持状态”。";
