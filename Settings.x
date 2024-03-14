@@ -9,6 +9,7 @@
 #define LOC(x) [tweakBundle localizedStringForKey:x value:nil table:nil]
 
 extern BOOL UseVP9();
+extern BOOL AllVP9();
 
 NSBundle *YTUHDBundle() {
     static NSBundle *bundle = nil;
@@ -55,6 +56,16 @@ static void addSectionItem(NSMutableArray <YTSettingsSectionItem *> *sectionItem
             }
             settingItemId:0];
         [sectionItems addObject:vp9];
+        YTSettingsSectionItem *allVP9 = [%c(YTSettingsSectionItem) switchItemWithTitle:LOC(@"ALL_VP9")
+            titleDescription:LOC(@"ALL_VP9_DESC")
+            accessibilityIdentifier:nil
+            switchOn:AllVP9()
+            switchBlock:^BOOL (YTSettingsCell *cell, BOOL enabled) {
+                [[NSUserDefaults standardUserDefaults] setBool:enabled forKey:AllVP9Key];
+                return YES;
+            }
+            settingItemId:0];
+        [sectionItems addObject:allVP9];
     }
 }
 

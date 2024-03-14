@@ -4,8 +4,13 @@ BOOL UseVP9() {
     return [[NSUserDefaults standardUserDefaults] boolForKey:UseVP9Key];
 }
 
-// Remove any <= 1080p VP9 formats
+BOOL AllVP9() {
+    return [[NSUserDefaults standardUserDefaults] boolForKey:AllVP9Key];
+}
+
+// Remove any <= 1080p VP9 formats if AllVP9 is disabled
 NSArray *filteredFormats(NSArray <MLFormat *> *formats) {
+    if (AllVP9()) return formats;
     NSPredicate *predicate = [NSPredicate predicateWithBlock:^BOOL(MLFormat *format, NSDictionary *bindings) {
         return [format height] > 1080 || [[format MIMEType] videoCodec] != 'vp09';
     }];
