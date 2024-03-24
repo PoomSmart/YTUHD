@@ -17,13 +17,11 @@ NSArray *filteredFormats(NSArray <MLFormat *> *formats) {
     return [formats filteredArrayUsingPredicate:predicate];
 }
 
-%hook MLHAMPlayerItem
+%hook YTIMediaCommonConfig
 
-- (void)load {
-    MLInnerTubePlayerConfig *config = [self config];
-    YTIMediaCommonConfig *mediaCommonConfig = [config mediaCommonConfig];
-    mediaCommonConfig.useServerDrivenAbr = NO;
-    %orig;
+%new(B@:)
+- (BOOL)useServerDrivenAbr {
+    return NO;
 }
 
 %end
@@ -35,6 +33,8 @@ static void hookFormats(MLABRPolicy *self) {
         config.disableResolveOverlappingQualitiesByCodec = NO;
     YTIHamplayerStreamFilter *filter = config.streamFilter;
     filter.enableVideoCodecSplicing = YES;
+    filter.av1.maxArea = MAX_PIXELS;
+    filter.av1.maxFps = MAX_FPS;
     filter.vp9.maxArea = MAX_PIXELS;
     filter.vp9.maxFps = MAX_FPS;
 }
