@@ -1,9 +1,9 @@
 // Settings
 
-"USE_VP9" = "VP9'u etkinleştir";
-"USE_VP9_DESC" = "4K çözünürlüğe kadar destekleyen VP9 kodek bileşenini etkinleştirin. Apple CPU A11 ve üzeri cihazlarla en iyi şekilde çalışır. Uygulamanın yeniden başlatılması gerekir.";
-"YOUPIP_DESC" = "YouPiP tweak etkin olduğunda ve ya Eski PiP seçeneği etkin olduğunda veya iOS sürümü 13'ten düşük olduğunda çalışmaz.";
+"USE_VP9" = "VP9'u aç";
+"USE_VP9_DESC" = "4K çözünürlüğe kadar VP9 kodeğini aç. Apple A11 ve üstü cihazlarla en iyi çalışır. Uyg. yeniden başlatılmalı.";
+"YOUPIP_DESC" = "YouPiP tweak veya Eski PiP seçeneği etkin olduğunda veya iOS 13'ten düşük olduğunda çalışmaz.";
 "HW_VP9_SUPPORT" = "Donanımsal VP9 Desteği";
 
-"ALL_VP9" = "VP9 for all";
-"ALL_VP9_DESC" = "Use VP9 codec for all video resolutions. This is recommended to be enabled for hardware VP9 supported devices (A11 and higher) AND when YouTube app has VP9 entitlement.";
+"ALL_VP9" = "Tüm videolar için VP9";
+"ALL_VP9_DESC" = "Tüm video çözünürlüklerinde VP9 kodeğini kullan. Donanım VP9 destekli cihazlar (A11 ve üstü) ve YouTube uygulaması VP9 yetkisine sahip olduğunda önerilir.";
