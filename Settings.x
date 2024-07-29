@@ -43,30 +43,29 @@ NSBundle *YTUHDBundle() {
 %end
 
 static void addSectionItem(NSMutableArray <YTSettingsSectionItem *> *sectionItems, NSInteger category) {
-    if (category == 14) {
-        NSBundle *tweakBundle = YTUHDBundle();
-        BOOL hasVP9 = VTIsHardwareDecodeSupported(kCMVideoCodecType_VP9);
-        YTSettingsSectionItem *vp9 = [%c(YTSettingsSectionItem) switchItemWithTitle:LOC(@"USE_VP9")
-            titleDescription:[NSString stringWithFormat:@"%@\n\n%@\n\n%@: %d", LOC(@"USE_VP9_DESC"), LOC(@"YOUPIP_DESC"), LOC(@"HW_VP9_SUPPORT"), hasVP9]
-            accessibilityIdentifier:nil
-            switchOn:UseVP9()
-            switchBlock:^BOOL (YTSettingsCell *cell, BOOL enabled) {
-                [[NSUserDefaults standardUserDefaults] setBool:enabled forKey:UseVP9Key];
-                return YES;
-            }
-            settingItemId:0];
-        [sectionItems addObject:vp9];
-        YTSettingsSectionItem *allVP9 = [%c(YTSettingsSectionItem) switchItemWithTitle:LOC(@"ALL_VP9")
-            titleDescription:LOC(@"ALL_VP9_DESC")
-            accessibilityIdentifier:nil
-            switchOn:AllVP9()
-            switchBlock:^BOOL (YTSettingsCell *cell, BOOL enabled) {
-                [[NSUserDefaults standardUserDefaults] setBool:enabled forKey:AllVP9Key];
-                return YES;
-            }
-            settingItemId:0];
-        [sectionItems addObject:allVP9];
-    }
+    if (category != 14) return;
+    NSBundle *tweakBundle = YTUHDBundle();
+    BOOL hasVP9 = VTIsHardwareDecodeSupported(kCMVideoCodecType_VP9);
+    YTSettingsSectionItem *vp9 = [%c(YTSettingsSectionItem) switchItemWithTitle:LOC(@"USE_VP9")
+        titleDescription:[NSString stringWithFormat:@"%@\n\n%@\n\n%@: %d", LOC(@"USE_VP9_DESC"), LOC(@"YOUPIP_DESC"), LOC(@"HW_VP9_SUPPORT"), hasVP9]
+        accessibilityIdentifier:nil
+        switchOn:UseVP9()
+        switchBlock:^BOOL (YTSettingsCell *cell, BOOL enabled) {
+            [[NSUserDefaults standardUserDefaults] setBool:enabled forKey:UseVP9Key];
+            return YES;
+        }
+        settingItemId:0];
+    [sectionItems addObject:vp9];
+    YTSettingsSectionItem *allVP9 = [%c(YTSettingsSectionItem) switchItemWithTitle:LOC(@"ALL_VP9")
+        titleDescription:LOC(@"ALL_VP9_DESC")
+        accessibilityIdentifier:nil
+        switchOn:AllVP9()
+        switchBlock:^BOOL (YTSettingsCell *cell, BOOL enabled) {
+            [[NSUserDefaults standardUserDefaults] setBool:enabled forKey:AllVP9Key];
+            return YES;
+        }
+        settingItemId:0];
+    [sectionItems addObject:allVP9];
 }
 
 %hook YTSettingsViewController
