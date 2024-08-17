@@ -8,8 +8,13 @@
 
 #define LOC(x) [tweakBundle localizedStringForKey:x value:nil table:nil]
 
-extern BOOL UseVP9();
-extern BOOL AllVP9();
+BOOL UseVP9() {
+    return [[NSUserDefaults standardUserDefaults] boolForKey:UseVP9Key];
+}
+
+BOOL AllVP9() {
+    return [[NSUserDefaults standardUserDefaults] boolForKey:AllVP9Key];
+}
 
 NSBundle *YTUHDBundle() {
     static NSBundle *bundle = nil;

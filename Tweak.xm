@@ -1,3 +1,4 @@
+#import <substrate.h>
 #import "Header.h"
 
 BOOL UseVP9() {
@@ -79,6 +80,22 @@ static void hookFormats(MLABRPolicy *self) {
 
 - (BOOL)iosPlayerClientSharedConfigPostponeCabrPreferredFormatFiltering {
     return YES;
+}
+
+%end
+
+%hook HAMDefaultABRPolicy
+
+- (void)setFormats:(NSArray *)formats {
+    @try {
+        HAMDefaultABRPolicyConfig config = MSHookIvar<HAMDefaultABRPolicyConfig>(self, "_config");
+        config.softwareAV1Filter.maxArea = MAX_PIXELS;
+        config.softwareAV1Filter.maxFPS = MAX_FPS;
+        config.softwareVP9Filter.maxArea = MAX_PIXELS;
+        config.softwareVP9Filter.maxFPS = MAX_FPS;
+        MSHookIvar<HAMDefaultABRPolicyConfig>(self, "_config") = config;
+    } @catch (id ex) {}
+    %orig;
 }
 
 %end
