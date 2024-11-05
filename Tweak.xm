@@ -1,5 +1,6 @@
 #import <substrate.h>
 #import "Header.h"
+#import <VideoToolbox/VideoToolbox.h>
 
 BOOL UseVP9() {
     return [[NSUserDefaults standardUserDefaults] boolForKey:UseVP9Key];
@@ -9,11 +10,22 @@ BOOL AllVP9() {
     return [[NSUserDefaults standardUserDefaults] boolForKey:AllVP9Key];
 }
 
-// Remove any <= 1080p VP9 formats if AllVP9 is disabled
+BOOL VP9DecodeSupported() {
+    return VTIsHardwareDecodeSupported(kCMVideoCodecType_VP9);
+}
+BOOL AV1DecodeSupported() {
+    return VTIsHardwareDecodeSupported(kCMVideoCodecType_AV1);
+}
+
+// Remove any <= 1080p VP9/AV1 formats if AllVP9 is disabled
 NSArray <MLFormat *> *filteredFormats(NSArray <MLFormat *> *formats) {
     if (AllVP9()) return formats;
     NSPredicate *predicate = [NSPredicate predicateWithBlock:^BOOL(MLFormat *format, NSDictionary *bindings) {
-        return [format height] > 1080 || [[format MIMEType] videoCodec] != 'vp09';
+        BOOL keep = [[format MIMEType] videoCodec] == 'vp09';
+        if (AV1DecodeSupported() && !VP9DecodeSupported()) {
+            keep = keep || [[format MIMEType] videoCodec] == 'av01';
+        }
+        return [format height] > 1080 || !keep;
     }];
     return [formats filteredArrayUsingPredicate:predicate];
 }
