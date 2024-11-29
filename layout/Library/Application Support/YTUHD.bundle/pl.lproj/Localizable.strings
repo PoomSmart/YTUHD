@@ -1,0 +1,9 @@
+// Settings
+
+"USE_VP9" = "Użyj VP9";
+"USE_VP9_DESC" = "Włącza kodek VP9, który wspiera rodzielczość do 4K. Działa najlepiej z urządzeniami Apple z CPU A11 i nowszymi. Wymagane jest ponowne uruchomienie aplikacji.";
+"YOUPIP_DESC" = "Nie działa, gdy włączona jest opcja YouPiP i włączona jest opcja Legacy PiP lub wersja systemu iOS jest starsza niż 13.";
+"HW_VP9_SUPPORT" = "Sprzętowe wsparcie VP9";
+
+"ALL_VP9" = "VP9 do wszystkiego";
+"ALL_VP9_DESC" = "Używa kodeku VP9 dla wszystkich rozdzielczości filmów. Zaleca się włączenie tej opcji na urządzeniach obsługujących sprzętowe wsparcie VP9 (CPU A11 i nowsze) ORAZ gdy aplikacja YouTube ma uprawnienia do obsługi VP9.";
