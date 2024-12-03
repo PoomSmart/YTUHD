@@ -1,9 +1,10 @@
 // Settings
 
-"USE_VP9" = "Use VP9";
-"USE_VP9_DESC" = "Enable VP9 codec that supports up to 4K resolutions. Works best with devices with Apple CPU A11 and higher. App restart is required.";
+"USE_VP9" = "Enable VP9/AV1";
+"USE_VP9_DESC" = "Enable VP9 and AV1 codecs that support up to 4K resolutions. Works best with devices with Apple CPU A11 and higher. App restart is required.";
 "YOUPIP_DESC" = "Does not work when YouPiP tweak is enabled and either Legacy PiP option is enabled or iOS version is lower than 13.";
 "HW_VP9_SUPPORT" = "Hardware VP9 Support";
+"HW_AV1_SUPPORT" = "Hardware AV1 Support";
 
-"ALL_VP9" = "VP9 for all";
-"ALL_VP9_DESC" = "Use VP9 codec for all video resolutions. This is recommended to be enabled for hardware VP9 supported devices (A11 and higher) AND when YouTube app has VP9 entitlement.";
+"ALL_VP9" = "VP9/AV1 for all";
+"ALL_VP9_DESC" = "Use VP9 or AV1 codecs for all video resolutions. This is recommended to be enabled for hardware VP9 supported devices (A11 and higher) IF the YouTube app has VP9 entitlement, or hardware AV1 supported devices (A17 Pro, A18 and higher).";
