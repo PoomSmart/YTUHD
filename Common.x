@@ -56,8 +56,8 @@ extern BOOL UseVP9();
 // #endif
 
 %ctor {
-    if (UseVP9()) {
-        %init;
+    if (!UseVP9()) return;
+    %init;
 // #ifdef SIDELOADED
 //         CFMutableDictionaryRef payload = CFDictionaryCreateMutable(kCFAllocatorDefault, 1, &kCFTypeDictionaryKeyCallBacks, &kCFTypeDictionaryValueCallBacks);
 //         if (payload) {
@@ -67,8 +67,7 @@ extern BOOL UseVP9();
 //             CFRelease(payload);
 //         }
 // #endif
-        if (!IS_IOS_OR_NEWER(iOS_15_0)) {
-            %init(Spoofing);
-        }
+    if (!IS_IOS_OR_NEWER(iOS_15_0)) {
+        %init(Spoofing);
     }
 }

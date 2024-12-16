@@ -18,15 +18,6 @@ NSArray <MLFormat *> *filteredFormats(NSArray <MLFormat *> *formats) {
     return [formats filteredArrayUsingPredicate:predicate];
 }
 
-%hook YTIMediaCommonConfig
-
-%new(B@:)
-- (BOOL)useServerDrivenAbr {
-    return NO;
-}
-
-%end
-
 static void hookFormats(MLABRPolicy *self) {
     YTIHamplayerConfig *config = [self valueForKey:@"_hamplayerConfig"];
     if ([config.videoAbrConfig respondsToSelector:@selector(setPreferSoftwareHdrOverHardwareSdr:)])
@@ -40,6 +31,24 @@ static void hookFormats(MLABRPolicy *self) {
     filter.vp9.maxArea = MAX_PIXELS;
     filter.vp9.maxFps = MAX_FPS;
 }
+
+%hook MLHAMPlayerItem
+
+- (void)load {
+    MLInnerTubePlayerConfig *config = [self valueForKey:@"_config"];
+    YTIMediaCommonConfig *mediaCommonConfig = config.mediaCommonConfig;
+    mediaCommonConfig.useServerDrivenAbr = NO;
+    %orig;
+}
+
+- (void)loadWithInitialSeekRequired:(bool)required {
+    MLInnerTubePlayerConfig *config = [self valueForKey:@"_config"];
+    YTIMediaCommonConfig *mediaCommonConfig = config.mediaCommonConfig;
+    mediaCommonConfig.useServerDrivenAbr = NO;
+    %orig;
+}
+
+%end
 
 %hook MLABRPolicy
 
@@ -101,7 +110,6 @@ static void hookFormats(MLABRPolicy *self) {
 %end
 
 %ctor {
-    if (UseVP9()) {
-        %init;
-    }
+    if (!UseVP9()) return;
+    %init;
 }
