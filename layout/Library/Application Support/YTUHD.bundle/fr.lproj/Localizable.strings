@@ -5,5 +5,5 @@
 "YOUPIP_DESC" = "Ne fonctionne pas lorsque le tweak YouPiP est activé et que l'option Legacy PiP est activée ou que la version iOS est inférieure à 13.";
 "HW_VP9_SUPPORT" = "Support matériel de VP9";
 
-"ALL_VP9" = "VP9 for all";
-"ALL_VP9_DESC" = "Use VP9 codec for all video resolutions. This is recommended to be enabled for hardware VP9 supported devices (A11 and higher) AND when YouTube app has VP9 entitlement.";
+"ALL_VP9" = "VP9 pour tous";
+"ALL_VP9_DESC" = "Utiliser le codec VP9 pour toutes les résolutions vidéo. Il est recommandé d'activer cette option pour les appareils prenant en charge le VP9 matériel (A11 et supérieur) ET lorsque l'application YouTube dispose de l'autorisation VP9.";

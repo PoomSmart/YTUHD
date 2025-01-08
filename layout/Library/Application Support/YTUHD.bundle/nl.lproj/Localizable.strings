@@ -5,5 +5,5 @@
 "YOUPIP_DESC" = "Werkt niet wanneer de YouPiP-tweak is ingeschakeld en zowel de Legacy PiP-optie is ingeschakeld als de iOS-versie lager is dan 13.";
 "HW_VP9_SUPPORT" = "Hardware VP9-ondersteuning";
 
-"ALL_VP9" = "VP9 for all";
-"ALL_VP9_DESC" = "Use VP9 codec for all video resolutions. This is recommended to be enabled for hardware VP9 supported devices (A11 and higher) AND when YouTube app has VP9 entitlement.";
+"ALL_VP9" = "VP9 voor alles";
+"ALL_VP9_DESC" = "Gebruik VP9-codec voor alle videoresoluties. Dit wordt aanbevolen om in te schakelen voor apparaten met hardware VP9-ondersteuning (A11 en hoger) EN wanneer de YouTube-app VP9-rechten heeft.";

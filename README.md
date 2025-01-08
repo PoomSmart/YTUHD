@@ -21,7 +21,7 @@ Those old devices don't get `AppleAVD` driver which is essential for VP9 decodin
 
 ## Server ABR
 
-If you look at the source code, there is an enforcement to not use server ABR. The author has yet to figure out what ABR stands for but its purpose is to fetch the available formats (resolutions) of a video.
+If you look at the source code, there is an enforcement to not use server ABR. The author is not sure what ABR stands for (Maybe **A**daptive **B**it**R**ate?) but its purpose is to fetch the available formats (resolutions) of a video.
 When the flag is set to true, it's entirely up to YouTube server to respond to YouTube app of the video formats the user can be served.
 YTUHD has no control over that and has to disable it and relies on the client code that allows for 2K/4K formats.
 

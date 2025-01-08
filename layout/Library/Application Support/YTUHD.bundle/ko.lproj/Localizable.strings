@@ -5,5 +5,5 @@
 "YOUPIP_DESC" = "YouPiP 트윅이 활성화되어 있고 레거시 PiP 옵션이 활성화되었거나 iOS 버전이 13보다 낮은 경우 작동하지 않습니다.";
 "HW_VP9_SUPPORT" = "VP9 하드웨어 지원";
 
-"ALL_VP9" = "VP9 for all";
-"ALL_VP9_DESC" = "Use VP9 codec for all video resolutions. This is recommended to be enabled for hardware VP9 supported devices (A11 and higher) AND when YouTube app has VP9 entitlement.";
+"ALL_VP9" = "모든 해상도에서 VP9 사용";
+"ALL_VP9_DESC" = "모든 비디오 해상도에 VP9 코덱을 사용합니다. VP9 하드웨어를 지원하는 기기(A11 이상)와 YouTube 앱이 VP9 권한을 가진 경우 활성화하는 것이 좋습니다.";

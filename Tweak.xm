@@ -41,13 +41,6 @@ static void hookFormats(MLABRPolicy *self) {
     %orig;
 }
 
-- (void)loadWithInitialSeekRequired:(bool)required {
-    MLInnerTubePlayerConfig *config = [self valueForKey:@"_config"];
-    YTIMediaCommonConfig *mediaCommonConfig = config.mediaCommonConfig;
-    mediaCommonConfig.useServerDrivenAbr = NO;
-    %orig;
-}
-
 %end
 
 %hook MLABRPolicy
@@ -88,6 +81,10 @@ static void hookFormats(MLABRPolicy *self) {
 }
 
 - (BOOL)iosPlayerClientSharedConfigPostponeCabrPreferredFormatFiltering {
+    return YES;
+}
+
+- (BOOL)iosPlayerClientSharedConfigDisableServerDrivenAbr {
     return YES;
 }
 

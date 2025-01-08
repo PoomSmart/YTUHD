@@ -48,7 +48,7 @@ extern BOOL UseVP9();
 
 // #ifdef SIDELOADED
 
-// #import "../PSHeader/Misc.h"
+// #import <PSHeader/Misc.h>
 
 // typedef struct OpaqueVTVideoDecoder VTVideoDecoderRef;
 // extern OSStatus VTSelectAndCreateVideoDecoderInstance(CMVideoCodecType codecType, CFAllocatorRef allocator, CFDictionaryRef videoDecoderSpecification, VTVideoDecoderRef *decoderInstanceOut);

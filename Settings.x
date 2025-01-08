@@ -2,9 +2,9 @@
 #import <rootless.h>
 #import <VideoToolbox/VideoToolbox.h>
 #import <YouTubeHeader/YTHotConfig.h>
-#import <YouTubeHeader/YTSettingsViewController.h>
 #import <YouTubeHeader/YTSettingsSectionItem.h>
 #import <YouTubeHeader/YTSettingsSectionItemManager.h>
+#import <YouTubeHeader/YTSettingsViewController.h>
 
 #define LOC(x) [tweakBundle localizedStringForKey:x value:nil table:nil]
 

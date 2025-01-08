@@ -5,5 +5,5 @@
 "YOUPIP_DESC" = "لا يعمل عند تمكين إضافة YouPiP وتمكين أي من خيارات PiP القديمة أو إصدار iOS أقل من 13.";
 "HW_VP9_SUPPORT" = "دعم العتاد لكوديك VP9 المطلوب";
 
-"ALL_VP9" = "VP9 for all";
-"ALL_VP9_DESC" = "Use VP9 codec for all video resolutions. This is recommended to be enabled for hardware VP9 supported devices (A11 and higher) AND when YouTube app has VP9 entitlement.";
+"ALL_VP9" = "VP9 للجميع";
+"ALL_VP9_DESC" = "استخدام كوديك VP9 لجميع دقات الفيديو. يُوصى بتمكين هذا للأجهزة التي تدعم العتاد لكوديك VP9 (A11 فأعلى) وعندما يكون لتطبيق YouTube حق استخدام VP9.";
