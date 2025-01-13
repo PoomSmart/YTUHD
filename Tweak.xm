@@ -106,6 +106,17 @@ static void hookFormats(MLABRPolicy *self) {
 
 %end
 
+%hook MLHLSStreamSelector
+
+- (void)didLoadHLSMasterPlaylist:(id)arg1 {
+    %orig;
+    MLHLSMasterPlaylist *playlist = [self valueForKey:@"_completeMasterPlaylist"];
+    NSArray *remotePlaylists = [playlist remotePlaylists];
+    [[self delegate] streamSelectorHasSelectableVideoFormats:remotePlaylists];
+}
+
+%end
+
 %ctor {
     if (!UseVP9()) return;
     %init;

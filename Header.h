@@ -6,6 +6,8 @@
 #import <YouTubeHeader/MLABRPolicyNew.h>
 #import <YouTubeHeader/MLABRPolicyOld.h>
 #import <YouTubeHeader/MLHAMPlayerItem.h>
+#import <YouTubeHeader/MLHLSMasterPlaylist.h>
+#import <YouTubeHeader/MLHLSStreamSelector.h>
 #import <YouTubeHeader/MLVideo.h>
 #import <YouTubeHeader/YTIHamplayerConfig.h>
 #import <YouTubeHeader/YTIHamplayerSoftwareStreamFilter.h>
