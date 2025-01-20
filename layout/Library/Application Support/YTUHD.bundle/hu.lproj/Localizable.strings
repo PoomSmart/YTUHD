@@ -2,7 +2,6 @@
 
 "USE_VP9" = "Használja a VP9-et";
 "USE_VP9_DESC" = "Engedélyezze az akár 4K felbontást támogató VP9 kodeket. A legjobban az Apple CPU A11 vagy újabb CPU-val rendelkező eszközökkel működik. Az alkalmazás újraindítása szükséges.";
-"YOUPIP_DESC" = "Nem működik, ha engedélyezve van a YouPiP módosítás, és a Legacy PiP opció vagy az iOS verzió 13-nál régebbi.";
 "HW_VP9_SUPPORT" = "Hardveres VP9 támogatás";
 
 "ALL_VP9" = "VP9 mindenhez";

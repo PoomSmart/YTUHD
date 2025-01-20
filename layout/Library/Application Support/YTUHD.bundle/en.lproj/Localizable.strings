@@ -2,7 +2,6 @@
 
 "USE_VP9" = "Use VP9";
 "USE_VP9_DESC" = "Enable VP9 codec that supports up to 4K resolutions. Works best with devices with Apple CPU A11 and higher. App restart is required.";
-"YOUPIP_DESC" = "Does not work when YouPiP tweak is enabled and either Legacy PiP option is enabled or iOS version is lower than 13.";
 "HW_VP9_SUPPORT" = "Hardware VP9 Support";
 
 "ALL_VP9" = "VP9 for all";

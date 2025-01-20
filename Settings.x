@@ -51,7 +51,7 @@ static void addSectionItem(NSMutableArray <YTSettingsSectionItem *> *sectionItem
     NSBundle *tweakBundle = YTUHDBundle();
     BOOL hasVP9 = VTIsHardwareDecodeSupported(kCMVideoCodecType_VP9);
     YTSettingsSectionItem *vp9 = [%c(YTSettingsSectionItem) switchItemWithTitle:LOC(@"USE_VP9")
-        titleDescription:[NSString stringWithFormat:@"%@\n\n%@\n\n%@: %d", LOC(@"USE_VP9_DESC"), LOC(@"YOUPIP_DESC"), LOC(@"HW_VP9_SUPPORT"), hasVP9]
+        titleDescription:[NSString stringWithFormat:@"%@\n\n%@: %d", LOC(@"USE_VP9_DESC"), LOC(@"HW_VP9_SUPPORT"), hasVP9]
         accessibilityIdentifier:nil
         switchOn:UseVP9()
         switchBlock:^BOOL (YTSettingsCell *cell, BOOL enabled) {

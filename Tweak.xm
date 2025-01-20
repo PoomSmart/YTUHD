@@ -1,13 +1,8 @@
 #import <substrate.h>
 #import "Header.h"
 
-BOOL UseVP9() {
-    return [[NSUserDefaults standardUserDefaults] boolForKey:UseVP9Key];
-}
-
-BOOL AllVP9() {
-    return [[NSUserDefaults standardUserDefaults] boolForKey:AllVP9Key];
-}
+extern "C" BOOL UseVP9();
+extern "C" BOOL AllVP9();
 
 // Remove any <= 1080p VP9 formats if AllVP9 is disabled
 NSArray <MLFormat *> *filteredFormats(NSArray <MLFormat *> *formats) {
