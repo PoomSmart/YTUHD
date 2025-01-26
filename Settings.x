@@ -1,10 +1,10 @@
-#import "Header.h"
-#import <rootless.h>
+#import <PSHeader/Misc.h>
 #import <VideoToolbox/VideoToolbox.h>
 #import <YouTubeHeader/YTHotConfig.h>
 #import <YouTubeHeader/YTSettingsSectionItem.h>
 #import <YouTubeHeader/YTSettingsSectionItemManager.h>
 #import <YouTubeHeader/YTSettingsViewController.h>
+#import "Header.h"
 
 #define LOC(x) [tweakBundle localizedStringForKey:x value:nil table:nil]
 
@@ -23,7 +23,7 @@ NSBundle *YTUHDBundle() {
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
         NSString *tweakBundlePath = [[NSBundle mainBundle] pathForResource:@"YTUHD" ofType:@"bundle"];
-        bundle = [NSBundle bundleWithPath:tweakBundlePath ?: ROOT_PATH_NS(@"/Library/Application Support/YTUHD.bundle")];
+        bundle = [NSBundle bundleWithPath:tweakBundlePath ?: PS_ROOT_PATH_NS(@"/Library/Application Support/YTUHD.bundle")];
     });
     return bundle;
 }
