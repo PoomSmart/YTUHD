@@ -1,4 +1,6 @@
 #import <substrate.h>
+#import <sys/sysctl.h>
+#import <version.h>
 #import "Header.h"
 
 extern "C" BOOL UseVP9();
@@ -112,7 +114,46 @@ static void hookFormats(MLABRPolicy *self) {
 
 %end
 
+%group Spoofing
+
+%hook UIDevice
+
+- (NSString *)systemVersion {
+    return @"15.8.3";
+}
+
+%end
+
+%hook NSProcessInfo
+
+- (NSOperatingSystemVersion)operatingSystemVersion {
+    NSOperatingSystemVersion version;
+    version.majorVersion = 15;
+    version.minorVersion = 8;
+    version.patchVersion = 3;
+    return version;
+}
+
+%end
+
+%hookf(int, sysctlbyname, const char *name, void *oldp, size_t *oldlenp, void *newp, size_t newlen) {
+    if (strcmp(name, "kern.osversion") == 0) {
+        if (oldp)
+            strcpy((char *)oldp, IOS_BUILD);
+        *oldlenp = strlen(IOS_BUILD);
+    }
+    return %orig(name, oldp, oldlenp, newp, newlen);
+}
+
+%end
+
 %ctor {
+    [[NSUserDefaults standardUserDefaults] registerDefaults:@{
+        UseVP9Key: @YES,
+    }];
     if (!UseVP9()) return;
     %init;
+    if (!IS_IOS_OR_NEWER(iOS_15_0)) {
+        %init(Spoofing);
+    }
 }

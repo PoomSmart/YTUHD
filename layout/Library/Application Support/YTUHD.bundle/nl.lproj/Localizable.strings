@@ -1,8 +1,6 @@
-// Settings
-
 "USE_VP9" = "Gebruik VP9";
-"USE_VP9_DESC" = "Schakel het VP9-codec in die tot 4K resoluties ondersteunt. Werkt het beste met apparaten met Apple CPU A11 of hoger. App herstart is vereist.";
+"USE_VP9_DESC" = "Schakel het VP9-codec in die tot 4K resoluties ondersteunt. Werkt het beste met apparaten met Apple CPU A12 of hoger. App herstart is vereist.";
 "HW_VP9_SUPPORT" = "Hardware VP9-ondersteuning";
 
 "ALL_VP9" = "VP9 voor alles";
-"ALL_VP9_DESC" = "Gebruik VP9-codec voor alle videoresoluties. Dit wordt aanbevolen om in te schakelen voor apparaten met hardware VP9-ondersteuning (A11 en hoger) EN wanneer de YouTube-app VP9-rechten heeft.";
+"ALL_VP9_DESC" = "Gebruik VP9-codec voor alle videoresoluties. Dit wordt aanbevolen om in te schakelen voor apparaten met hardware VP9-ondersteuning (A12 en hoger) EN wanneer de YouTube-app VP9-rechten heeft.";

@@ -1,8 +1,6 @@
-// Settings
-
 "USE_VP9" = "Usar VP9";
-"USE_VP9_DESC" = "Ative o codec VP9 que suporta resoluções de até 4K. Funciona melhor com dispositivos com Apple CPU A11 e superior. A reinicialização do app é necessária.";
+"USE_VP9_DESC" = "Ative o codec VP9 que suporta resoluções de até 4K. Funciona melhor com dispositivos com Apple CPU A12 e superior. A reinicialização do app é necessária.";
 "HW_VP9_SUPPORT" = "Suporte de Hardware VP9";
 
 "ALL_VP9" = "VP9 para todos";
-"ALL_VP9_DESC" = "Use o codec VP9 para todas as resoluções de vídeo. Recomenda-se ativar isso para dispositivos com suporte a hardware VP9 (A11 e superior) E quando o aplicativo YouTube tiver direito ao VP9.";
+"ALL_VP9_DESC" = "Use o codec VP9 para todas as resoluções de vídeo. Recomenda-se ativar isso para dispositivos com suporte a hardware VP9 (A12 e superior) E quando o aplicativo YouTube tiver direito ao VP9.";

@@ -5,14 +5,14 @@ else ifeq ($(THEOS_PACKAGE_SCHEME),roothide)
 else
 	TARGET = iphone:clang:latest:11.0
 endif
-PACKAGE_VERSION = 1.5.9
+PACKAGE_VERSION = 1.5.10
 ARCHS = arm64
 INSTALL_TARGET_PROCESSES = YouTube
 
 include $(THEOS)/makefiles/common.mk
 
 TWEAK_NAME = YTUHD
-$(TWEAK_NAME)_FILES = Common.x Tweak.xm Settings.x
+$(TWEAK_NAME)_FILES = Tweak.xm Settings.x
 $(TWEAK_NAME)_CFLAGS = -fobjc-arc $(EXTRA_CFLAGS)
 $(TWEAK_NAME)_FRAMEWORKS = VideoToolbox
 

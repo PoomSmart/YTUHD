@@ -9,9 +9,7 @@
 #define LOC(x) [tweakBundle localizedStringForKey:x value:nil table:nil]
 
 BOOL UseVP9() {
-    NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
-    id value = [defaults objectForKey:UseVP9Key];
-    return value ? [value boolValue] : YES;
+    return [[NSUserDefaults standardUserDefaults] boolForKey:UseVP9Key];
 }
 
 BOOL AllVP9() {
@@ -31,12 +29,7 @@ NSBundle *YTUHDBundle() {
 %hook YTSettingsSectionItemManager
 
 - (void)updateVideoQualitySectionWithEntry:(id)entry {
-    YTHotConfig *hotConfig;
-    @try {
-        hotConfig = [self valueForKey:@"_hotConfig"];
-    } @catch (id ex) {
-        hotConfig = [self.gimme instanceForType:%c(YTHotConfig)];
-    }
+    YTHotConfig *hotConfig = [self valueForKey:@"_hotConfig"];
     YTIMediaQualitySettingsHotConfig *mediaQualitySettingsHotConfig = [hotConfig hotConfigGroup].mediaHotConfig.mediaQualitySettingsHotConfig;
     BOOL defaultValue = mediaQualitySettingsHotConfig.enablePersistentVideoQualitySettings;
     mediaQualitySettingsHotConfig.enablePersistentVideoQualitySettings = YES;
