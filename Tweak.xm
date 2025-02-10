@@ -69,18 +69,6 @@ static void hookFormats(MLABRPolicy *self) {
 
 %hook YTHotConfig
 
-- (BOOL)iosClientGlobalConfigEnableNewMlabrpolicy {
-    return NO;
-}
-
-- (BOOL)iosPlayerClientSharedConfigEnableNewMlabrpolicy {
-    return NO;
-}
-
-- (BOOL)iosPlayerClientSharedConfigPostponeCabrPreferredFormatFiltering {
-    return YES;
-}
-
 - (BOOL)iosPlayerClientSharedConfigDisableServerDrivenAbr {
     return YES;
 }
@@ -148,9 +136,6 @@ static void hookFormats(MLABRPolicy *self) {
 %end
 
 %ctor {
-    [[NSUserDefaults standardUserDefaults] registerDefaults:@{
-        UseVP9Key: @YES,
-    }];
     if (!UseVP9()) return;
     %init;
     if (!IS_IOS_OR_NEWER(iOS_15_0)) {
