@@ -107,6 +107,10 @@ static void addSectionItem(YTSettingsViewController *settingsViewController, NSM
                 [rows addObject:thread];
             }
             NSUInteger index = DecodeThreads() - 1;
+            if (index >= NSProcessInfo.processInfo.activeProcessorCount) {
+                index = 1;
+                [[NSUserDefaults standardUserDefaults] setInteger:1 forKey:DecodeThreadsKey];
+            }
             YTSettingsPickerViewController *picker = [[%c(YTSettingsPickerViewController) alloc] initWithNavTitle:decodeThreadsTitle pickerSectionTitle:nil rows:rows selectedItemIndex:index parentResponder:[settingsViewController parentResponder]];
             [settingsViewController pushViewController:picker];
             return YES;
