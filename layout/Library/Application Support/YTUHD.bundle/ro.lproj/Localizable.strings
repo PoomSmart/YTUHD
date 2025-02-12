@@ -4,3 +4,13 @@
 
 "ALL_VP9" = "VP9 pentru toate";
 "ALL_VP9_DESC" = "Utilizați codec VP9 pentru toate rezoluțiile video. Este recomandat să fie activat pentru dispozitivele care suportă hardware VP9 (A12 și mai sus) ȘI când aplicația YouTube are dreptul VP9.";
+
+"DECODE_THREADS" = "Fire de decodare";
+"DECODE_THREADS_DESC" = "Numărul de fire utilizate pentru decodarea video VP9. Valorile mai mari pot îmbunătăți performanța redării video, dar pot crește și consumul bateriei.";
+"DECODE_THREADS_DEFAULT_VALUE" = "Valoare implicită";
+
+"SKIP_LOOP_FILTER" = "Skip loop filter";
+
+"LOOP_FILTER_OPTIMIZATION" = "Loop filter optimization";
+
+"ROW_THREADING" = "Row threading";

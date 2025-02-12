@@ -3,8 +3,14 @@
 #import <version.h>
 #import "Header.h"
 
-extern "C" BOOL UseVP9();
-extern "C" BOOL AllVP9();
+extern "C" {
+    BOOL UseVP9();
+    BOOL AllVP9();
+    int DecodeThreads();
+    BOOL SkipLoopFilter();
+    BOOL LoopFilterOptimization();
+    BOOL RowThreading();
+}
 
 // Remove any <= 1080p VP9 formats if AllVP9 is disabled
 NSArray <MLFormat *> *filteredFormats(NSArray <MLFormat *> *formats) {
@@ -63,6 +69,38 @@ static void hookFormats(MLABRPolicy *self) {
 - (void)setFormats:(NSArray *)formats {
     hookFormats(self);
     %orig(filteredFormats(formats));
+}
+
+%end
+
+%hook YTIHamplayerHotConfig
+
+%new(i@:)
+- (int)libvpxDecodeThreads {
+    return DecodeThreads();
+}
+
+%new(B@:)
+- (BOOL)libvpxRowThreading {
+    return RowThreading();
+}
+
+%new(B@:)
+- (BOOL)libvpxSkipLoopFilter {
+    return SkipLoopFilter();
+}
+
+%new(B@:)
+- (BOOL)libvpxLoopFilterOptimization {
+    return LoopFilterOptimization();
+}
+
+%end
+
+%hook YTColdConfig
+
+- (BOOL)mainAppCoreClientIosStartupSchedulerQosFriendlyHardwareDecodeSupportedEnabled {
+    return YES;
 }
 
 %end
@@ -136,6 +174,9 @@ static void hookFormats(MLABRPolicy *self) {
 %end
 
 %ctor {
+    [[NSUserDefaults standardUserDefaults] registerDefaults:@{
+        DecodeThreadsKey: @2
+    }];
     if (!UseVP9()) return;
     %init;
     if (!IS_IOS_OR_NEWER(iOS_15_0)) {

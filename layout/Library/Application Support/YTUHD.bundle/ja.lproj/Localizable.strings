@@ -4,3 +4,13 @@
 
 "ALL_VP9" = "すべてにVP9を";
 "ALL_VP9_DESC" = "すべての動画解像度にVP9コーデックを使用します。ハードウェアVP9がサポートされているデバイス（A12以降）及び YouTubeアプリがVP9権限を持っている場合に有効化するのがおすすめです。";
+
+"DECODE_THREADS" = "デコードスレッド";
+"DECODE_THREADS_DESC" = "VP9ビデオデコードに使用されるスレッド数。値を大きくするとビデオ再生性能が向上する可能性がありますが、バッテリー消費が増加する場合があります。";
+"DECODE_THREADS_DEFAULT_VALUE" = "デフォルト値";
+
+"SKIP_LOOP_FILTER" = "Skip loop filter";
+
+"LOOP_FILTER_OPTIMIZATION" = "Loop filter optimization";
+
+"ROW_THREADING" = "Row threading";
