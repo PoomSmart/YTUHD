@@ -9,8 +9,8 @@
 "DECODE_THREADS_DESC" = "Liczba wątków używanych do dekodowania wideo VP9. Wyższe wartości mogą poprawić wydajność odtwarzania wideo, ale mogą również zwiększyć zużycie baterii.";
 "DECODE_THREADS_DEFAULT_VALUE" = "Wartość domyślna";
 
-"SKIP_LOOP_FILTER" = "Skip loop filter";
+"SKIP_LOOP_FILTER" = "Pomiń Loop Filter";
 
-"LOOP_FILTER_OPTIMIZATION" = "Loop filter optimization";
+"LOOP_FILTER_OPTIMIZATION" = "Optymalizuj Loop Filter";
 
-"ROW_THREADING" = "Row threading";
+"ROW_THREADING" = "Row Threading";
