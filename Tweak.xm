@@ -16,7 +16,9 @@ extern "C" {
 NSArray <MLFormat *> *filteredFormats(NSArray <MLFormat *> *formats) {
     if (AllVP9()) return formats;
     NSPredicate *predicate = [NSPredicate predicateWithBlock:^BOOL(MLFormat *format, NSDictionary *bindings) {
-        return [format height] > 1080 || [[format MIMEType] videoCodec] != 'vp09';
+        BOOL isUHD = [format height] > 1080;
+        BOOL isUHDCodec = [[format MIMEType] videoCodec] == 'vp09' || [[format MIMEType] videoCodec] == 'av01';
+        return isUHD || !isUHDCodec;
     }];
     return [formats filteredArrayUsingPredicate:predicate];
 }
@@ -145,7 +147,7 @@ static void hookFormats(MLABRPolicy *self) {
 %hook UIDevice
 
 - (NSString *)systemVersion {
-    return @"15.8.3";
+    return @"15.8.4";
 }
 
 %end
@@ -156,7 +158,7 @@ static void hookFormats(MLABRPolicy *self) {
     NSOperatingSystemVersion version;
     version.majorVersion = 15;
     version.minorVersion = 8;
-    version.patchVersion = 3;
+    version.patchVersion = 4;
     return version;
 }
 

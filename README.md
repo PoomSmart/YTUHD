@@ -17,7 +17,9 @@ YTUHD attempts to bypass those restrictions for all 64-bit devices running iOS 1
 Hardware accelerated VP9 decoder is technically added as of iOS 14 and YouTube has been utilizing it through a private entitlement `com.apple.coremedia.allow-alternate-video-decoder-selection` (All apps are equal is a lie).
 This decoder handles up to 4K, but only for A12 devices and later.
 
-Those old devices don't get `AppleAVD` driver (`/System/Library/Extensions/AppleAVD.kext`) which is essential for VP9 decoding to work. The driver availability is checked inside `/System/Library/VideoDecoders/AVD.videodecoder`. Provided that you can extract a functional `AVD.videodecoder` binary from a dyld shared cache, you will still encounter the error `AVDRegister - AppleAVDCheckPlatform() returned FALSE` trying to load it.
+Those old devices don't get `AppleAVD` driver (`/System/Library/Extensions/AppleAVD.kext`) which is essential for VP9 decoding to work.
+The driver availability is checked inside `/System/Library/VideoDecoders/AVD.videodecoder`.
+Provided that you can extract a functional `AVD.videodecoder` binary from a dyld shared cache, you will still encounter the error `AVDRegister - AppleAVDCheckPlatform() returned FALSE` trying to load it.
 
 ## Server ABR
 
