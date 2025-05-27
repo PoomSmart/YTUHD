@@ -38,17 +38,6 @@ static void hookFormats(MLABRPolicy *self) {
     filter.vp9.maxFps = MAX_FPS;
 }
 
-%hook MLHAMPlayerItem
-
-- (void)load {
-    MLInnerTubePlayerConfig *config = [self valueForKey:@"_config"];
-    YTIMediaCommonConfig *mediaCommonConfig = config.mediaCommonConfig;
-    mediaCommonConfig.useServerDrivenAbr = NO;
-    %orig;
-}
-
-%end
-
 %hook MLABRPolicy
 
 - (void)setFormats:(NSArray *)formats {
@@ -114,23 +103,27 @@ static void hookFormats(MLABRPolicy *self) {
     return YES;
 }
 
-%end
-
-%hook HAMDefaultABRPolicy
-
-- (void)setFormats:(NSArray *)formats {
-    @try {
-        HAMDefaultABRPolicyConfig config = MSHookIvar<HAMDefaultABRPolicyConfig>(self, "_config");
-        config.softwareAV1Filter.maxArea = MAX_PIXELS;
-        config.softwareAV1Filter.maxFPS = MAX_FPS;
-        config.softwareVP9Filter.maxArea = MAX_PIXELS;
-        config.softwareVP9Filter.maxFPS = MAX_FPS;
-        MSHookIvar<HAMDefaultABRPolicyConfig>(self, "_config") = config;
-    } @catch (id ex) {}
-    %orig;
+- (BOOL)iosPlayerClientSharedConfigPostponeCabrPreferredFormatFiltering {
+    return YES;
 }
 
 %end
+
+// %hook HAMDefaultABRPolicy
+
+// - (void)setFormats:(NSArray *)formats {
+//     @try {
+//         HAMDefaultABRPolicyConfig config = MSHookIvar<HAMDefaultABRPolicyConfig>(self, "_config");
+//         config.softwareAV1Filter.maxArea = MAX_PIXELS;
+//         config.softwareAV1Filter.maxFPS = MAX_FPS;
+//         config.softwareVP9Filter.maxArea = MAX_PIXELS;
+//         config.softwareVP9Filter.maxFPS = MAX_FPS;
+//         MSHookIvar<HAMDefaultABRPolicyConfig>(self, "_config") = config;
+//     } @catch (id ex) {}
+//     %orig;
+// }
+
+// %end
 
 %hook MLHLSStreamSelector
 
