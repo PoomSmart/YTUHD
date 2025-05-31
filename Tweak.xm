@@ -24,8 +24,7 @@ NSArray <MLFormat *> *filteredFormats(NSArray <MLFormat *> *formats) {
     return [formats filteredArrayUsingPredicate:predicate];
 }
 
-static void hookFormats(MLABRPolicy *self) {
-    YTIHamplayerConfig *config = [self valueForKey:@"_hamplayerConfig"];
+static void hookFormatsBase(YTIHamplayerConfig *config) {
     if ([config.videoAbrConfig respondsToSelector:@selector(setPreferSoftwareHdrOverHardwareSdr:)])
         config.videoAbrConfig.preferSoftwareHdrOverHardwareSdr = YES;
     if ([config respondsToSelector:@selector(setDisableResolveOverlappingQualitiesByCodec:)])
@@ -36,6 +35,10 @@ static void hookFormats(MLABRPolicy *self) {
     filter.av1.maxFps = MAX_FPS;
     filter.vp9.maxArea = MAX_PIXELS;
     filter.vp9.maxFps = MAX_FPS;
+}
+
+static void hookFormats(MLABRPolicy *self) {
+    hookFormatsBase([self valueForKey:@"_hamplayerConfig"]);
 }
 
 %hook MLABRPolicy
@@ -65,6 +68,20 @@ static void hookFormats(MLABRPolicy *self) {
 
 %end
 
+// %hook MLHAMPlayerItem
+
+// - (void)load {
+//     hookFormatsBase([self valueForKey:@"_hamplayerConfig"]);
+//     %orig;
+// }
+
+// - (void)loadWithInitialSeekRequired:(BOOL)initialSeekRequired initialSeekTime:(double)initialSeekTime {
+//     hookFormatsBase([self valueForKey:@"_hamplayerConfig"]);
+//     %orig;
+// }
+
+// %end
+
 %hook YTIHamplayerHotConfig
 
 %new(i@:)
@@ -91,7 +108,7 @@ static void hookFormats(MLABRPolicy *self) {
 
 %hook YTColdConfig
 
-- (BOOL)mainAppCoreClientIosStartupSchedulerQosFriendlyHardwareDecodeSupportedEnabled {
+- (BOOL)iosPlayerClientSharedConfigPopulateSwAv1MediaCapabilities {
     return YES;
 }
 
@@ -107,9 +124,29 @@ static void hookFormats(MLABRPolicy *self) {
     return YES;
 }
 
+- (BOOL)iosPlayerClientSharedConfigHamplayerPrepareVideoDecoderForAvsbdl {
+    return YES;
+}
+
+- (BOOL)iosPlayerClientSharedConfigHamplayerAlwaysEnqueueDecodedSampleBuffersToAvsbdl {
+    return YES;
+}
+
 %end
 
 // %hook HAMDefaultABRPolicy
+
+// - (id)getSelectableFormatDataAndReturnError:(NSError **)error {
+//     @try {
+//         HAMDefaultABRPolicyConfig config = MSHookIvar<HAMDefaultABRPolicyConfig>(self, "_config");
+//         config.softwareAV1Filter.maxArea = MAX_PIXELS;
+//         config.softwareAV1Filter.maxFPS = MAX_FPS;
+//         config.softwareVP9Filter.maxArea = MAX_PIXELS;
+//         config.softwareVP9Filter.maxFPS = MAX_FPS;
+//         MSHookIvar<HAMDefaultABRPolicyConfig>(self, "_config") = config;
+//     } @catch (id ex) {}
+//     return %orig;
+// }
 
 // - (void)setFormats:(NSArray *)formats {
 //     @try {
@@ -160,11 +197,14 @@ static void hookFormats(MLABRPolicy *self) {
 
 %hookf(int, sysctlbyname, const char *name, void *oldp, size_t *oldlenp, void *newp, size_t newlen) {
     if (strcmp(name, "kern.osversion") == 0) {
-        if (oldp)
+        int ret = %orig;
+        if (oldp) {
             strcpy((char *)oldp, IOS_BUILD);
-        *oldlenp = strlen(IOS_BUILD);
+            *oldlenp = strlen(IOS_BUILD);
+        }
+        return ret;
     }
-    return %orig(name, oldp, oldlenp, newp, newlen);
+    return %orig;
 }
 
 %end

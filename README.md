@@ -1,6 +1,6 @@
 # YTUHD
 
-Unlock 1440p (2K) and 2160p (4K) resolutions in iOS YouTube app.
+Unlocks 1440p (2K) and 2160p (4K) resolutions in iOS YouTube app.
 
 ## Backstory
 
@@ -21,11 +21,15 @@ Those old devices don't get `AppleAVD` driver (`/System/Library/Extensions/Apple
 The driver availability is checked inside `/System/Library/VideoDecoders/AVD.videodecoder`.
 Provided that you can extract a functional `AVD.videodecoder` binary from a dyld shared cache, you will still encounter the error `AVDRegister - AppleAVDCheckPlatform() returned FALSE` trying to load it.
 
+Fortunately, YouTube app has a fallback to software decoding, which is not as efficient as hardware, but it works.
+It can be utilized by disabling server ABR, which will be explained below.
+
 ## Server ABR
 
 If you look at the source code, there is an enforcement to not use server ABR. The author is not sure what ABR stands for (Maybe **A**daptive **B**it**R**ate?) but its purpose is to fetch the available formats (resolutions) of a video.
-When the flag is set to true, it's entirely up to YouTube server to respond to YouTube app of the video formats the user can be served.
-YTUHD has no control over that and has to disable it and relies on the client code that allows for 2K/4K formats.
+It is unknown how YouTube exactly decides which formats to serve when the server ABR is enabled.
+YTUHD has no control over that and has to disable it and relies on the client code that reliably allows for 2K/4K formats.
+More specifically, it enables the VP9 software streaming filter so that those formats will not be filtered out.
 
 ## iOS version
 
