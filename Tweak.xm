@@ -79,16 +79,18 @@ NSTimer *bufferingTimer = nil;
             [bufferingTimer invalidate];
             bufferingTimer = nil;
         }
+        __weak typeof(self) weakSelf = self;
         bufferingTimer = [NSTimer scheduledTimerWithTimeInterval:2
-                            target:[NSBlockOperation blockOperationWithBlock:^{
+                            repeats:NO
+                            block:^(NSTimer *timer) {
                                 bufferingTimer = nil;
-                                YTSingleVideoController *video = (YTSingleVideoController *)self.delegate;
-                                YTLocalPlaybackController *playbackController = (YTLocalPlaybackController *)video.delegate;
-                                [[%c(YTPlayerTapToRetryResponderEvent) eventWithFirstResponder:[playbackController parentResponder]] send];
-                            }]
-                            selector:@selector(main)
-                            userInfo:nil
-                            repeats:NO];
+                                __strong typeof(weakSelf) strongSelf = weakSelf;
+                                if (strongSelf) {
+                                    YTSingleVideoController *video = (YTSingleVideoController *)strongSelf.delegate;
+                                    YTLocalPlaybackController *playbackController = (YTLocalPlaybackController *)video.delegate;
+                                    [[%c(YTPlayerTapToRetryResponderEvent) eventWithFirstResponder:[playbackController parentResponder]] send];
+                                }
+                            }];
     } else {
         if (bufferingTimer) {
             [bufferingTimer invalidate];
