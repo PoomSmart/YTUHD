@@ -13,6 +13,7 @@ include $(THEOS)/makefiles/common.mk
 TWEAK_NAME = YTUHD
 $(TWEAK_NAME)_FILES = Tweak.xm Settings.x
 $(TWEAK_NAME)_CFLAGS = -fobjc-arc $(EXTRA_CFLAGS)
+$(TWEAK_NAME)_LIBRARIES = undirect
 $(TWEAK_NAME)_FRAMEWORKS = VideoToolbox
 
 # SUBPROJECTS = YTUHD-AVD
