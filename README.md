@@ -32,7 +32,7 @@ If you look at the source code, there is an enforcement to not use server ABR. A
 
 ~~It is unknown how YouTube exactly decides which formats to serve when the server ABR is enabled.
 YTUHD has no control over that and has to disable it and relies on the client code that reliably allows for 2K/4K formats.
-More specifically, it enables the VP9 software streaming filter so that those formats will not be filtered out.~~~
+More specifically, it enables the VP9 software streaming filter so that those formats will not be filtered out.~~
 
 Update July 2025: The author discovered a technique to enable 2K/4K formats without disabling server ABR. The function `VTIsHardwareDecodeSupported` is hooked to always return `YES` for VP9 and AV1 codecs, while the utility unnamed function that utilizes this function is hooked to conditionally return `NO` to prevent the methods that initialize the decoder to choose the hardware decoder over the software decoder.
 
