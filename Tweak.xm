@@ -2,7 +2,7 @@
 #import <HBLog.h>
 #import <VideoToolbox/VideoToolbox.h>
 #import <substrate.h>
-#if SIDELOAD
+#ifdef SIDELOAD
 #import <libundirect/libundirect_dynamic.h>
 #else
 #import <libundirect/libundirect.h>
