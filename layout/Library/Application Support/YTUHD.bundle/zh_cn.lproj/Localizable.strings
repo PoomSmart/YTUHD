@@ -9,8 +9,8 @@
 "DECODE_THREADS_DESC" = "用于 VP9 视频解码的线程数。较高的值可能会提高视频播放性能，但也可能会增加电池消耗。";
 "DECODE_THREADS_DEFAULT_VALUE" = "默认值";
 
-"SKIP_LOOP_FILTER" = "Skip loop filter";
+"SKIP_LOOP_FILTER" = "跳过循环滤波";
 
-"LOOP_FILTER_OPTIMIZATION" = "Loop filter optimization";
+"LOOP_FILTER_OPTIMIZATION" = "循环滤波优化";
 
-"ROW_THREADING" = "Row threading";
+"ROW_THREADING" = "行线程处理";
