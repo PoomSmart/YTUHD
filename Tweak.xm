@@ -255,7 +255,7 @@ BOOL (*SupportsCodec)(CMVideoCodecType codec) = NULL;
 %hook UIDevice
 
 - (NSString *)systemVersion {
-    return @"15.8.4";
+    return @"15.8.5";
 }
 
 %end
@@ -266,7 +266,7 @@ BOOL (*SupportsCodec)(CMVideoCodecType codec) = NULL;
     NSOperatingSystemVersion version;
     version.majorVersion = 15;
     version.minorVersion = 8;
-    version.patchVersion = 4;
+    version.patchVersion = 5;
     return version;
 }
 
@@ -296,9 +296,7 @@ BOOL (*SupportsCodec)(CMVideoCodecType codec) = NULL;
         0x28, 0x66, 0x8c, 0x52,
         0xc8, 0x2e, 0xac, 0x72,
         0x1f, 0x00, 0x08, 0x6b,
-        0x61, 0x00, 0x00, 0x54,
-        0x20, 0x00, 0x80, 0x52,
-        0xc0, 0x03, 0x5f, 0xd6
+        0x61, 0x00, 0x00, 0x54
     };
     uint8_t pattern2[] = {
         0xf4, 0x4f, 0xbe, 0xa9,
