@@ -5,6 +5,9 @@
 "ALL_VP9" = "VP9 mindenhez";
 "ALL_VP9_DESC" = "Használja a VP9 kodeket minden videófelbontáshoz. Ajánlott engedélyezni hardveres VP9 támogatott eszközökön (A12 és újabb) ÉS amikor a YouTube alkalmazás rendelkezik VP9 jogosultsággal.";
 
+"DISABLE_SERVER_ABR" = "Szerver ABR letiltása";
+"DISABLE_SERVER_ABR_DESC" = "Letiltja a szerver oldali adaptív bitráta (ABR) beállításokat. Csak akkor engedélyezze, ha videólejátszási problémákat tapasztal régebbi YouTube verziókon.";
+
 "DECODE_THREADS" = "Dekódoló szálak";
 "DECODE_THREADS_DESC" = "A VP9 videó dekódolásához használt szálak száma. A magasabb értékek javíthatják a videólejátszás teljesítményét, de növelhetik az akkumulátor fogyasztását is.";
 "DECODE_THREADS_DEFAULT_VALUE" = "Alapértelmezett érték";

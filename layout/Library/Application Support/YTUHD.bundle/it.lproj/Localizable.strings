@@ -4,6 +4,10 @@
 
 "ALL_VP9" = "VP9 per tutti";
 "ALL_VP9_DESC" = "Usa il codec VP9 per tutte le risoluzioni video. Si consiglia di abilitare questa opzione per i dispositivi che supportano hardware VP9 (A12 e superiori) E quando l'app YouTube ha il diritto VP9.";
+
+"DISABLE_SERVER_ABR" = "Disabilita ABR del server";
+"DISABLE_SERVER_ABR_DESC" = "Disabilita le regolazioni del bitrate adattivo (ABR) lato server. Abilita questa opzione solo se riscontri problemi nella riproduzione video su versioni obsolete di YouTube.";
+
 "DECODE_THREADS" = "Thread di decodifica";
 "DECODE_THREADS_DESC" = "Numero di thread utilizzati per la decodifica video VP9. Valori più alti possono migliorare le prestazioni della riproduzione video ma possono anche aumentare il consumo della batteria.";
 "DECODE_THREADS_DEFAULT_VALUE" = "Valore predefinito";

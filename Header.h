@@ -23,6 +23,7 @@
 
 #define UseVP9Key @"EnableVP9"
 #define AllVP9Key @"AllVP9"
+#define DisableServerABRKey @"DisableServerABR"
 #define DecodeThreadsKey @"VP9DecodeThreads"
 #define SkipLoopFilterKey @"VP9SkipLoopFilter"
 #define LoopFilterOptimizationKey @"VP9LoopFilterOptimization"

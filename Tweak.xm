@@ -19,6 +19,7 @@ typedef struct {
 extern "C" {
     BOOL UseVP9();
     BOOL AllVP9();
+    BOOL DisableServerABR();
     int DecodeThreads();
     BOOL SkipLoopFilter();
     BOOL LoopFilterOptimization();
@@ -133,6 +134,10 @@ static void hookFormats(MLABRPolicy *self) {
 
 %hook YTHotConfig
 
+- (BOOL)iosPlayerClientSharedConfigDisableServerDrivenAbr {
+    return DisableServerABR() ? YES : %orig;
+}
+
 - (BOOL)iosPlayerClientSharedConfigPostponeCabrPreferredFormatFiltering {
     return YES;
 }
@@ -188,10 +193,11 @@ static void hookFormats(MLABRPolicy *self) {
 
 %end
 
-BOOL override = NO;
+BOOL overrideSupportsCodec = NO;
+BOOL disableHardwareDecode = NO;
 
 %hookf(Boolean, VTIsHardwareDecodeSupported, CMVideoCodecType codecType) {
-    if (codecType == kCMVideoCodecType_VP9 || codecType == kCMVideoCodecType_AV1) {
+    if (!disableHardwareDecode && (codecType == kCMVideoCodecType_VP9 || codecType == kCMVideoCodecType_AV1)) {
         HBLogDebug(@"YTUHD - VTIsHardwareDecodeSupported called for codec: %d", codecType);
         return YES;
     }
@@ -202,34 +208,27 @@ BOOL override = NO;
 
 - (id)videoDecoderWithDelegate:(id)delegate delegateQueue:(id)delegateQueue formatDescription:(id)formatDescription pixelBufferAttributes:(id)pixelBufferAttributes preferredOutputFormats:(Span)preferredOutputFormats error:(NSError **)error {
     HBLogDebug(@"YTUHD - MLVideoDecoderFactory videoDecoderWithDelegate called");
-    override = YES;
+    overrideSupportsCodec = YES;
     id decoder = %orig;
-    override = NO;
+    overrideSupportsCodec = NO;
     return decoder;
 }
 
 - (id)videoDecoderWithDelegate:(id)delegate delegateQueue:(id)delegateQueue formatDescription:(id)formatDescription pixelBufferAttributes:(id)pixelBufferAttributes setPixelBufferTypeOnlyIfEmpty:(BOOL)setPixelBufferTypeOnlyIfEmpty error:(NSError **)error {
     HBLogDebug(@"YTUHD - MLVideoDecoderFactory videoDecoderWithDelegate called");
-    override = YES;
+    overrideSupportsCodec = YES;
     id decoder = %orig;
-    override = NO;
+    overrideSupportsCodec = NO;
     return decoder;
 }
 
 - (id)videoDecoderWithDelegate:(id)delegate delegateQueue:(id)delegateQueue formatDescription:(id)formatDescription pixelBufferAttributes:(id)pixelBufferAttributes error:(NSError **)error {
     HBLogDebug(@"YTUHD - MLVideoDecoderFactory videoDecoderWithDelegate called");
-    override = YES;
+    overrideSupportsCodec = YES;
     id decoder = %orig;
-    override = NO;
+    overrideSupportsCodec = NO;
     return decoder;
 }
-
-// - (void)prepareDecoderForFormatDescription:(id)formatDescription delegateQueue:(id)delegateQueue {
-//     HBLogDebug(@"YTUHD - MLVideoDecoderFactory prepareDecoderForFormatDescription called");
-//     // override = YES;
-//     %orig;
-//     // override = NO;
-// }
 
 %end
 
@@ -237,25 +236,25 @@ BOOL override = NO;
 
 - (id)videoDecoderWithDelegate:(id)delegate delegateQueue:(id)delegateQueue formatDescription:(id)formatDescription pixelBufferAttributes:(id)pixelBufferAttributes preferredOutputFormats:(Span)preferredOutputFormats error:(NSError **)error {
     HBLogDebug(@"YTUHD - HAMDefaultVideoDecoderFactory videoDecoderWithDelegate called");
-    override = YES;
+    overrideSupportsCodec = YES;
     id decoder = %orig;
-    override = NO;
+    overrideSupportsCodec = NO;
     return decoder;
 }
 
 - (id)videoDecoderWithDelegate:(id)delegate delegateQueue:(id)delegateQueue formatDescription:(id)formatDescription pixelBufferAttributes:(id)pixelBufferAttributes setPixelBufferTypeOnlyIfEmpty:(BOOL)setPixelBufferTypeOnlyIfEmpty error:(NSError **)error {
     HBLogDebug(@"YTUHD - HAMDefaultVideoDecoderFactory videoDecoderWithDelegate called");
-    override = YES;
+    overrideSupportsCodec = YES;
     id decoder = %orig;
-    override = NO;
+    overrideSupportsCodec = NO;
     return decoder;
 }
 
 - (id)videoDecoderWithDelegate:(id)delegate delegateQueue:(id)delegateQueue formatDescription:(id)formatDescription pixelBufferAttributes:(id)pixelBufferAttributes error:(NSError **)error {
     HBLogDebug(@"YTUHD - HAMDefaultVideoDecoderFactory videoDecoderWithDelegate called");
-    override = YES;
+    overrideSupportsCodec = YES;
     id decoder = %orig;
-    override = NO;
+    overrideSupportsCodec = NO;
     return decoder;
 }
 
@@ -272,7 +271,7 @@ BOOL override = NO;
 
 BOOL (*SupportsCodec)(CMVideoCodecType codec) = NULL;
 %hookf(BOOL, SupportsCodec, CMVideoCodecType codec) {
-    if (override && (codec == kCMVideoCodecType_VP9 || codec == kCMVideoCodecType_AV1)) {
+    if (overrideSupportsCodec && (codec == kCMVideoCodecType_VP9 || codec == kCMVideoCodecType_AV1)) {
         HBLogDebug(@"YTUHD - SupportsCodec called for codec: %d, returning NO", codec);
         return NO;
     }

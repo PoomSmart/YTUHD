@@ -7,6 +7,8 @@
 #import <YouTubeHeader/YTSettingsViewController.h>
 #import "Header.h"
 
+extern BOOL disableHardwareDecode;
+
 #define LOC(x) [tweakBundle localizedStringForKey:x value:nil table:nil]
 
 BOOL UseVP9() {
@@ -15,6 +17,10 @@ BOOL UseVP9() {
 
 BOOL AllVP9() {
     return [[NSUserDefaults standardUserDefaults] boolForKey:AllVP9Key];
+}
+
+BOOL DisableServerABR() {
+    return [[NSUserDefaults standardUserDefaults] boolForKey:DisableServerABRKey];
 }
 
 int DecodeThreads() {
@@ -59,7 +65,9 @@ NSBundle *YTUHDBundle() {
 static void addSectionItem(YTSettingsViewController *settingsViewController, NSMutableArray <YTSettingsSectionItem *> *sectionItems, NSInteger category) {
     if (category != 14) return;
     NSBundle *tweakBundle = YTUHDBundle();
+    disableHardwareDecode = YES;
     BOOL hasVP9 = VTIsHardwareDecodeSupported(kCMVideoCodecType_VP9);
+    disableHardwareDecode = NO;
     Class YTSettingsSectionItemClass = %c(YTSettingsSectionItem);
 
     // Use VP9
@@ -85,6 +93,18 @@ static void addSectionItem(YTSettingsViewController *settingsViewController, NSM
         }
         settingItemId:0];
     [sectionItems addObject:allVP9];
+
+    // Disable server ABR
+    YTSettingsSectionItem *disableServerABR = [YTSettingsSectionItemClass switchItemWithTitle:LOC(@"DISABLE_SERVER_ABR")
+        titleDescription:LOC(@"DISABLE_SERVER_ABR_DESC")
+        accessibilityIdentifier:nil
+        switchOn:DisableServerABR()
+        switchBlock:^BOOL (YTSettingsCell *cell, BOOL enabled) {
+            [[NSUserDefaults standardUserDefaults] setBool:enabled forKey:DisableServerABRKey];
+            return YES;
+        }
+        settingItemId:0];
+    [sectionItems addObject:disableServerABR];
 
     // Decode threads
     NSString *decodeThreadsTitle = LOC(@"DECODE_THREADS");
