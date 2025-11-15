@@ -1,6 +1,7 @@
 #import <PSHeader/Misc.h>
 #import <VideoToolbox/VideoToolbox.h>
 #import <YouTubeHeader/YTHotConfig.h>
+#import <YouTubeHeader/YTSettingsGroupData.h>
 #import <YouTubeHeader/YTSettingsPickerViewController.h>
 #import <YouTubeHeader/YTSettingsSectionItem.h>
 #import <YouTubeHeader/YTSettingsSectionItemManager.h>
@@ -9,7 +10,15 @@
 
 extern BOOL disableHardwareDecode;
 
+#define TweakName @"YTUHD"
+
 #define LOC(x) [tweakBundle localizedStringForKey:x value:nil table:nil]
+
+static const NSInteger TweakSection = 'ythd';
+
+@interface YTSettingsSectionItemManager (YTUHD)
+- (void)updateYTUHDSectionWithEntry:(id)entry;
+@end
 
 BOOL UseVP9() {
     return [[NSUserDefaults standardUserDefaults] boolForKey:UseVP9Key];
@@ -49,6 +58,33 @@ NSBundle *YTUHDBundle() {
     return bundle;
 }
 
+%hook YTSettingsGroupData
+
+- (NSArray <NSNumber *> *)orderedCategories {
+    if (self.type != 1 || class_getClassMethod(objc_getClass("YTSettingsGroupData"), @selector(tweaks)))
+        return %orig;
+    NSMutableArray *mutableCategories = %orig.mutableCopy;
+    [mutableCategories insertObject:@(TweakSection) atIndex:0];
+    return mutableCategories.copy;
+}
+
+%end
+
+%hook YTAppSettingsPresentationData
+
++ (NSArray <NSNumber *> *)settingsCategoryOrder {
+    NSArray <NSNumber *> *order = %orig;
+    NSUInteger insertIndex = [order indexOfObject:@(1)];
+    if (insertIndex != NSNotFound) {
+        NSMutableArray <NSNumber *> *mutableOrder = [order mutableCopy];
+        [mutableOrder insertObject:@(TweakSection) atIndex:insertIndex + 1];
+        order = mutableOrder.copy;
+    }
+    return order;
+}
+
+%end
+
 %hook YTSettingsSectionItemManager
 
 - (void)updateVideoQualitySectionWithEntry:(id)entry {
@@ -60,15 +96,15 @@ NSBundle *YTUHDBundle() {
     mediaQualitySettingsHotConfig.enablePersistentVideoQualitySettings = defaultValue;
 }
 
-%end
-
-static void addSectionItem(YTSettingsViewController *settingsViewController, NSMutableArray <YTSettingsSectionItem *> *sectionItems, NSInteger category) {
-    if (category != 14) return;
+%new(v@:@)
+- (void)updateYTUHDSectionWithEntry:(id)entry {
+    NSMutableArray <YTSettingsSectionItem *> *sectionItems = [NSMutableArray array];
     NSBundle *tweakBundle = YTUHDBundle();
     disableHardwareDecode = YES;
     BOOL hasVP9 = VTIsHardwareDecodeSupported(kCMVideoCodecType_VP9);
     disableHardwareDecode = NO;
     Class YTSettingsSectionItemClass = %c(YTSettingsSectionItem);
+    YTSettingsViewController *settingsViewController = [self valueForKey:@"_settingsViewControllerDelegate"];
 
     // Use VP9
     YTSettingsSectionItem *vp9 = [YTSettingsSectionItemClass switchItemWithTitle:LOC(@"USE_VP9")
@@ -172,17 +208,20 @@ static void addSectionItem(YTSettingsViewController *settingsViewController, NSM
         }
         settingItemId:0];
     [sectionItems addObject:rowThreading];
+
+    if ([settingsViewController respondsToSelector:@selector(setSectionItems:forCategory:title:icon:titleDescription:headerHidden:)]) {
+        YTIIcon *icon = [%c(YTIIcon) new];
+        icon.iconType = YT_SETTINGS_HD;
+        [settingsViewController setSectionItems:sectionItems forCategory:TweakSection title:TweakName icon:icon titleDescription:nil headerHidden:NO];
+    } else
+        [settingsViewController setSectionItems:sectionItems forCategory:TweakSection title:TweakName titleDescription:nil headerHidden:NO];
 }
 
-%hook YTSettingsViewController
-
-- (void)setSectionItems:(NSMutableArray <YTSettingsSectionItem *> *)sectionItems forCategory:(NSInteger)category title:(NSString *)title titleDescription:(NSString *)titleDescription headerHidden:(BOOL)headerHidden {
-    addSectionItem(self, sectionItems, category);
-    %orig;
-}
-
-- (void)setSectionItems:(NSMutableArray <YTSettingsSectionItem *> *)sectionItems forCategory:(NSInteger)category title:(NSString *)title icon:(YTIIcon *)icon titleDescription:(NSString *)titleDescription headerHidden:(BOOL)headerHidden {
-    addSectionItem(self, sectionItems, category);
+- (void)updateSectionForCategory:(NSUInteger)category withEntry:(id)entry {
+    if (category == TweakSection) {
+        [self updateYTUHDSectionWithEntry:entry];
+        return;
+    }
     %orig;
 }
 
