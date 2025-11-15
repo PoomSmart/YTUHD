@@ -1,3 +1,4 @@
+#import <Foundation/NSProcessInfo.h>
 #import <Foundation/NSString.h>
 #import <HBLog.h>
 #import <VideoToolbox/VideoToolbox.h>
