@@ -1,9 +1,9 @@
 "USE_VP9" = "Use VP9";
-"USE_VP9_DESC" = "Enable VP9 codec that supports up to 4K resolutions. Works best with devices with Apple CPU A12 and higher. App restart is required.";
+"USE_VP9_DESC" = "Enables VP9 codec that supports up to 4K resolutions. Works best with devices with Apple CPU A12 and higher. App restart is required.";
 "HW_VP9_SUPPORT" = "Hardware VP9 Support";
 
 "ALL_VP9" = "VP9 for all";
-"ALL_VP9_DESC" = "Use VP9 codec for all video resolutions. This is recommended to be enabled for hardware VP9 supported devices (A12 and higher) AND when YouTube app has VP9 entitlement.";
+"ALL_VP9_DESC" = "Uses VP9 codec for all video resolutions. This is recommended to be enabled for hardware VP9 supported devices (A12 and higher) AND when YouTube app has VP9 entitlement.";
 
 "DISABLE_SERVER_ABR" = "Disable server ABR";
 "DISABLE_SERVER_ABR_DESC" = "Disables server-side adaptive bitrate (ABR) adjustments. Enable this only if you experience video failing to play on old YouTube versions.";

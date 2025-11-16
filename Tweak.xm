@@ -31,6 +31,7 @@ extern "C" {
 NSArray <MLFormat *> *filteredFormats(NSArray <MLFormat *> *formats) {
     if (AllVP9()) return formats;
     NSPredicate *predicate = [NSPredicate predicateWithBlock:^BOOL(MLFormat *format, NSDictionary *bindings) {
+        if (![format isKindOfClass:%c(MLFormat)]) return YES;
         NSString *qualityLabel = [format qualityLabel];
         BOOL isHighRes = [qualityLabel hasPrefix:@"2160p"] || [qualityLabel hasPrefix:@"1440p"];
         BOOL isVP9orAV1 = [[format MIMEType] videoCodec] == 'vp09' || [[format MIMEType] videoCodec] == 'av01';
