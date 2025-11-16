@@ -42,7 +42,6 @@ The history has shaped YTUHD to spoof the device as iOS 15 (or higher) for those
 
 ## Sideloading
 
-It's been reported that the sideloaded version of YouTube will not get 2K/4K even with YTUHD included. This is because of a big reason: VP9.
-Normally when an app is sideloaded, the private entitlements get removed (including `com.apple.coremedia.allow-alternate-video-decoder-selection`) and the app won't be allowed to access the hardware VP9 decoder. There is no known solution to bypass this, unless you use [TrollStore](https://github.com/opa334/TrollStore) which allows for practically any entitlements, including the aforementioned, to be in your sideloaded app.
+Normally when an app is sideloaded, the private entitlements get removed (including `com.apple.coremedia.allow-alternate-video-decoder-selection`) and the app won't be allowed to access the hardware VP9 decoder. As for sideloaded YouTube, you will end up with only the software VP9 decoder, which can drain battery significantly. There is no known solution to bypass this, unless you use [TrollStore](https://github.com/opa334/TrollStore).
 
 Update July 2025: Some sideloading methods may not work because the tweak now hooks functions like `VTIsHardwareDecodeSupported` and `sysctlbyname`. Also, [libundirect](https://github.com/opa334/libundirect) is now used by YTUHD. If you want to sideload YouTube IPA with YTUHD that uses `libundirect`, the simplest solution is to add `SIDELOAD=1` when building the package with Theos.
