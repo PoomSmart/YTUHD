@@ -8,8 +8,6 @@
 #import <YouTubeHeader/YTSettingsViewController.h>
 #import "Header.h"
 
-extern BOOL disableHardwareDecode;
-
 #define TweakName @"YTUHD"
 
 #define LOC(x) [tweakBundle localizedStringForKey:x value:nil table:nil]
@@ -100,9 +98,7 @@ NSBundle *YTUHDBundle() {
 - (void)updateYTUHDSectionWithEntry:(id)entry {
     NSMutableArray <YTSettingsSectionItem *> *sectionItems = [NSMutableArray array];
     NSBundle *tweakBundle = YTUHDBundle();
-    disableHardwareDecode = YES;
     BOOL hasVP9 = VTIsHardwareDecodeSupported(kCMVideoCodecType_VP9);
-    disableHardwareDecode = NO;
     Class YTSettingsSectionItemClass = %c(YTSettingsSectionItem);
     YTSettingsViewController *settingsViewController = [self valueForKey:@"_settingsViewControllerDelegate"];
 

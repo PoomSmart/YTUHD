@@ -1,7 +1,7 @@
+#import <CoreMedia/CoreMedia.h>
 #import <Foundation/NSProcessInfo.h>
 #import <Foundation/NSString.h>
 #import <HBLog.h>
-#import <VideoToolbox/VideoToolbox.h>
 #import <substrate.h>
 #ifdef SIDELOAD
 #import <libundirect/libundirect_dynamic.h>
@@ -195,15 +195,6 @@ static void hookFormats(MLABRPolicy *self) {
 %end
 
 BOOL overrideSupportsCodec = NO;
-BOOL disableHardwareDecode = NO;
-
-%hookf(Boolean, VTIsHardwareDecodeSupported, CMVideoCodecType codecType) {
-    if (!disableHardwareDecode && (codecType == kCMVideoCodecType_VP9 || codecType == kCMVideoCodecType_AV1)) {
-        HBLogDebug(@"YTUHD - VTIsHardwareDecodeSupported called for codec: %d", codecType);
-        return YES;
-    }
-    return %orig;
-}
 
 %hook MLVideoDecoderFactory
 
@@ -276,7 +267,7 @@ BOOL (*SupportsCodec)(CMVideoCodecType codec) = NULL;
         HBLogDebug(@"YTUHD - SupportsCodec called for codec: %d, returning NO", codec);
         return NO;
     }
-    return %orig;
+    return YES;
 }
 
 %end
