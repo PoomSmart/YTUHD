@@ -22,7 +22,7 @@ The driver availability is checked inside `/System/Library/VideoDecoders/AVD.vid
 Provided that you can extract a functional `AVD.videodecoder` binary from a dyld shared cache, you will still encounter the error `AVDRegister - AppleAVDCheckPlatform() returned FALSE` trying to load it.
 
 Fortunately, YouTube app has a fallback to software decoding, which is not as efficient as hardware, but it works.
-It can be utilized by disabling server ABR, which will be explained below.
+It can be utilized by disabling server ABR, as can be seen from the code.
 
 Update July 2025: Disabling server ABR is no longer necessary. See the section below.
 
@@ -42,6 +42,6 @@ The history has shaped YTUHD to spoof the device as iOS 15 (or higher) for those
 
 ## Sideloading
 
-Normally when an app is sideloaded, the private entitlements get removed (including `com.apple.coremedia.allow-alternate-video-decoder-selection`) and the app won't be allowed to access the hardware VP9 decoder. As for sideloaded YouTube, you will end up with only the software VP9 decoder, which can drain battery significantly. There is no known solution to bypass this, unless you can use [TrollStore](https://github.com/opa334/TrollStore) on your device to install the sideloaded YouTube IPA.
+Normally when an app is sideloaded, the private entitlements get removed (including `com.apple.coremedia.allow-alternate-video-decoder-selection`) and the app won't be allowed to access the hardware VP9 decoder. As for sideloaded YouTube, you will end up with only the software VP9 decoder, which can drain battery significantly. There is no known solution to bypass this, unless you can use [TrollStore](https://github.com/opa334/TrollStore) on your device to install the sideloaded YouTube IPA. TrollStore preserves the entitlements of the app.
 
 Update July 2025: Some sideloading methods may not work because the tweak now hooks functions like `VTIsHardwareDecodeSupported` and `sysctlbyname`. Also, [libundirect](https://github.com/opa334/libundirect) is now used by YTUHD. If you want to sideload YouTube IPA with YTUHD that uses `libundirect`, the simplest solution is to add `SIDELOAD=1` when building the package with Theos.
