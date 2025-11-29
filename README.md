@@ -31,11 +31,9 @@ Update July 2025: Disabling server ABR is no longer necessary. See the section b
 YouTube introduced the AV1 codec around late 2018. This codec is also capable of 2K/4K resolutions.
 YTUHD also attempts to enable AV1 as seen in the code.
 
-Before YouTube 20.47.3, it was understood that AV1 is for iPhone 15 Pro series or higher only.
-
 Starting from YouTube version 20.47.3, the software VP9 decoder has been removed entirely.
 This means that unsupported devices cannot play 2K/4K formats.
-But coincidentally, with this tweak enabled, AV1 is used instead and does work even on unsupported devices - but not on sideloaded devices.
+But coincidentally, with this tweak enabled, AV1 is used instead and does work even on unsupported devices - but apparently not on sideloaded devices.
 
 ## Server ABR
 
