@@ -1,5 +1,5 @@
-"USE_VP9" = "VP9'u aç";
-"USE_VP9_DESC" = "4K çözünürlüğe kadar VP9 kodeğini aç. Apple A12 ve üstü cihazlarla en iyi çalışır. Uyg. yeniden başlatılmalı.";
+"USE_VP9" = "VP9/AV1'u aç";
+"USE_VP9_DESC" = "4K çözünürlüğe kadar VP9/AV1 kodeğini aç. Apple A12 ve üstü cihazlarla en iyi çalışır. Uyg. yeniden başlatılmalı.";
 "HW_VP9_SUPPORT" = "Donanımsal VP9 Desteği";
 
 "ALL_VP9" = "Tüm videolar için VP9";

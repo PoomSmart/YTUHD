@@ -1,5 +1,5 @@
-"USE_VP9" = "Utilizare VP9";
-"USE_VP9_DESC" = "Activare codec VP9, care suportă rezoluții până la 4K. Funcționează ideal cu dispozitive cu procesor Apple A12 sau ulterior. Este necesară repornirea aplicației.";
+"USE_VP9" = "Utilizare VP9/AV1";
+"USE_VP9_DESC" = "Activare codec VP9/AV1, care suportă rezoluții până la 4K. Funcționează ideal cu dispozitive cu procesor Apple A12 sau ulterior. Este necesară repornirea aplicației.";
 "HW_VP9_SUPPORT" = "Suport VP9 Hardware";
 
 "ALL_VP9" = "VP9 pentru toate";

@@ -1,5 +1,5 @@
-"USE_VP9" = "Use VP9";
-"USE_VP9_DESC" = "Enables VP9 codec that supports up to 4K resolutions. Works best with devices with Apple CPU A12 and higher. App restart is required.";
+"USE_VP9" = "Use VP9/AV1";
+"USE_VP9_DESC" = "Enables VP9/AV1 codec that supports up to 4K resolutions. Works best with devices with Apple CPU A12 and higher. App restart is required.";
 "HW_VP9_SUPPORT" = "Hardware VP9 Support";
 
 "ALL_VP9" = "VP9 for all";

@@ -1,5 +1,5 @@
-"USE_VP9" = "Użyj VP9";
-"USE_VP9_DESC" = "Włącza kodek VP9, który wspiera rodzielczość do 4K. Działa najlepiej z urządzeniami Apple z CPU A12 i nowszymi. Wymagane jest ponowne uruchomienie aplikacji.";
+"USE_VP9" = "Użyj VP9/AV1";
+"USE_VP9_DESC" = "Włącza kodek VP9/AV1, który wspiera rodzielczość do 4K. Działa najlepiej z urządzeniami Apple z CPU A12 i nowszymi. Wymagane jest ponowne uruchomienie aplikacji.";
 "HW_VP9_SUPPORT" = "Sprzętowe wsparcie VP9";
 
 "ALL_VP9" = "VP9 do wszystkiego";

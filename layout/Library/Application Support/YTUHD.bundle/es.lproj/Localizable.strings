@@ -1,5 +1,5 @@
-"USE_VP9" = "Utilizar VP9";
-"USE_VP9_DESC" = "Activa el códec VP9 que admite resoluciones de hasta 4K. Funciona mejor con dispositivos con CPU Apple A12 y superior. Es necesario reiniciar la aplicación";
+"USE_VP9" = "Utilizar VP9/AV1";
+"USE_VP9_DESC" = "Activa el códec VP9/AV1 que admite resoluciones de hasta 4K. Funciona mejor con dispositivos con CPU Apple A12 y superior. Es necesario reiniciar la aplicación";
 "HW_VP9_SUPPORT" = "Soporte de hardware VP9";
 
 "ALL_VP9" = "VP9 para todo";
