@@ -87,15 +87,6 @@ NSBundle *YTUHDBundle() {
 
 %hook YTSettingsSectionItemManager
 
-- (void)updateVideoQualitySectionWithEntry:(id)entry {
-    YTHotConfig *hotConfig = [self valueForKey:@"_hotConfig"];
-    YTIMediaQualitySettingsHotConfig *mediaQualitySettingsHotConfig = [hotConfig hotConfigGroup].mediaHotConfig.mediaQualitySettingsHotConfig;
-    BOOL defaultValue = mediaQualitySettingsHotConfig.enablePersistentVideoQualitySettings;
-    mediaQualitySettingsHotConfig.enablePersistentVideoQualitySettings = YES;
-    %orig;
-    mediaQualitySettingsHotConfig.enablePersistentVideoQualitySettings = defaultValue;
-}
-
 %new(v@:@)
 - (void)updateYTUHDSectionWithEntry:(id)entry {
     NSMutableArray <YTSettingsSectionItem *> *sectionItems = [NSMutableArray array];

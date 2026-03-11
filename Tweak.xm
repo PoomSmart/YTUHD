@@ -278,7 +278,7 @@ BOOL (*SupportsCodec)(CMVideoCodecType codec) = NULL;
 %hook UIDevice
 
 - (NSString *)systemVersion {
-    return @"15.8.5";
+    return @"15.8.6";
 }
 
 %end
@@ -289,7 +289,7 @@ BOOL (*SupportsCodec)(CMVideoCodecType codec) = NULL;
     NSOperatingSystemVersion version;
     version.majorVersion = 15;
     version.minorVersion = 8;
-    version.patchVersion = 5;
+    version.patchVersion = 6;
     return version;
 }
 
