@@ -1,6 +1,7 @@
 #import <CoreMedia/CoreMedia.h>
 #import <Foundation/NSProcessInfo.h>
 #import <Foundation/NSString.h>
+#import <VideoToolbox/VideoToolbox.h>
 #import <HBLog.h>
 #import <substrate.h>
 #ifdef SIDELOAD
@@ -27,14 +28,58 @@ extern "C" {
     BOOL RowThreading();
 }
 
-// Remove any <= 1080p VP9 formats if AllVP9 is disabled
+// Reimplemented VP9 decoder (YTUHDVPXVideoDecoder defined in HAMVPXVideoDecoder.m).
+// Only instantiated when the native HAMVPXVideoDecoder class is absent (new YT).
+@interface YTUHDVPXVideoDecoder : NSObject
+- (instancetype)initWithDelegate:(id)delegate
+                   delegateQueue:(id)delegateQueue
+                     decodeQueue:(id)decodeQueue
+           pixelBufferAttributes:(id)pixelBufferAttributes
+                          config:(HAMVPXDecoderConfig)config;
+@end
+
+BOOL hasHAMVPXVideoDecoder;
+BOOL vtSupportsVP9;
+
+// Build a HAMVPXDecoderConfig from the current user settings.
+static HAMVPXDecoderConfig YTUHDMakeConfig(void) {
+    return (HAMVPXDecoderConfig){
+        .threads                = MAX(1, DecodeThreads()),
+        .skipLoopFilter         = SkipLoopFilter(),
+        .loopFilterOptimization = LoopFilterOptimization(),
+        .rowThreading           = RowThreading(),
+        ._reserved              = NO,
+    };
+}
+
+// Create a YTUHDVPXVideoDecoder with user settings.
+// Used by all factory hooks on new YouTube (>= 20.47.3).
+static id YTUHDCreateVPXDecoder(id delegate, id delegateQueue, id pixelBufferAttributes) {
+    dispatch_queue_t decodeQueue =
+        dispatch_queue_create("com.ytuhd.vpx.decode", DISPATCH_QUEUE_SERIAL);
+    return [[YTUHDVPXVideoDecoder alloc]
+        initWithDelegate:delegate
+           delegateQueue:delegateQueue
+             decodeQueue:decodeQueue
+   pixelBufferAttributes:pixelBufferAttributes
+                  config:YTUHDMakeConfig()];
+}
+
+// Remove any <= 1080p VP9 formats if AllVP9 is disabled.
 NSArray <MLFormat *> *filteredFormats(NSArray <MLFormat *> *formats) {
-    if (AllVP9()) return formats;
+    // VP9 is always decodable when UseVP9 is enabled:
+    //   old YT  -> native HAMVPXVideoDecoder (libvpx)
+    //   new YT  -> hardware VideoToolbox (A12+) or YTUHDVPXVideoDecoder (A11-)
+    BOOL canDecodeVP9 = YES;
+    if (AllVP9() && canDecodeVP9) return formats;
     NSPredicate *predicate = [NSPredicate predicateWithBlock:^BOOL(MLFormat *format, NSDictionary *bindings) {
         if (![format isKindOfClass:%c(MLFormat)]) return YES;
+        BOOL isVP9 = [[format MIMEType] videoCodec] == 'vp09';
+        // Always strip VP9 when nothing can decode it
+        if (isVP9 && !canDecodeVP9) return NO;
         NSString *qualityLabel = [format qualityLabel];
         BOOL isHighRes = [qualityLabel hasPrefix:@"2160p"] || [qualityLabel hasPrefix:@"1440p"];
-        BOOL isVP9orAV1 = [[format MIMEType] videoCodec] == 'vp09' || [[format MIMEType] videoCodec] == 'av01';
+        BOOL isVP9orAV1 = isVP9 || [[format MIMEType] videoCodec] == 'av01';
         return (isHighRes && isVP9orAV1) || !isVP9orAV1;
     }];
     return [formats filteredArrayUsingPredicate:predicate];
@@ -49,6 +94,8 @@ static void hookFormatsBase(YTIHamplayerConfig *config) {
     filter.enableVideoCodecSplicing = YES;
     filter.av1.maxArea = MAX_PIXELS;
     filter.av1.maxFps = MAX_FPS;
+    // Advertise VP9 capability — covered by native decoder, hardware VT, or
+    // our YTUHDVPXVideoDecoder backport depending on the YouTube version.
     filter.vp9.maxArea = MAX_PIXELS;
     filter.vp9.maxFps = MAX_FPS;
 }
@@ -201,6 +248,8 @@ BOOL overrideSupportsCodec = NO;
 
 - (id)videoDecoderWithDelegate:(id)delegate delegateQueue:(id)delegateQueue formatDescription:(id)formatDescription pixelBufferAttributes:(id)pixelBufferAttributes preferredOutputFormats:(Span)preferredOutputFormats error:(NSError **)error {
     HBLogDebug(@"YTUHD - MLVideoDecoderFactory videoDecoderWithDelegate called");
+    if (!hasHAMVPXVideoDecoder && [(HAMFormatDescription *)formatDescription mediaSubType] == kCMVideoCodecType_VP9)
+        return YTUHDCreateVPXDecoder(delegate, delegateQueue, pixelBufferAttributes);
     overrideSupportsCodec = YES;
     id decoder = %orig;
     overrideSupportsCodec = NO;
@@ -209,6 +258,8 @@ BOOL overrideSupportsCodec = NO;
 
 - (id)videoDecoderWithDelegate:(id)delegate delegateQueue:(id)delegateQueue formatDescription:(id)formatDescription pixelBufferAttributes:(id)pixelBufferAttributes setPixelBufferTypeOnlyIfEmpty:(BOOL)setPixelBufferTypeOnlyIfEmpty error:(NSError **)error {
     HBLogDebug(@"YTUHD - MLVideoDecoderFactory videoDecoderWithDelegate called");
+    if (!hasHAMVPXVideoDecoder && [(HAMFormatDescription *)formatDescription mediaSubType] == kCMVideoCodecType_VP9)
+        return YTUHDCreateVPXDecoder(delegate, delegateQueue, pixelBufferAttributes);
     overrideSupportsCodec = YES;
     id decoder = %orig;
     overrideSupportsCodec = NO;
@@ -217,6 +268,8 @@ BOOL overrideSupportsCodec = NO;
 
 - (id)videoDecoderWithDelegate:(id)delegate delegateQueue:(id)delegateQueue formatDescription:(id)formatDescription pixelBufferAttributes:(id)pixelBufferAttributes error:(NSError **)error {
     HBLogDebug(@"YTUHD - MLVideoDecoderFactory videoDecoderWithDelegate called");
+    if (!hasHAMVPXVideoDecoder && [(HAMFormatDescription *)formatDescription mediaSubType] == kCMVideoCodecType_VP9)
+        return YTUHDCreateVPXDecoder(delegate, delegateQueue, pixelBufferAttributes);
     overrideSupportsCodec = YES;
     id decoder = %orig;
     overrideSupportsCodec = NO;
@@ -229,6 +282,8 @@ BOOL overrideSupportsCodec = NO;
 
 - (id)videoDecoderWithDelegate:(id)delegate delegateQueue:(id)delegateQueue formatDescription:(id)formatDescription pixelBufferAttributes:(id)pixelBufferAttributes preferredOutputFormats:(Span)preferredOutputFormats error:(NSError **)error {
     HBLogDebug(@"YTUHD - HAMDefaultVideoDecoderFactory videoDecoderWithDelegate called");
+    if (!hasHAMVPXVideoDecoder && [(HAMFormatDescription *)formatDescription mediaSubType] == kCMVideoCodecType_VP9)
+        return YTUHDCreateVPXDecoder(delegate, delegateQueue, pixelBufferAttributes);
     overrideSupportsCodec = YES;
     id decoder = %orig;
     overrideSupportsCodec = NO;
@@ -237,6 +292,8 @@ BOOL overrideSupportsCodec = NO;
 
 - (id)videoDecoderWithDelegate:(id)delegate delegateQueue:(id)delegateQueue formatDescription:(id)formatDescription pixelBufferAttributes:(id)pixelBufferAttributes setPixelBufferTypeOnlyIfEmpty:(BOOL)setPixelBufferTypeOnlyIfEmpty error:(NSError **)error {
     HBLogDebug(@"YTUHD - HAMDefaultVideoDecoderFactory videoDecoderWithDelegate called");
+    if (!hasHAMVPXVideoDecoder && [(HAMFormatDescription *)formatDescription mediaSubType] == kCMVideoCodecType_VP9)
+        return YTUHDCreateVPXDecoder(delegate, delegateQueue, pixelBufferAttributes);
     overrideSupportsCodec = YES;
     id decoder = %orig;
     overrideSupportsCodec = NO;
@@ -245,6 +302,8 @@ BOOL overrideSupportsCodec = NO;
 
 - (id)videoDecoderWithDelegate:(id)delegate delegateQueue:(id)delegateQueue formatDescription:(id)formatDescription pixelBufferAttributes:(id)pixelBufferAttributes error:(NSError **)error {
     HBLogDebug(@"YTUHD - HAMDefaultVideoDecoderFactory videoDecoderWithDelegate called");
+    if (!hasHAMVPXVideoDecoder && [(HAMFormatDescription *)formatDescription mediaSubType] == kCMVideoCodecType_VP9)
+        return YTUHDCreateVPXDecoder(delegate, delegateQueue, pixelBufferAttributes);
     overrideSupportsCodec = YES;
     id decoder = %orig;
     overrideSupportsCodec = NO;
@@ -264,9 +323,18 @@ BOOL overrideSupportsCodec = NO;
 
 BOOL (*SupportsCodec)(CMVideoCodecType codec) = NULL;
 %hookf(BOOL, SupportsCodec, CMVideoCodecType codec) {
-    if (overrideSupportsCodec && (codec == kCMVideoCodecType_VP9 || codec == kCMVideoCodecType_AV1)) {
-        HBLogDebug(@"YTUHD - SupportsCodec called for codec: %d, returning NO", codec);
-        return NO;
+    if (overrideSupportsCodec) {
+        // Suppress VP9 when libvpx decoder exists (old YT → routes to HAMVPXVideoDecoder),
+        // or when VT has no VP9 support (A11 and earlier on new YT — formats are already
+        // stripped by filteredFormats, this is just a belt-and-suspenders guard).
+        // When neither condition is true (new YT + A12+), let VT decode VP9 natively.
+        BOOL suppressVP9 = hasHAMVPXVideoDecoder || !vtSupportsVP9;
+        BOOL suppressCodec = (codec == kCMVideoCodecType_AV1) ||
+                             (codec == kCMVideoCodecType_VP9 && suppressVP9);
+        if (suppressCodec) {
+            HBLogDebug(@"YTUHD - SupportsCodec called for codec: %d, returning NO", codec);
+            return NO;
+        }
     }
     return YES;
 }
@@ -310,11 +378,15 @@ BOOL (*SupportsCodec)(CMVideoCodecType codec) = NULL;
 %end
 
 %ctor {
+    hasHAMVPXVideoDecoder = %c(HAMVPXVideoDecoder) != nil;
+    vtSupportsVP9 = VTIsHardwareDecodeSupported(kCMVideoCodecType_VP9);
     [[NSUserDefaults standardUserDefaults] registerDefaults:@{
         DecodeThreadsKey: @2
     }];
     if (!UseVP9()) return;
     %init;
+    // On YouTube >= 20.47.3 the native class is gone; YTUHDVPXVideoDecoder
+    // (defined in HAMVPXVideoDecoder.m) is injected by the factory hook above.
     uint8_t pattern1[] = {
         0x28, 0x66, 0x8c, 0x52,
         0xc8, 0x2e, 0xac, 0x72,

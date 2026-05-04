@@ -18,7 +18,7 @@ static const NSInteger TweakSection = 'ythd';
 - (void)updateYTUHDSectionWithEntry:(id)entry;
 @end
 
-BOOL hasHAMVPXVideoDecoder;
+extern BOOL vtSupportsVP9;
 
 BOOL UseVP9() {
     return [[NSUserDefaults standardUserDefaults] boolForKey:UseVP9Key];
@@ -131,7 +131,12 @@ NSBundle *YTUHDBundle() {
         settingItemId:0];
     [sectionItems addObject:disableServerABR];
 
-    if (hasHAMVPXVideoDecoder) {
+    // Show software decoder options when VP9 is handled by a software decoder:
+    // - old YT: native HAMVPXVideoDecoder (no hardware VP9 means the factory chose software)
+    // - new YT: our YTUHDVPXVideoDecoder backport (A11 and earlier)
+    // When hardware VP9 is available (A12+ with new YT entitlement), these settings
+    // have no effect so we hide them.
+    if (!vtSupportsVP9) {
         // Decode threads
         NSString *decodeThreadsTitle = LOC(@"DECODE_THREADS");
         YTSettingsSectionItem *decodeThreads = [YTSettingsSectionItemClass itemWithTitle:decodeThreadsTitle
@@ -217,8 +222,3 @@ NSBundle *YTUHDBundle() {
 }
 
 %end
-
-%ctor {
-    hasHAMVPXVideoDecoder = %c(HAMVPXVideoDecoder) != nil;
-    %init;
-}

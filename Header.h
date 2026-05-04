@@ -2,6 +2,8 @@
 #define YTUHD_H_
 
 #import <YouTubeHeader/HAMDefaultABRPolicy.h>
+#import <YouTubeHeader/HAMFormatDescription.h>
+#import <YouTubeHeader/HAMVPXVideoDecoder.h>
 // #import <YouTubeHeader/HAMDefaultABRPolicyConfig.h>
 #import <YouTubeHeader/MLABRPolicyNew.h>
 #import <YouTubeHeader/MLABRPolicyOld.h>
