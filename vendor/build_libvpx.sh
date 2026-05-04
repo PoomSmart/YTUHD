@@ -14,8 +14,7 @@ AR="$(xcrun --sdk iphoneos --find ar)"
 STRIP="$(xcrun --sdk iphoneos --find strip)"
 NM="$(xcrun --sdk iphoneos --find nm)"
 
-# Minimum iOS version — keep in sync with Makefile TARGET
-MIN_IOS=15.0
+MIN_IOS=11.0
 
 EXTRA_CFLAGS="-miphoneos-version-min=$MIN_IOS -isysroot $SDK"
 

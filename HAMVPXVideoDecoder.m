@@ -16,8 +16,9 @@
  *     decoded output into HAMSampleBuffer objects
  */
 
-#import <Foundation/Foundation.h>
 #import <CoreMedia/CoreMedia.h>
+#import <YouTubeHeader/HAMInputSampleBuffer.h>
+#import <YouTubeHeader/HAMVideoDecoderDelegate.h>
 #import <objc/message.h>
 #import <stdatomic.h>
 
@@ -70,38 +71,6 @@ typedef id (*PixelBufferPoolFn)(id, SEL,
     CMTime *,
     NSError **
 );
-
-// ---------------------------------------------------------------------------
-// HAMVideoDecoderDelegate — informal protocol mirroring the delegate callbacks
-// used by HAMVPXVideoDecoder / HAMDav1dVideoDecoder in the YouTube binary.
-// Declared here so the compiler can verify selector existence and calling
-// conventions without requiring an external header.
-// ---------------------------------------------------------------------------
-@protocol HAMVideoDecoderDelegate <NSObject>
-- (void)videoDecoderDidPrepare:(id)decoder;
-- (void)videoDecoderDidTerminate:(id)decoder;
-- (void)videoDecoder:(id)decoder didFailWithError:(NSError *)error;
-@end
-
-// ---------------------------------------------------------------------------
-// HAMInputSampleBuffer — typed interface for the input sampleBuffer argument.
-// Declared so the compiler generates correct calling conventions for methods
-// that return value types (CMTime, CMSampleTimingInfo, double, int64_t).
-// We never instantiate this class; we only cast incoming id values to it.
-// ---------------------------------------------------------------------------
-@interface HAMInputSampleBuffer : NSObject
-- (NSInteger)sampleCount;
-- (NSData *)data;
-- (NSInteger)sizeForSample:(NSInteger)idx;
-- (CMSampleTimingInfo)timingInfoForSample:(NSInteger)idx;
-- (CMTime)presentationTime;
-- (CMTime)originalPresentationTime;
-- (id)formatSelection;
-- (id)formatDescription;
-- (double)productionTime;
-- (int64_t)periodID;
-- (BOOL)dropFrames;
-@end
 
 // ---------------------------------------------------------------------------
 // YTUHDVPXVideoDecoder
