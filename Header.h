@@ -25,10 +25,18 @@
 
 #define UseVP9Key @"EnableVP9"
 #define AllVP9Key @"AllVP9"
+#define UseAV1Key @"EnableAV1"
+#define ApplyGrainKey @"Dav1dApplyGrain"
 #define DisableServerABRKey @"DisableServerABR"
 #define DecodeThreadsKey @"VP9DecodeThreads"
 #define SkipLoopFilterKey @"VP9SkipLoopFilter"
 #define LoopFilterOptimizationKey @"VP9LoopFilterOptimization"
 #define RowThreadingKey @"VP9RowThreading"
+
+// Config passed to YTUHDDav1dVideoDecoder at init.
+typedef struct {
+    int  threads;    // decode threads (0 = auto)
+    BOOL applyGrain; // apply AV1 film grain
+} HAMDav1dDecoderConfig;
 
 #endif

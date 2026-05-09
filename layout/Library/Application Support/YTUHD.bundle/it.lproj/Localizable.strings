@@ -17,3 +17,9 @@
 "LOOP_FILTER_OPTIMIZATION" = "Loop filter optimization";
 
 "ROW_THREADING" = "Row threading";
+
+"USE_AV1" = "Usa AV1 (dav1d)";
+"USE_AV1_DESC" = "Abilita la decodifica software AV1 tramite dav1d per dispositivi senza supporto hardware AV1 (A16 e precedenti). Consente la riproduzione AV1 in 4K su iPhone più vecchi. Richiede il riavvio dell'app.";
+"HW_AV1_SUPPORT" = "Supporto hardware AV1";
+"APPLY_GRAIN" = "Applica grain cinematografico";
+"APPLY_GRAIN_DESC" = "Applica il filtro grain AV1 durante la decodifica.";

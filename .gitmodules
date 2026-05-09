@@ -1,3 +1,6 @@
 [submodule "vendor/libvpx"]
 	path = vendor/libvpx
 	url = https://github.com/webmproject/libvpx.git
+[submodule "vendor/dav1d"]
+	path = vendor/dav1d
+	url = https://github.com/videolan/dav1d

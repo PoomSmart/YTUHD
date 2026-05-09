@@ -17,3 +17,9 @@
 "LOOP_FILTER_OPTIMIZATION" = "Loop filter optimization";
 
 "ROW_THREADING" = "Row threading";
+
+"USE_AV1" = "AV1を使用 (dav1d)";
+"USE_AV1_DESC" = "ハードウェアAV1非対応デバイス（A16以前）でdav1dによるAV1ソフトウェアデコードを有効にします。旧iPhoneで4K AV1再生が可能になります。VP9より多くのCPUを必要とします。アプリの再起動が必要です。";
+"HW_AV1_SUPPORT" = "ハードウェアAV1サポート";
+"APPLY_GRAIN" = "フィルムグレインを適用";
+"APPLY_GRAIN_DESC" = "デコード中にAV1フィルムグレインフィルターを適用します。";

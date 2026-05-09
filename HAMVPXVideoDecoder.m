@@ -6,7 +6,7 @@
  *
  * Provides YTUHDVPXVideoDecoder — a drop-in VP9 software decoder using
  * libvpx that is injected by the HAMDefaultVideoDecoderFactory hook in
- * Tweak.xm when the native class is absent (hasHAMVPXVideoDecoder == NO).
+ * Tweak.xm when the native class is absent.
  *
  * Class design mirrors the original HAMVPXVideoDecoder decompiled from
  * YouTube 20.18.4:

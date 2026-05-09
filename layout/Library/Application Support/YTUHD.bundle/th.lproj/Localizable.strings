@@ -17,3 +17,9 @@
 "LOOP_FILTER_OPTIMIZATION" = "Loop filter optimization";
 
 "ROW_THREADING" = "Row threading";
+
+"USE_AV1" = "ใช้ AV1 (dav1d)";
+"USE_AV1_DESC" = "เปิดใช้งานการถอดรหัส AV1 ด้วยซอฟต์แวร์ผ่าน dav1d สำหรับอุปกรณ์ที่ไม่รองรับ AV1 ทางฮาร์ดแวร์ (A16 และรุ่นเก่ากว่า) ต้องรีสตาร์ทแอป";
+"HW_AV1_SUPPORT" = "รองรับ AV1 ทางฮาร์ดแวร์";
+"APPLY_GRAIN" = "ใช้ Film Grain";
+"APPLY_GRAIN_DESC" = "ใช้ฟิลเตอร์ Film Grain ของ AV1 ระหว่างการถอดรหัส";

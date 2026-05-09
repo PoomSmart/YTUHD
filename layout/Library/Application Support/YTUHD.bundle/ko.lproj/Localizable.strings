@@ -17,3 +17,9 @@
 "LOOP_FILTER_OPTIMIZATION" = "Loop filter optimization";
 
 "ROW_THREADING" = "Row threading";
+
+"USE_AV1" = "AV1 사용 (dav1d)";
+"USE_AV1_DESC" = "하드웨어 AV1 미지원 기기(A16 이하)에서 dav1d를 통한 AV1 소프트웨어 디코딩을 활성화합니다. 구형 iPhone에서 4K AV1 재생이 가능합니다. VP9보다 CPU를 더 사용합니다. 앱 재시작이 필요합니다.";
+"HW_AV1_SUPPORT" = "하드웨어 AV1 지원";
+"APPLY_GRAIN" = "필름 그레인 적용";
+"APPLY_GRAIN_DESC" = "디코딩 중 AV1 필름 그레인 필터를 적용합니다.";

@@ -21,6 +21,8 @@ typedef struct {
 extern "C" {
     BOOL UseVP9();
     BOOL AllVP9();
+    BOOL UseAV1();
+    BOOL ApplyGrain();
     BOOL DisableServerABR();
     int DecodeThreads();
     BOOL SkipLoopFilter();
@@ -38,8 +40,20 @@ extern "C" {
                           config:(HAMVPXDecoderConfig)config;
 @end
 
+// Reimplemented AV1 decoder (YTUHDDav1dVideoDecoder defined in HAMDav1dVideoDecoder.m).
+// Instantiated when UseAV1() && !hasHAMDav1dVideoDecoder && !vtSupportsAV1.
+@interface YTUHDDav1dVideoDecoder : NSObject
+- (instancetype)initWithDelegate:(id)delegate
+                   delegateQueue:(id)delegateQueue
+                     decodeQueue:(id)decodeQueue
+           pixelBufferAttributes:(id)pixelBufferAttributes
+                          config:(HAMDav1dDecoderConfig)config;
+@end
+
 BOOL hasHAMVPXVideoDecoder;
 BOOL vtSupportsVP9;
+BOOL hasHAMDav1dVideoDecoder;
+BOOL vtSupportsAV1;
 
 // Build a HAMVPXDecoderConfig from the current user settings.
 static HAMVPXDecoderConfig YTUHDMakeConfig(void) {
@@ -63,6 +77,26 @@ static id YTUHDCreateVPXDecoder(id delegate, id delegateQueue, id pixelBufferAtt
              decodeQueue:decodeQueue
    pixelBufferAttributes:pixelBufferAttributes
                   config:YTUHDMakeConfig()];
+}
+
+// True when we should use software AV1 decode via dav1d.
+static BOOL useSoftwareAV1(void) {
+    return UseAV1() && !hasHAMDav1dVideoDecoder && !vtSupportsAV1;
+}
+
+// Create a YTUHDDav1dVideoDecoder with user settings.
+static id YTUHDCreateDav1dDecoder(id delegate, id delegateQueue, id pixelBufferAttributes) {
+    dispatch_queue_t decodeQueue =
+        dispatch_queue_create("com.ytuhd.dav1d.decode", DISPATCH_QUEUE_SERIAL);
+    return [[YTUHDDav1dVideoDecoder alloc]
+        initWithDelegate:delegate
+           delegateQueue:delegateQueue
+             decodeQueue:decodeQueue
+   pixelBufferAttributes:pixelBufferAttributes
+                  config:(HAMDav1dDecoderConfig){
+                      .threads    = MAX(1, DecodeThreads()),
+                      .applyGrain = ApplyGrain(),
+                  }];
 }
 
 // Remove any <= 1080p VP9 formats if AllVP9 is disabled.
@@ -167,11 +201,29 @@ static void hookFormats(MLABRPolicy *self) {
     return LoopFilterOptimization();
 }
 
+%new(i@:)
+- (int)libdav1dDecodeThreads {
+    return DecodeThreads();
+}
+
+%new(B@:)
+- (BOOL)libdav1dApplyGrain {
+    return ApplyGrain();
+}
+
 %end
 
 %hook YTColdConfig
 
 - (BOOL)iosPlayerClientSharedConfigPopulateSwAv1MediaCapabilities {
+    return YES;
+}
+
+- (BOOL)iosPlayerClientSharedConfigPopulateAc3MediaCapabilities {
+    return YES;
+}
+
+- (BOOL)iosPlayerClientSharedConfigPopulateEac3MediaCapabilities {
     return YES;
 }
 
@@ -196,6 +248,14 @@ static void hookFormats(MLABRPolicy *self) {
 }
 
 - (BOOL)iosPlayerClientSharedConfigHamplayerAlwaysEnqueueDecodedSampleBuffersToAvsbdl {
+    return YES;
+}
+
+- (BOOL)iosPlayerClientSharedConfigUseMediaCapabilitiesForClientFiltering {
+    return NO;
+}
+
+- (BOOL)iosPlayerClientSharedConfigPopulateMoreMediaCapabilities {
     return YES;
 }
 
@@ -242,14 +302,36 @@ static void hookFormats(MLABRPolicy *self) {
 
 %end
 
+// Suppress the list of hardware-decoded codecs when we are using software
+// decoders, so the pixel-buffer track renderer path is taken instead of
+// AVSBDL (which requires the hardware to handle compressed buffers).
+%hook MLHAMSBDLSampleBufferRenderingView
+
+- (NSArray *)supportedCodecs {
+    NSArray *orig = %orig;
+    if (!useSoftwareAV1()) return orig;
+    // Filter out AV1 so the SBDL compressed-buffer path is skipped for AV1
+    // while leaving H.264 / HEVC / VP9 etc. unaffected.
+    NSNumber *av1 = @(kCMVideoCodecType_AV1);
+    return [orig filteredArrayUsingPredicate:
+                [NSPredicate predicateWithBlock:^BOOL(id obj, NSDictionary *_) {
+                    return ![obj isEqual:av1];
+                }]];
+}
+
+%end
+
 BOOL overrideSupportsCodec = NO;
 
 %hook MLVideoDecoderFactory
 
 - (id)videoDecoderWithDelegate:(id)delegate delegateQueue:(id)delegateQueue formatDescription:(id)formatDescription pixelBufferAttributes:(id)pixelBufferAttributes preferredOutputFormats:(Span)preferredOutputFormats error:(NSError **)error {
-    HBLogDebug(@"YTUHD - MLVideoDecoderFactory videoDecoderWithDelegate called");
-    if (!hasHAMVPXVideoDecoder && [(HAMFormatDescription *)formatDescription mediaSubType] == kCMVideoCodecType_VP9)
+    CMVideoCodecType codecType = [(HAMFormatDescription *)formatDescription mediaSubType];
+    HBLogDebug(@"YTUHD - MLVideoDecoderFactory videoDecoderWithDelegate called with codec: %d", codecType);
+    if (!hasHAMVPXVideoDecoder && codecType == kCMVideoCodecType_VP9)
         return YTUHDCreateVPXDecoder(delegate, delegateQueue, pixelBufferAttributes);
+    if (useSoftwareAV1() && codecType == kCMVideoCodecType_AV1)
+        return YTUHDCreateDav1dDecoder(delegate, delegateQueue, pixelBufferAttributes);
     overrideSupportsCodec = YES;
     id decoder = %orig;
     overrideSupportsCodec = NO;
@@ -257,9 +339,12 @@ BOOL overrideSupportsCodec = NO;
 }
 
 - (id)videoDecoderWithDelegate:(id)delegate delegateQueue:(id)delegateQueue formatDescription:(id)formatDescription pixelBufferAttributes:(id)pixelBufferAttributes setPixelBufferTypeOnlyIfEmpty:(BOOL)setPixelBufferTypeOnlyIfEmpty error:(NSError **)error {
-    HBLogDebug(@"YTUHD - MLVideoDecoderFactory videoDecoderWithDelegate called");
-    if (!hasHAMVPXVideoDecoder && [(HAMFormatDescription *)formatDescription mediaSubType] == kCMVideoCodecType_VP9)
+    CMVideoCodecType codecType = [(HAMFormatDescription *)formatDescription mediaSubType];
+    HBLogDebug(@"YTUHD - MLVideoDecoderFactory videoDecoderWithDelegate called with codec: %d", codecType);
+    if (!hasHAMVPXVideoDecoder && codecType == kCMVideoCodecType_VP9)
         return YTUHDCreateVPXDecoder(delegate, delegateQueue, pixelBufferAttributes);
+    if (useSoftwareAV1() && codecType == kCMVideoCodecType_AV1)
+        return YTUHDCreateDav1dDecoder(delegate, delegateQueue, pixelBufferAttributes);
     overrideSupportsCodec = YES;
     id decoder = %orig;
     overrideSupportsCodec = NO;
@@ -267,9 +352,12 @@ BOOL overrideSupportsCodec = NO;
 }
 
 - (id)videoDecoderWithDelegate:(id)delegate delegateQueue:(id)delegateQueue formatDescription:(id)formatDescription pixelBufferAttributes:(id)pixelBufferAttributes error:(NSError **)error {
-    HBLogDebug(@"YTUHD - MLVideoDecoderFactory videoDecoderWithDelegate called");
-    if (!hasHAMVPXVideoDecoder && [(HAMFormatDescription *)formatDescription mediaSubType] == kCMVideoCodecType_VP9)
+    CMVideoCodecType codecType = [(HAMFormatDescription *)formatDescription mediaSubType];
+    HBLogDebug(@"YTUHD - MLVideoDecoderFactory videoDecoderWithDelegate called with codec: %d", codecType);
+    if (!hasHAMVPXVideoDecoder && codecType == kCMVideoCodecType_VP9)
         return YTUHDCreateVPXDecoder(delegate, delegateQueue, pixelBufferAttributes);
+    if (useSoftwareAV1() && codecType == kCMVideoCodecType_AV1)
+        return YTUHDCreateDav1dDecoder(delegate, delegateQueue, pixelBufferAttributes);
     overrideSupportsCodec = YES;
     id decoder = %orig;
     overrideSupportsCodec = NO;
@@ -281,9 +369,12 @@ BOOL overrideSupportsCodec = NO;
 %hook HAMDefaultVideoDecoderFactory
 
 - (id)videoDecoderWithDelegate:(id)delegate delegateQueue:(id)delegateQueue formatDescription:(id)formatDescription pixelBufferAttributes:(id)pixelBufferAttributes preferredOutputFormats:(Span)preferredOutputFormats error:(NSError **)error {
-    HBLogDebug(@"YTUHD - HAMDefaultVideoDecoderFactory videoDecoderWithDelegate called");
-    if (!hasHAMVPXVideoDecoder && [(HAMFormatDescription *)formatDescription mediaSubType] == kCMVideoCodecType_VP9)
+    CMVideoCodecType codecType = [(HAMFormatDescription *)formatDescription mediaSubType];
+    HBLogDebug(@"YTUHD - HAMDefaultVideoDecoderFactory videoDecoderWithDelegate called with codec: %d", codecType);
+    if (!hasHAMVPXVideoDecoder && codecType == kCMVideoCodecType_VP9)
         return YTUHDCreateVPXDecoder(delegate, delegateQueue, pixelBufferAttributes);
+    if (useSoftwareAV1() && codecType == kCMVideoCodecType_AV1)
+        return YTUHDCreateDav1dDecoder(delegate, delegateQueue, pixelBufferAttributes);
     overrideSupportsCodec = YES;
     id decoder = %orig;
     overrideSupportsCodec = NO;
@@ -291,9 +382,12 @@ BOOL overrideSupportsCodec = NO;
 }
 
 - (id)videoDecoderWithDelegate:(id)delegate delegateQueue:(id)delegateQueue formatDescription:(id)formatDescription pixelBufferAttributes:(id)pixelBufferAttributes setPixelBufferTypeOnlyIfEmpty:(BOOL)setPixelBufferTypeOnlyIfEmpty error:(NSError **)error {
-    HBLogDebug(@"YTUHD - HAMDefaultVideoDecoderFactory videoDecoderWithDelegate called");
-    if (!hasHAMVPXVideoDecoder && [(HAMFormatDescription *)formatDescription mediaSubType] == kCMVideoCodecType_VP9)
+    CMVideoCodecType codecType = [(HAMFormatDescription *)formatDescription mediaSubType];
+    HBLogDebug(@"YTUHD - HAMDefaultVideoDecoderFactory videoDecoderWithDelegate called with codec: %d", codecType);
+    if (!hasHAMVPXVideoDecoder && codecType == kCMVideoCodecType_VP9)
         return YTUHDCreateVPXDecoder(delegate, delegateQueue, pixelBufferAttributes);
+    if (useSoftwareAV1() && codecType == kCMVideoCodecType_AV1)
+        return YTUHDCreateDav1dDecoder(delegate, delegateQueue, pixelBufferAttributes);
     overrideSupportsCodec = YES;
     id decoder = %orig;
     overrideSupportsCodec = NO;
@@ -301,9 +395,12 @@ BOOL overrideSupportsCodec = NO;
 }
 
 - (id)videoDecoderWithDelegate:(id)delegate delegateQueue:(id)delegateQueue formatDescription:(id)formatDescription pixelBufferAttributes:(id)pixelBufferAttributes error:(NSError **)error {
-    HBLogDebug(@"YTUHD - HAMDefaultVideoDecoderFactory videoDecoderWithDelegate called");
-    if (!hasHAMVPXVideoDecoder && [(HAMFormatDescription *)formatDescription mediaSubType] == kCMVideoCodecType_VP9)
+    CMVideoCodecType codecType = [(HAMFormatDescription *)formatDescription mediaSubType];
+    HBLogDebug(@"YTUHD - HAMDefaultVideoDecoderFactory videoDecoderWithDelegate called with codec: %d", codecType);
+    if (!hasHAMVPXVideoDecoder && codecType == kCMVideoCodecType_VP9)
         return YTUHDCreateVPXDecoder(delegate, delegateQueue, pixelBufferAttributes);
+    if (useSoftwareAV1() && codecType == kCMVideoCodecType_AV1)
+        return YTUHDCreateDav1dDecoder(delegate, delegateQueue, pixelBufferAttributes);
     overrideSupportsCodec = YES;
     id decoder = %orig;
     overrideSupportsCodec = NO;
@@ -329,7 +426,9 @@ BOOL (*SupportsCodec)(CMVideoCodecType codec) = NULL;
         // stripped by filteredFormats, this is just a belt-and-suspenders guard).
         // When neither condition is true (new YT + A12+), let VT decode VP9 natively.
         BOOL suppressVP9 = hasHAMVPXVideoDecoder || !vtSupportsVP9;
-        BOOL suppressCodec = (codec == kCMVideoCodecType_AV1) ||
+        // Suppress AV1 from the hardware/AVSBDL path when we are routing to dav1d.
+        BOOL suppressAV1 = useSoftwareAV1();
+        BOOL suppressCodec = (codec == kCMVideoCodecType_AV1 && suppressAV1) ||
                              (codec == kCMVideoCodecType_VP9 && suppressVP9);
         if (suppressCodec) {
             HBLogDebug(@"YTUHD - SupportsCodec called for codec: %d, returning NO", codec);
@@ -378,20 +477,19 @@ BOOL (*SupportsCodec)(CMVideoCodecType codec) = NULL;
 %end
 
 %ctor {
-    hasHAMVPXVideoDecoder = %c(HAMVPXVideoDecoder) != nil;
     vtSupportsVP9 = VTIsHardwareDecodeSupported(kCMVideoCodecType_VP9);
+    vtSupportsAV1 = VTIsHardwareDecodeSupported(kCMVideoCodecType_AV1);
     [[NSUserDefaults standardUserDefaults] registerDefaults:@{
-        DecodeThreadsKey: @2
+        DecodeThreadsKey: @2,
+        ApplyGrainKey:    @YES,
     }];
-    if (!UseVP9()) return;
-    %init;
-    // On YouTube >= 20.47.3 the native class is gone; YTUHDVPXVideoDecoder
-    // (defined in HAMVPXVideoDecoder.m) is injected by the factory hook above.
+    if (!UseVP9() && !UseAV1()) return;
     uint8_t pattern1[] = {
         0x28, 0x66, 0x8c, 0x52,
         0xc8, 0x2e, 0xac, 0x72,
         0x1f, 0x00, 0x08, 0x6b,
-        0x61, 0x00, 0x00, 0x54
+        0x61, 0x00, 0x00, 0x54,
+        0x28, 0x00, 0x80, 0x52,
     };
     uint8_t pattern2[] = {
         0xf4, 0x4f, 0xbe, 0xa9,
@@ -408,9 +506,14 @@ BOOL (*SupportsCodec)(CMVideoCodecType codec) = NULL;
         binary = @"Module_Framework";
     } else
         binary = @"YouTube";
+    hasHAMVPXVideoDecoder = %c(HAMVPXVideoDecoder) != nil;
+    hasHAMDav1dVideoDecoder = %c(HAMDav1dVideoDecoder) != nil;
+    %init;
     SupportsCodec = (BOOL (*)(CMVideoCodecType))libundirect_find(binary, pattern1, sizeof(pattern1), 0x28);
-    if (SupportsCodec == NULL)
+    if (SupportsCodec == NULL) {
         SupportsCodec = (BOOL (*)(CMVideoCodecType))libundirect_find(binary, pattern2, sizeof(pattern2), 0xf4);
+        HBLogDebug(@"YTUHD: SupportsCodec pattern2");
+    }
     HBLogDebug(@"YTUHD: SupportsCodec: %d", SupportsCodec != NULL);
     if (SupportsCodec) {
         %init(Codec);

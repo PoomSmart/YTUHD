@@ -2,3 +2,4 @@
 .DS_Store
 packages
 vendor/libvpx_ios
+vendor/dav1d_ios

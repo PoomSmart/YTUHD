@@ -17,3 +17,9 @@
 "LOOP_FILTER_OPTIMIZATION" = "Loop filter optimization";
 
 "ROW_THREADING" = "Row threading";
+
+"USE_AV1" = "Utiliser AV1 (dav1d)";
+"USE_AV1_DESC" = "Active le décodage logiciel AV1 via dav1d pour les appareils sans support matériel AV1 (A16 et antérieur). Permet la lecture AV1 en 4K sur les anciens iPhone. Nécessite plus de CPU que VP9. Redémarrage de l'app requis.";
+"HW_AV1_SUPPORT" = "Support matériel AV1";
+"APPLY_GRAIN" = "Appliquer le grain de film";
+"APPLY_GRAIN_DESC" = "Applique le filtre de grain de film AV1 lors du décodage.";

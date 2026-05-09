@@ -9,7 +9,7 @@
 "DISABLE_SERVER_ABR_DESC" = "Disables server-side adaptive bitrate (ABR) adjustments. Enable this only if you experience video failing to play on old YouTube versions.";
 
 "DECODE_THREADS" = "Decode threads";
-"DECODE_THREADS_DESC" = "Number of threads used for VP9 video decoding. Higher values may improve video playback performance but may also increase battery consumption.";
+"DECODE_THREADS_DESC" = "Number of threads used for VP9/AV1 video decoding. Higher values may improve video playback performance but may also increase battery consumption.";
 "DECODE_THREADS_DEFAULT_VALUE" = "Default value";
 
 "SKIP_LOOP_FILTER" = "Skip loop filter";
@@ -17,3 +17,9 @@
 "LOOP_FILTER_OPTIMIZATION" = "Loop filter optimization";
 
 "ROW_THREADING" = "Row threading";
+
+"USE_AV1" = "Use AV1 (dav1d)";
+"USE_AV1_DESC" = "Enables AV1 software decoding via dav1d for devices without hardware AV1 support (A16 and earlier). Allows up to 4K AV1 playback on older iPhones. Requires more CPU than VP9. App restart is required.";
+"HW_AV1_SUPPORT" = "Hardware AV1 Support";
+"APPLY_GRAIN" = "Apply film grain";
+"APPLY_GRAIN_DESC" = "Applies the AV1 film grain filter during decoding. Disable to save CPU on very grainy videos.";

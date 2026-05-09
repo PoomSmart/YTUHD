@@ -17,3 +17,9 @@
 "LOOP_FILTER_OPTIMIZATION" = "Loop filter optimization";
 
 "ROW_THREADING" = "Row threading";
+
+"USE_AV1" = "استخدام AV1 (dav1d)";
+"USE_AV1_DESC" = "يفعّل فك ترميز AV1 بالبرمجيات عبر dav1d للأجهزة التي لا تدعم AV1 بالعتاد (A16 وما قبله). يتطلب مزيدًا من المعالج مقارنةً بـ VP9. يتطلب إعادة تشغيل التطبيق.";
+"HW_AV1_SUPPORT" = "دعم العتاد لكوديك AV1";
+"APPLY_GRAIN" = "تطبيق حبيبية الفيلم";
+"APPLY_GRAIN_DESC" = "يطبق مرشح حبيبية الفيلم AV1 أثناء فك الترميز.";

@@ -17,3 +17,9 @@
 "LOOP_FILTER_OPTIMIZATION" = "Loop filter optimization";
 
 "ROW_THREADING" = "Row threading";
+
+"USE_AV1" = "AV1 gebruiken (dav1d)";
+"USE_AV1_DESC" = "Schakelt AV1-softwaredecoding via dav1d in voor apparaten zonder hardware-AV1-ondersteuning (A16 en ouder). Maakt 4K AV1-weergave mogelijk op oudere iPhones. Vereist meer CPU dan VP9. App-herstart vereist.";
+"HW_AV1_SUPPORT" = "Hardware AV1-ondersteuning";
+"APPLY_GRAIN" = "Filmkorrel toepassen";
+"APPLY_GRAIN_DESC" = "Past het AV1-filmkorrelfilter toe tijdens het decoderen.";

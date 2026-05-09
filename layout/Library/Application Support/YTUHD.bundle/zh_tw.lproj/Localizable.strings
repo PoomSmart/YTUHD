@@ -17,3 +17,9 @@
 "LOOP_FILTER_OPTIMIZATION" = "Loop filter optimization";
 
 "ROW_THREADING" = "Row threading";
+
+"USE_AV1" = "使用 AV1 (dav1d)";
+"USE_AV1_DESC" = "透過 dav1d 為沒有硬體 AV1 支援的裝置（A16 及更舊）啟用 AV1 軟體解碼，讓舊款 iPhone 能播放 4K AV1 影片。比 VP9 需要更多 CPU。需要重新啟動應用程式。";
+"HW_AV1_SUPPORT" = "硬體 AV1 支援";
+"APPLY_GRAIN" = "套用底片顆粒";
+"APPLY_GRAIN_DESC" = "在解碼過程中套用 AV1 底片顆粒濾鏡。";

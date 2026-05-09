@@ -17,3 +17,9 @@
 "LOOP_FILTER_OPTIMIZATION" = "Loop filter optimization";
 
 "ROW_THREADING" = "Row threading";
+
+"USE_AV1" = "AV1 Kullan (dav1d)";
+"USE_AV1_DESC" = "Donanım AV1 desteği olmayan cihazlarda (A16 ve öncesi) dav1d aracılığıyla AV1 yazılım kodçözümünü etkinleştirir. Eski iPhone'larda 4K AV1 oynatmayı mümkün kılar. Uygulama yeniden başlatma gerektirir.";
+"HW_AV1_SUPPORT" = "Donanım AV1 Desteği";
+"APPLY_GRAIN" = "Film tanesi uygula";
+"APPLY_GRAIN_DESC" = "Kodçözme sırasında AV1 film tanesi filtresini uygular.";

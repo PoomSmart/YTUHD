@@ -14,7 +14,7 @@ YTUHD attempts to bypass those restrictions for all 64-bit devices running iOS 1
 
 ## VP9
 
-Hardware accelerated VP9 decoder is technically added as of iOS 14 and YouTube has been utilizing it through a private entitlement `com.apple.coremedia.allow-alternate-video-decoder-selection` (All apps are equal is a lie).
+Hardware accelerated VP9 decoder is technically added as of iOS 14 and YouTube has been utilizing it through a private entitlement `com.apple.coremedia.allow-alternate-video-decoder-selection` (alternatives: `com.apple.coremedia.allow-specifying-alternate-video-decoder-selection` and ``com.apple.developer.coremedia.allow-alternate-video-decoder-selection`) (All apps are equal is a lie).
 This decoder handles up to 4K, but only for A12 devices and later.
 
 Those old devices don't get `AppleAVD` driver (`/System/Library/Extensions/AppleAVD.kext`) which is essential for VP9 decoding to work.
@@ -55,3 +55,27 @@ The history has shaped YTUHD to spoof the device as iOS 15 (or higher) for those
 Normally when an app is sideloaded, the private entitlements get removed (including `com.apple.coremedia.allow-alternate-video-decoder-selection`) and the app won't be allowed to access the hardware VP9 decoder. As for sideloaded YouTube, you will end up with only the software VP9 decoder, which can drain battery significantly. There is no known solution to bypass this, unless you can use [TrollStore](https://github.com/opa334/TrollStore) on your device to install the sideloaded YouTube IPA. TrollStore preserves the entitlements of the app.
 
 Update July 2025: [libundirect](https://github.com/opa334/libundirect) is now used by YTUHD. If you want to sideload YouTube IPA with YTUHD that uses `libundirect`, the simplest solution is to add `SIDELOAD=1` when building the package with Theos.
+
+## AV1 Software Decoding
+
+For old YouTube versions (< 20) that have no built-in AV1 software decoder, YTUHD now reimplements AV1 decoding as `YTUHDDav1dVideoDecoder` using [dav1d](https://code.videolan.org/videolan/dav1d) (statically linked). This enables AV1 playback on devices without hardware AV1 support (A16 and earlier).
+See `NOTICES` for the dav1d BSD-2-Clause license attribution.
+
+## Building
+
+Building YTUHD requires [Theos](https://theos.dev). The VP9 software decoder (`YTUHDVPXVideoDecoder`) and AV1 software decoder (`YTUHDDav1dVideoDecoder`) statically link [libvpx](https://www.webmproject.org/code/) and [dav1d](https://code.videolan.org/videolan/dav1d) respectively, which are built automatically on first `make`.
+
+Building dav1d requires **meson** and **ninja**. Install them via Homebrew before building:
+
+```sh
+brew install meson ninja
+```
+
+Then build as usual.
+
+To rebuild the static libraries explicitly:
+
+```sh
+make libvpx   # rebuilds vendor/libvpx_ios/libvpx.a
+make dav1d    # rebuilds vendor/dav1d_ios/libdav1d.a
+```

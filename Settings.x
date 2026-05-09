@@ -19,6 +19,7 @@ static const NSInteger TweakSection = 'ythd';
 @end
 
 extern BOOL vtSupportsVP9;
+extern BOOL vtSupportsAV1;
 
 BOOL UseVP9() {
     return [[NSUserDefaults standardUserDefaults] boolForKey:UseVP9Key];
@@ -46,6 +47,14 @@ BOOL LoopFilterOptimization() {
 
 BOOL RowThreading() {
     return [[NSUserDefaults standardUserDefaults] boolForKey:RowThreadingKey];
+}
+
+BOOL UseAV1() {
+    return [[NSUserDefaults standardUserDefaults] boolForKey:UseAV1Key];
+}
+
+BOOL ApplyGrain() {
+    return [[NSUserDefaults standardUserDefaults] boolForKey:ApplyGrainKey];
 }
 
 NSBundle *YTUHDBundle() {
@@ -92,10 +101,11 @@ NSBundle *YTUHDBundle() {
     NSMutableArray <YTSettingsSectionItem *> *sectionItems = [NSMutableArray array];
     NSBundle *tweakBundle = YTUHDBundle();
     BOOL hasVP9 = VTIsHardwareDecodeSupported(kCMVideoCodecType_VP9);
+    BOOL hasHWAV1 = VTIsHardwareDecodeSupported(kCMVideoCodecType_AV1);
     Class YTSettingsSectionItemClass = %c(YTSettingsSectionItem);
     YTSettingsViewController *settingsViewController = [self valueForKey:@"_settingsViewControllerDelegate"];
 
-    // Use VP9/AV1
+    // Use VP9
     YTSettingsSectionItem *vp9 = [YTSettingsSectionItemClass switchItemWithTitle:LOC(@"USE_VP9")
         titleDescription:[NSString stringWithFormat:@"%@\n\n%@: %d", LOC(@"USE_VP9_DESC"), LOC(@"HW_VP9_SUPPORT"), hasVP9]
         accessibilityIdentifier:nil
@@ -131,11 +141,31 @@ NSBundle *YTUHDBundle() {
         settingItemId:0];
     [sectionItems addObject:disableServerABR];
 
-    // Show software decoder options when VP9 is handled by a software decoder:
-    // - old YT: native HAMVPXVideoDecoder (no hardware VP9 means the factory chose software)
-    // - new YT: our YTUHDVPXVideoDecoder backport (A11 and earlier)
-    // When hardware VP9 is available (A12+ with new YT entitlement), these settings
-    // have no effect so we hide them.
+    if (!hasHWAV1 && !%c(HAMDav1dVideoDecoder)) {
+        YTSettingsSectionItem *av1 = [YTSettingsSectionItemClass switchItemWithTitle:LOC(@"USE_AV1")
+            titleDescription:[NSString stringWithFormat:@"%@\n\n%@: %d", LOC(@"USE_AV1_DESC"), LOC(@"HW_AV1_SUPPORT"), hasHWAV1]
+            accessibilityIdentifier:nil
+            switchOn:UseAV1()
+            switchBlock:^BOOL (YTSettingsCell *cell, BOOL enabled) {
+                [[NSUserDefaults standardUserDefaults] setBool:enabled forKey:UseAV1Key];
+                return YES;
+            }
+            settingItemId:0];
+        [sectionItems addObject:av1];
+
+        // Apply film grain
+        YTSettingsSectionItem *applyGrain = [YTSettingsSectionItemClass switchItemWithTitle:LOC(@"APPLY_GRAIN")
+            titleDescription:LOC(@"APPLY_GRAIN_DESC")
+            accessibilityIdentifier:nil
+            switchOn:ApplyGrain()
+            switchBlock:^BOOL (YTSettingsCell *cell, BOOL enabled) {
+                [[NSUserDefaults standardUserDefaults] setBool:enabled forKey:ApplyGrainKey];
+                return YES;
+            }
+            settingItemId:0];
+        [sectionItems addObject:applyGrain];
+    }
+
     if (!vtSupportsVP9) {
         // Decode threads
         NSString *decodeThreadsTitle = LOC(@"DECODE_THREADS");

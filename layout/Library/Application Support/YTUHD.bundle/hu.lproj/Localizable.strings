@@ -17,3 +17,9 @@
 "LOOP_FILTER_OPTIMIZATION" = "Loop filter optimization";
 
 "ROW_THREADING" = "Row threading";
+
+"USE_AV1" = "AV1 használata (dav1d)";
+"USE_AV1_DESC" = "Engedélyezi az AV1 szoftveres dekódolást dav1d segítségével olyan eszközökön, amelyek nem támogatják az AV1 hardveres dekódolást (A16 és korábbi). Az app újraindítása szükséges.";
+"HW_AV1_SUPPORT" = "Hardveres AV1 támogatás";
+"APPLY_GRAIN" = "Filmzaj alkalmazása";
+"APPLY_GRAIN_DESC" = "Az AV1 filmzaj szűrőt alkalmazza dekódolás közben.";

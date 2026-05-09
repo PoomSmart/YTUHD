@@ -18,3 +18,8 @@
 
 "ROW_THREADING" = "行线程处理";
 
+"USE_AV1" = "使用 AV1 (dav1d)";
+"USE_AV1_DESC" = "通过 dav1d 为没有硬件 AV1 支持的设备（A16 及更早）启用 AV1 软件解码，使旧款 iPhone 能够播放 4K AV1 视频。比 VP9 需要更多 CPU。需要重启应用。";
+"HW_AV1_SUPPORT" = "硬件 AV1 支持";
+"APPLY_GRAIN" = "应用胶片颗粒";
+"APPLY_GRAIN_DESC" = "在解码过程中应用 AV1 胶片颗粒滤镜。";
