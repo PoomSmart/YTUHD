@@ -58,7 +58,7 @@ Update July 2025: [libundirect](https://github.com/opa334/libundirect) is now us
 
 ## AV1 Software Decoding
 
-For old YouTube versions (< 20) that have no built-in AV1 software decoder, YTUHD now reimplements AV1 decoding as `YTUHDDav1dVideoDecoder` using [dav1d](https://code.videolan.org/videolan/dav1d) (statically linked). This enables AV1 playback on devices without hardware AV1 support (A16 and earlier).
+For old YouTube versions (19.26.5 and lower) that have no built-in AV1 software decoder, YTUHD now reimplements AV1 decoding as `YTUHDDav1dVideoDecoder` using [dav1d](https://code.videolan.org/videolan/dav1d) (statically linked). This enables AV1 playback on devices without hardware AV1 support (A16 and earlier).
 See `NOTICES` for the dav1d BSD-2-Clause license attribution.
 
 ## Building
