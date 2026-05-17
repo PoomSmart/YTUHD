@@ -1,21 +1,3 @@
-/**
- * HAMVPXVideoDecoder.m
- *
- * Full reimplementation of the HAMVPXVideoDecoder class for YouTube versions
- * >= 20.47.3 that removed the native libvpx-based HAMVPXVideoDecoder.
- *
- * Provides YTUHDVPXVideoDecoder — a drop-in VP9 software decoder using
- * libvpx that is injected by the HAMDefaultVideoDecoderFactory hook in
- * Tweak.xm when the native class is absent.
- *
- * Class design mirrors the original HAMVPXVideoDecoder decompiled from
- * YouTube 20.18.4:
- *   - Same init/prepare/terminate/decodeSampleBuffer: interface
- *   - Same vpx_codec_control IDs: 265/268/269
- *   - HAMPixelBufferPool used for I420→NV12 conversion and for wrapping
- *     decoded output into HAMSampleBuffer objects
- */
-
 #import <CoreMedia/CoreMedia.h>
 #import <YouTubeHeader/HAMInputSampleBuffer.h>
 #import <YouTubeHeader/HAMVideoDecoderDelegate.h>
@@ -26,6 +8,9 @@
 #include <vpx/vp8dx.h>
 
 #import "Header.h"
+
+extern NSInteger HAMGetSampleSize(HAMInputSampleBuffer *buf, NSInteger i);
+extern CMSampleTimingInfo HAMGetSampleTiming(HAMInputSampleBuffer *buf, NSInteger i);
 
 // ---------------------------------------------------------------------------
 // HAMPlanarImage — internal struct of HAMPixelBufferPool.
@@ -54,12 +39,6 @@ typedef struct {
     int32_t  bitDepth;
 } HAMPlanarImage;
 
-// ---------------------------------------------------------------------------
-// Function-pointer type for -[HAMPixelBufferPool pixelBufferWithPlanarImage:
-//   presentationTime:presentationDuration:formatSelection:formatDescription:
-//   productionTime:periodID:originalPresentationTime:error:]
-// (signature present in YouTube >= ~20.47 — confirmed in 21.17.3 IDA)
-// ---------------------------------------------------------------------------
 typedef id (*PixelBufferPoolFn)(id, SEL,
     const HAMPlanarImage *,
     CMTime *,
@@ -72,9 +51,6 @@ typedef id (*PixelBufferPoolFn)(id, SEL,
     NSError **
 );
 
-// ---------------------------------------------------------------------------
-// YTUHDVPXVideoDecoder
-// ---------------------------------------------------------------------------
 @interface YTUHDVPXVideoDecoder : NSObject
 - (instancetype)initWithDelegate:(id<HAMVideoDecoderDelegate>)delegate
                    delegateQueue:(dispatch_queue_t)delegateQueue
@@ -103,10 +79,6 @@ typedef id (*PixelBufferPoolFn)(id, SEL,
 @end
 
 @implementation YTUHDVPXVideoDecoder
-
-// ---------------------------------------------------------------------------
-#pragma mark - Init / dealloc
-// ---------------------------------------------------------------------------
 
 - (instancetype)initWithDelegate:(id<HAMVideoDecoderDelegate>)delegate
                    delegateQueue:(dispatch_queue_t)delegateQueue
@@ -139,10 +111,6 @@ typedef id (*PixelBufferPoolFn)(id, SEL,
         vpx_codec_destroy(&_decoder);
     }
 }
-
-// ---------------------------------------------------------------------------
-#pragma mark - Public HAMVideoDecoder interface
-// ---------------------------------------------------------------------------
 
 - (void)prepare {
     dispatch_async(_decodeQueue, ^{
@@ -185,10 +153,6 @@ typedef id (*PixelBufferPoolFn)(id, SEL,
         [self internalDecodeSampleBuffer:buf frameEra:era completionHandler:handlerCopy];
     });
 }
-
-// ---------------------------------------------------------------------------
-#pragma mark - Internal (run on _decodeQueue)
-// ---------------------------------------------------------------------------
 
 - (void)internalPrepare {
     int threads = (_config.threads > 0) ? _config.threads : 2;
@@ -267,7 +231,6 @@ typedef id (*PixelBufferPoolFn)(id, SEL,
     NSInteger      sampleCount = [sampleBuffer sampleCount];
     NSInteger      byteOffset  = 0;
 
-    // Resolve pixelBufferPool selector once (new YT >= ~20.47 signature).
     static SEL s_pixelBufSel;
     static dispatch_once_t s_once;
     dispatch_once(&s_once, ^{
@@ -279,8 +242,8 @@ typedef id (*PixelBufferPoolFn)(id, SEL,
 
     for (NSInteger i = 0; i < sampleCount; i++) {
         @autoreleasepool {
-            NSInteger sampleSize = [sampleBuffer sizeForSample:i];
-            CMSampleTimingInfo timing = [sampleBuffer timingInfoForSample:i];
+            NSInteger sampleSize = HAMGetSampleSize(sampleBuffer, i);
+            CMSampleTimingInfo timing = HAMGetSampleTiming(sampleBuffer, i);
 
             vpx_codec_err_t err = vpx_codec_decode(
                 &_decoder,

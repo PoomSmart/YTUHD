@@ -1,32 +1,17 @@
-/**
- * HAMDav1dVideoDecoder.m
- *
- * Software AV1 decoder for old YouTube versions (< 20) that have no
- * native dav1d / AV1 software decoder.
- *
- * Provides YTUHDDav1dVideoDecoder — injected by the factory hook in
- * Tweak.xm when:
- *   • UseAV1() is enabled in Settings
- *   • The native HAMDav1dVideoDecoder class is absent (old YouTube)
- *   • VTIsHardwareDecodeSupported(AV1) returns NO (no hardware AV1)
- *
- * Mirrors the design of YTUHDVPXVideoDecoder (HAMVPXVideoDecoder.m)
- * and uses the same HAMPixelBufferPool / HAMPlanarImage interface.
- */
-
 #import <CoreMedia/CoreMedia.h>
 #import <YouTubeHeader/HAMInputSampleBuffer.h>
 #import <YouTubeHeader/HAMVideoDecoderDelegate.h>
 #import <objc/message.h>
+#import <objc/runtime.h>
 #import <stdatomic.h>
 
 #include "dav1d/dav1d.h"
 
 #import "Header.h"
 
-// ---------------------------------------------------------------------------
-// HAMPlanarImage — see HAMVPXVideoDecoder.m for layout notes.
-// ---------------------------------------------------------------------------
+extern NSInteger HAMGetSampleSize(HAMInputSampleBuffer *buf, NSInteger i);
+extern CMSampleTimingInfo HAMGetSampleTiming(HAMInputSampleBuffer *buf, NSInteger i);
+
 typedef struct {
     const uint8_t *planeY;
     const uint8_t *planeCb;
@@ -39,12 +24,6 @@ typedef struct {
     int32_t  bitDepth;
 } _HAMDav1dPlanarImage;
 
-// ---------------------------------------------------------------------------
-// Two function-pointer types for -[HAMPixelBufferPool pixelBufferWithPlanarImage:...]
-//
-// YT < 20.47 (short — YT19):  ...productionTime:periodID:error:
-// YT >= 20.47 (long):         ...productionTime:periodID:originalPresentationTime:error:
-// ---------------------------------------------------------------------------
 typedef id (*_PixelBufShortFn)(id, SEL,
     const _HAMDav1dPlanarImage *,
     CMTime *, CMTime *,
@@ -61,9 +40,6 @@ typedef id (*_PixelBufLongFn)(id, SEL,
     NSError **
 );
 
-// ---------------------------------------------------------------------------
-// YTUHDDav1dVideoDecoder
-// ---------------------------------------------------------------------------
 @interface YTUHDDav1dVideoDecoder : NSObject
 - (instancetype)initWithDelegate:(id<HAMVideoDecoderDelegate>)delegate
                    delegateQueue:(dispatch_queue_t)delegateQueue
@@ -92,10 +68,6 @@ typedef id (*_PixelBufLongFn)(id, SEL,
 @end
 
 @implementation YTUHDDav1dVideoDecoder
-
-// ---------------------------------------------------------------------------
-#pragma mark - Init / dealloc
-// ---------------------------------------------------------------------------
 
 - (instancetype)initWithDelegate:(id<HAMVideoDecoderDelegate>)delegate
                    delegateQueue:(dispatch_queue_t)delegateQueue
@@ -128,10 +100,6 @@ typedef id (*_PixelBufLongFn)(id, SEL,
         dav1d_close(&_dav1dCtx);
     }
 }
-
-// ---------------------------------------------------------------------------
-#pragma mark - Public HAMVideoDecoder interface
-// ---------------------------------------------------------------------------
 
 - (void)prepare {
     dispatch_async(_decodeQueue, ^{
@@ -176,10 +144,6 @@ typedef id (*_PixelBufLongFn)(id, SEL,
         [self internalDecodeSampleBuffer:buf frameEra:era completionHandler:handlerCopy];
     });
 }
-
-// ---------------------------------------------------------------------------
-#pragma mark - Internal (run on _decodeQueue)
-// ---------------------------------------------------------------------------
 
 - (void)internalPrepare {
     Dav1dSettings s;
@@ -228,13 +192,10 @@ typedef id (*_PixelBufLongFn)(id, SEL,
     });
 }
 
-// Free callback for dav1d_data_wrap — must be a plain C function pointer.
 static void _dav1dFreeBuffer(const uint8_t *data, void *cookie) {
     free((void *)data);
 }
 
-// Resolve the HAMPixelBufferPool selector at runtime — YT19 has the short form
-// without originalPresentationTime:, YT >= 20.47 has the long form.
 static SEL  s_dav1dPixelBufSel;
 static BOOL s_dav1dPixelBufHasOrigPT;
 static dispatch_once_t s_dav1dOnce;
@@ -283,8 +244,8 @@ static void ensureDav1dPixelBufSel(id pool) {
 
     for (NSInteger i = 0; i < sampleCount; i++) {
         @autoreleasepool {
-            NSInteger sampleSize = [sampleBuffer sizeForSample:i];
-            CMSampleTimingInfo timing = [sampleBuffer timingInfoForSample:i];
+            NSInteger sampleSize = HAMGetSampleSize(sampleBuffer, i);
+            CMSampleTimingInfo timing = HAMGetSampleTiming(sampleBuffer, i);
 
             // Copy sample bytes to a malloc buffer owned by the Dav1dData.
             uint8_t *pktBuf = (uint8_t *)malloc((size_t)sampleSize);

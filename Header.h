@@ -3,6 +3,8 @@
 
 #import <YouTubeHeader/HAMDefaultABRPolicy.h>
 #import <YouTubeHeader/HAMFormatDescription.h>
+#import <YouTubeHeader/HAMInputSampleBuffer.h>
+#import <YouTubeHeader/HAMVideoDecoderDelegate.h>
 #import <YouTubeHeader/HAMVPXVideoDecoder.h>
 // #import <YouTubeHeader/HAMDefaultABRPolicyConfig.h>
 #import <YouTubeHeader/MLABRPolicyNew.h>
@@ -12,11 +14,13 @@
 #import <YouTubeHeader/MLHLSMasterPlaylist.h>
 #import <YouTubeHeader/MLHLSStreamSelector.h>
 #import <YouTubeHeader/MLVideo.h>
+#import <YouTubeHeader/MLVideoDecoderFactory.h>
 #import <YouTubeHeader/YTIHamplayerConfig.h>
 #import <YouTubeHeader/YTIHamplayerSoftwareStreamFilter.h>
 #import <YouTubeHeader/YTLocalPlaybackController.h>
 #import <YouTubeHeader/YTSingleVideoController.h>
 #import <YouTubeHeader/YTPlayerTapToRetryResponderEvent.h>
+#import <objc/runtime.h>
 
 #define IOS_BUILD "19H411"
 #define MAX_FPS 60

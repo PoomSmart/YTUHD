@@ -27,7 +27,7 @@ $(DAV1D_A):
 	$(THEOS_PROJECT_DIR)/vendor/build_dav1d.sh
 
 TWEAK_NAME = YTUHD
-$(TWEAK_NAME)_FILES = Tweak.xm Settings.x HAMVPXVideoDecoder.m HAMDav1dVideoDecoder.m
+$(TWEAK_NAME)_FILES = Tweak.xm Settings.x VideoDecoderHelper.x HAMVPXVideoDecoder.m HAMDav1dVideoDecoder.m
 $(TWEAK_NAME)_CFLAGS = -fobjc-arc \
     -I$(THEOS_PROJECT_DIR)/vendor/libvpx \
     -I$(LIBVPX_BUILD) \
