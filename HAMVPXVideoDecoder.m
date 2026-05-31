@@ -1,5 +1,6 @@
 #import <CoreMedia/CoreMedia.h>
 #import <YouTubeHeader/HAMInputSampleBuffer.h>
+#import <YouTubeHeader/HAMPixelBufferPool.h>
 #import <YouTubeHeader/HAMVideoDecoderDelegate.h>
 #import <objc/message.h>
 #import <stdatomic.h>
@@ -99,9 +100,7 @@ typedef id (*PixelBufferPoolFn)(id, SEL,
 
     Class poolClass = NSClassFromString(@"HAMPixelBufferPool");
     if (poolClass) {
-        _pixelBufferPool = [[poolClass alloc]
-            performSelector:@selector(initWithPixelBufferAttributes:)
-                 withObject:pixelBufferAttributes];
+        _pixelBufferPool = [[poolClass alloc] initWithPixelBufferAttributes:pixelBufferAttributes];
     }
     return self;
 }
@@ -128,8 +127,8 @@ typedef id (*PixelBufferPoolFn)(id, SEL,
     atomic_fetch_add(&_frameEra, 1u);
 }
 
-- (BOOL)canAcceptFormatWithDescription:(__unused id)formatDescription {
-    return YES;
+- (BOOL)canAcceptFormatWithDescription:(HAMFormatDescription *)formatDescription {
+    return formatDescription.mediaSubType == kCMVideoCodecType_VP9;
 }
 
 - (NSInteger)samplesPendingDecode {

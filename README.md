@@ -43,7 +43,7 @@ These options are shown in the YTUHD section inside YouTube settings:
 
 - `Use VP9/AV1`: Enables the codec capability path used by YTUHD. Restart the app after changing.
 - `VP9 for all`: Keeps VP9 across all resolutions. If off, non-4K VP9/AV1 streams are filtered out.
-- `Use AV1 (dav1d)`: Shows only when hardware AV1 is unavailable and native YouTube dav1d is absent.
+- `Use AV1 (dav1d)`: Shows only when hardware AV1 is unavailable.
 - `Apply film grain`: Shows with `Use AV1 (dav1d)` and controls AV1 grain synthesis.
 - `Decode threads`: Software decode thread count (default: 2).
 - `Skip loop filter`, `Loop filter optimization`, `Row threading`: VP9 software decode tuning options.
@@ -88,6 +88,29 @@ Rebuild third-party static libraries explicitly:
 ```sh
 make libvpx   # vendor/libvpx_ios/libvpx.a
 make dav1d    # vendor/dav1d_ios/libdav1d.a
+```
+
+### Updating Vendor Libraries
+
+`vendor/libvpx` and `vendor/dav1d` are git submodules.
+
+To pull newer upstream revisions:
+
+```sh
+git submodule update --remote
+```
+
+Then rebuild the static libraries:
+
+```sh
+make libvpx
+make dav1d
+```
+
+Optional (recommended) sanity step before packaging:
+
+```sh
+make package
 ```
 
 ## Licenses

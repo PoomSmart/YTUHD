@@ -100,14 +100,12 @@ NSBundle *YTUHDBundle() {
 - (void)updateYTUHDSectionWithEntry:(id)entry {
     NSMutableArray <YTSettingsSectionItem *> *sectionItems = [NSMutableArray array];
     NSBundle *tweakBundle = YTUHDBundle();
-    BOOL hasVP9 = VTIsHardwareDecodeSupported(kCMVideoCodecType_VP9);
-    BOOL hasHWAV1 = VTIsHardwareDecodeSupported(kCMVideoCodecType_AV1);
     Class YTSettingsSectionItemClass = %c(YTSettingsSectionItem);
     YTSettingsViewController *settingsViewController = [self valueForKey:@"_settingsViewControllerDelegate"];
 
     // Use VP9
     YTSettingsSectionItem *vp9 = [YTSettingsSectionItemClass switchItemWithTitle:LOC(@"USE_VP9")
-        titleDescription:[NSString stringWithFormat:@"%@\n\n%@: %d", LOC(@"USE_VP9_DESC"), LOC(@"HW_VP9_SUPPORT"), hasVP9]
+        titleDescription:[NSString stringWithFormat:@"%@\n\n%@: %d", LOC(@"USE_VP9_DESC"), LOC(@"HW_VP9_SUPPORT"), vtSupportsVP9]
         accessibilityIdentifier:nil
         switchOn:UseVP9()
         switchBlock:^BOOL (YTSettingsCell *cell, BOOL enabled) {
@@ -141,9 +139,9 @@ NSBundle *YTUHDBundle() {
         settingItemId:0];
     [sectionItems addObject:disableServerABR];
 
-    if (!hasHWAV1 && !%c(HAMDav1dVideoDecoder)) {
+    if (!vtSupportsAV1) {
         YTSettingsSectionItem *av1 = [YTSettingsSectionItemClass switchItemWithTitle:LOC(@"USE_AV1")
-            titleDescription:[NSString stringWithFormat:@"%@\n\n%@: %d", LOC(@"USE_AV1_DESC"), LOC(@"HW_AV1_SUPPORT"), hasHWAV1]
+            titleDescription:[NSString stringWithFormat:@"%@\n\n%@: %d", LOC(@"USE_AV1_DESC"), LOC(@"HW_AV1_SUPPORT"), vtSupportsAV1]
             accessibilityIdentifier:nil
             switchOn:UseAV1()
             switchBlock:^BOOL (YTSettingsCell *cell, BOOL enabled) {
