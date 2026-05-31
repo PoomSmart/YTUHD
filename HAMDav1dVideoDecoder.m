@@ -47,6 +47,7 @@ typedef id (*_PixelBufLongFn)(id, SEL,
                      decodeQueue:(dispatch_queue_t)decodeQueue
            pixelBufferAttributes:(id)pixelBufferAttributes
                           config:(HAMDav1dDecoderConfig)config;
+@property (nonatomic, weak) id<HAMVideoDecoderDelegate> delegate;
 - (void)prepare;
 - (void)terminate;
 - (void)discardPendingFrames;
@@ -63,6 +64,7 @@ typedef id (*_PixelBufLongFn)(id, SEL,
     _Atomic(int)           _samplesPendingDecode;
     _Atomic(uint32_t)      _frameEra;
     BOOL                   _terminated;
+    BOOL                   _prepared;
     Dav1dContext          *_dav1dCtx;          // NULL when not initialised
     id                     _pixelBufferPool;   // HAMPixelBufferPool instance
 }
@@ -87,10 +89,8 @@ typedef id (*_PixelBufLongFn)(id, SEL,
     atomic_init(&_samplesPendingDecode, 0);
     atomic_init(&_frameEra, 0u);
 
-    Class poolClass = NSClassFromString(@"HAMPixelBufferPool");
-    if (poolClass) {
-        _pixelBufferPool = [[poolClass alloc] initWithPixelBufferAttributes:pixelBufferAttributes];
-    }
+    _pixelBufferPool = [[NSClassFromString(@"HAMPixelBufferPool") alloc] initWithPixelBufferAttributes:pixelBufferAttributes];
+
     return self;
 }
 
@@ -107,6 +107,8 @@ typedef id (*_PixelBufLongFn)(id, SEL,
 }
 
 - (void)terminate {
+    if (_terminated) return;
+    _terminated = YES;
     dispatch_async(_decodeQueue, ^{
         [self terminateWithError:nil];
     });

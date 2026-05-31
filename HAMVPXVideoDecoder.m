@@ -40,14 +40,18 @@ typedef struct {
     int32_t  bitDepth;
 } HAMPlanarImage;
 
-typedef id (*PixelBufferPoolFn)(id, SEL,
+typedef id (*_PixelBufShortFn)(id, SEL,
     const HAMPlanarImage *,
-    CMTime *,
-    CMTime *,
-    id,
-    id,
-    double,
-    int64_t,
+    CMTime *, CMTime *,
+    id, id,
+    double, int64_t,
+    NSError **);
+
+typedef id (*_PixelBufLongFn)(id, SEL,
+    const HAMPlanarImage *,
+    CMTime *, CMTime *,
+    id, id,
+    double, int64_t,
     CMTime *,
     NSError **
 );
@@ -58,6 +62,7 @@ typedef id (*PixelBufferPoolFn)(id, SEL,
                      decodeQueue:(dispatch_queue_t)decodeQueue
            pixelBufferAttributes:(id)pixelBufferAttributes
                           config:(HAMVPXDecoderConfig)config;
+@property (nonatomic, weak) id<HAMVideoDecoderDelegate> delegate;
 - (void)prepare;
 - (void)terminate;
 - (void)discardPendingFrames;
@@ -74,12 +79,15 @@ typedef id (*PixelBufferPoolFn)(id, SEL,
     _Atomic(int)        _samplesPendingDecode;
     _Atomic(uint32_t)   _frameEra;
     BOOL                _terminated;
+    BOOL                _prepared;
     vpx_codec_ctx_t     _decoder;      // .name != NULL ↔ initialised
     id                  _pixelBufferPool;  // HAMPixelBufferPool instance
 }
 @end
 
 @implementation YTUHDVPXVideoDecoder
+
+@synthesize delegate = _delegate;
 
 - (instancetype)initWithDelegate:(id<HAMVideoDecoderDelegate>)delegate
                    delegateQueue:(dispatch_queue_t)delegateQueue
@@ -94,14 +102,13 @@ typedef id (*PixelBufferPoolFn)(id, SEL,
     _decodeQueue   = decodeQueue;
     _config        = config;
     _terminated    = NO;
+    _prepared      = NO;
     memset(&_decoder, 0, sizeof(_decoder));
     atomic_init(&_samplesPendingDecode, 0);
     atomic_init(&_frameEra, 0u);
 
-    Class poolClass = NSClassFromString(@"HAMPixelBufferPool");
-    if (poolClass) {
-        _pixelBufferPool = [[poolClass alloc] initWithPixelBufferAttributes:pixelBufferAttributes];
-    }
+    _pixelBufferPool = [[NSClassFromString(@"HAMPixelBufferPool") alloc] initWithPixelBufferAttributes:pixelBufferAttributes];
+
     return self;
 }
 
@@ -112,12 +119,24 @@ typedef id (*PixelBufferPoolFn)(id, SEL,
 }
 
 - (void)prepare {
-    dispatch_async(_decodeQueue, ^{
-        [self internalPrepare];
-    });
+    if (_terminated) return;
+    if (_prepared) {
+        __weak id<HAMVideoDecoderDelegate> weakDelegate = _delegate;
+        __weak YTUHDVPXVideoDecoder *weakSelf = self;
+        dispatch_async(_delegateQueue, ^{
+            [weakDelegate videoDecoderDidPrepare:weakSelf];
+        });
+    } else {
+        _prepared = YES;
+        dispatch_async(_decodeQueue, ^{
+            [self internalPrepare];
+        });
+    }
 }
 
 - (void)terminate {
+    if (_terminated) return;
+    _terminated = YES;
     dispatch_async(_decodeQueue, ^{
         [self terminateWithError:nil];
     });
@@ -210,6 +229,30 @@ typedef id (*PixelBufferPoolFn)(id, SEL,
     });
 }
 
+static SEL  s_vpxPixelBufSel;
+static BOOL s_vpxPixelBufHasOrigPT;
+static dispatch_once_t s_vpxOnce;
+
+static void ensureVpxPixelBufSel(id pool) {
+    dispatch_once(&s_vpxOnce, ^{
+        SEL longSel = NSSelectorFromString(
+            @"pixelBufferWithPlanarImage:presentationTime:"
+             "presentationDuration:formatSelection:formatDescription:"
+             "productionTime:periodID:originalPresentationTime:error:");
+        SEL shortSel = NSSelectorFromString(
+            @"pixelBufferWithPlanarImage:presentationTime:"
+             "presentationDuration:formatSelection:formatDescription:"
+             "productionTime:periodID:error:");
+        if ([pool respondsToSelector:longSel]) {
+            s_vpxPixelBufSel = longSel;
+            s_vpxPixelBufHasOrigPT = YES;
+        } else {
+            s_vpxPixelBufSel = shortSel;
+            s_vpxPixelBufHasOrigPT = NO;
+        }
+    });
+}
+
 - (void)internalDecodeSampleBuffer:(HAMInputSampleBuffer *)sampleBuffer
                           frameEra:(uint32_t)era
                  completionHandler:(id)completionHandler {
@@ -218,6 +261,8 @@ typedef id (*PixelBufferPoolFn)(id, SEL,
                          (int)[sampleBuffer sampleCount]);
         return;
     }
+
+    ensureVpxPixelBufSel(_pixelBufferPool);
 
     BOOL    dropFrames        = [sampleBuffer dropFrames];
     id      formatSelection   = [sampleBuffer formatSelection];
@@ -229,15 +274,6 @@ typedef id (*PixelBufferPoolFn)(id, SEL,
     const uint8_t *bytes       = (const uint8_t *)[data bytes];
     NSInteger      sampleCount = [sampleBuffer sampleCount];
     NSInteger      byteOffset  = 0;
-
-    static SEL s_pixelBufSel;
-    static dispatch_once_t s_once;
-    dispatch_once(&s_once, ^{
-        s_pixelBufSel = NSSelectorFromString(
-            @"pixelBufferWithPlanarImage:presentationTime:"
-             "presentationDuration:formatSelection:formatDescription:"
-             "productionTime:periodID:originalPresentationTime:error:");
-    });
 
     for (NSInteger i = 0; i < sampleCount; i++) {
         @autoreleasepool {
@@ -293,25 +329,39 @@ typedef id (*PixelBufferPoolFn)(id, SEL,
 
                 CMTime presentationTime     = timing.presentationTimeStamp;
                 CMTime presentationDuration = timing.duration;
-                CMTime originalPT           = kCMTimeInvalid;
-                if ([sampleBuffer respondsToSelector:
-                        @selector(originalPresentationTime)]) {
-                    originalPT = [sampleBuffer originalPresentationTime];
-                }
 
                 NSError *pbError = nil;
-                PixelBufferPoolFn fn = (PixelBufferPoolFn)objc_msgSend;
-                id hamBuffer = fn(
-                    _pixelBufferPool, s_pixelBufSel,
-                    &planar,
-                    &presentationTime,
-                    &presentationDuration,
-                    formatSelection,
-                    formatDescription,
-                    productionTime,
-                    periodID,
-                    &originalPT,
-                    &pbError);
+                id hamBuffer;
+                if (s_vpxPixelBufHasOrigPT) {
+                    CMTime originalPT = kCMTimeInvalid;
+                    if ([sampleBuffer respondsToSelector:
+                            @selector(originalPresentationTime)])
+                        originalPT = [sampleBuffer originalPresentationTime];
+                    _PixelBufLongFn fn = (_PixelBufLongFn)objc_msgSend;
+                    hamBuffer = fn(
+                        _pixelBufferPool, s_vpxPixelBufSel,
+                        &planar,
+                        &presentationTime,
+                        &presentationDuration,
+                        formatSelection,
+                        formatDescription,
+                        productionTime,
+                        periodID,
+                        &originalPT,
+                        &pbError);
+                } else {
+                    _PixelBufShortFn fn = (_PixelBufShortFn)objc_msgSend;
+                    hamBuffer = fn(
+                        _pixelBufferPool, s_vpxPixelBufSel,
+                        &planar,
+                        &presentationTime,
+                        &presentationDuration,
+                        formatSelection,
+                        formatDescription,
+                        productionTime,
+                        periodID,
+                        &pbError);
+                }
 
                 if (!hamBuffer) {
                     [self terminateWithError:pbError];
