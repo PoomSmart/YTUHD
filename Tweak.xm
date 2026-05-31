@@ -167,33 +167,6 @@ static void hookFormats(MLABRPolicy *self) {
     hookFormatsBase([self valueForKey:@"_hamplayerConfig"]);
 }
 
-%hook MLABRPolicy
-
-- (void)setFormats:(NSArray *)formats {
-    hookFormats(self);
-    %orig(filteredFormats(formats));
-}
-
-%end
-
-%hook MLABRPolicyOld
-
-- (void)setFormats:(NSArray *)formats {
-    hookFormats(self);
-    %orig(filteredFormats(formats));
-}
-
-%end
-
-%hook MLABRPolicyNew
-
-- (void)setFormats:(NSArray *)formats {
-    hookFormats(self);
-    %orig(filteredFormats(formats));
-}
-
-%end
-
 %hook MLHAMPlayerItem
 
 - (void)load {
@@ -262,15 +235,54 @@ static void hookFormats(MLABRPolicy *self) {
 
 %end
 
+%group ServerABR
+
+%hook MLABRPolicy
+
+- (void)setFormats:(NSArray *)formats {
+    hookFormats(self);
+    %orig(filteredFormats(formats));
+}
+
+%end
+
+%hook MLABRPolicyOld
+
+- (void)setFormats:(NSArray *)formats {
+    hookFormats(self);
+    %orig(filteredFormats(formats));
+}
+
+%end
+
+%hook MLABRPolicyNew
+
+- (void)setFormats:(NSArray *)formats {
+    hookFormats(self);
+    %orig(filteredFormats(formats));
+}
+
+%end
+
 %hook YTHotConfig
 
+- (BOOL)iosClientGlobalConfigEnableNewMlabrpolicy {
+    return NO;
+}
+
 - (BOOL)iosPlayerClientSharedConfigDisableServerDrivenAbr {
-    return DisableServerABR() ? YES : %orig;
+    return YES;
 }
 
 - (BOOL)iosPlayerClientSharedConfigPostponeCabrPreferredFormatFiltering {
     return YES;
 }
+
+%end
+
+%end
+
+%hook YTHotConfig
 
 - (BOOL)iosPlayerClientSharedConfigHamplayerPrepareVideoDecoderForAvsbdl {
     return YES;
@@ -474,7 +486,7 @@ BOOL (*SupportsCodec)(CMVideoCodecType codec) = NULL;
 %hook UIDevice
 
 - (NSString *)systemVersion {
-    return @"15.8.7";
+    return @"15.8.8";
 }
 
 %end
@@ -485,7 +497,7 @@ BOOL (*SupportsCodec)(CMVideoCodecType codec) = NULL;
     NSOperatingSystemVersion version;
     version.majorVersion = 15;
     version.minorVersion = 8;
-    version.patchVersion = 7;
+    version.patchVersion = 8;
     return version;
 }
 
@@ -512,42 +524,46 @@ BOOL (*SupportsCodec)(CMVideoCodecType codec) = NULL;
         DecodeThreadsKey: @2,
         ApplyGrainKey:    @YES,
     }];
-    if (!UseVP9() && !UseAV1()) return;
-    uint8_t pattern1[] = {
-        0x28, 0x66, 0x8c, 0x52,
-        0xc8, 0x2e, 0xac, 0x72,
-        0x1f, 0x00, 0x08, 0x6b,
-        0x61, 0x00, 0x00, 0x54,
-        0x28, 0x00, 0x80, 0x52,
-    };
-    uint8_t pattern2[] = {
-        0xf4, 0x4f, 0xbe, 0xa9,
-        0xfd, 0x7b, 0x01, 0xa9,
-        0xfd, 0x43, 0x00, 0x91,
-        0x28, 0x66, 0x8c, 0x52,
-        0xc8, 0x2e, 0xac, 0x72
-    };
-    NSString *bundlePath = [NSString stringWithFormat:@"%@/Frameworks/Module_Framework.framework", NSBundle.mainBundle.bundlePath];
-    NSBundle *bundle = [NSBundle bundleWithPath:bundlePath];
-    NSString *binary;
-    if (bundle) {
-        [bundle load];
-        binary = @"Module_Framework";
-    } else
-        binary = @"YouTube";
-    hasHAMVPXVideoDecoder = %c(HAMVPXVideoDecoder) != nil;
-    hasHAMDav1dVideoDecoder = %c(HAMDav1dVideoDecoder) != nil;
-    %init;
-    SupportsCodec = (BOOL (*)(CMVideoCodecType))libundirect_find(binary, pattern1, sizeof(pattern1), 0x28);
-    if (SupportsCodec == NULL) {
-        SupportsCodec = (BOOL (*)(CMVideoCodecType))libundirect_find(binary, pattern2, sizeof(pattern2), 0xf4);
-        HBLogDebug(@"YTUHD: SupportsCodec pattern2");
+    if (UseVP9() || UseAV1()) {
+        uint8_t pattern1[] = {
+            0x28, 0x66, 0x8c, 0x52,
+            0xc8, 0x2e, 0xac, 0x72,
+            0x1f, 0x00, 0x08, 0x6b,
+            0x61, 0x00, 0x00, 0x54,
+            0x28, 0x00, 0x80, 0x52,
+        };
+        uint8_t pattern2[] = {
+            0xf4, 0x4f, 0xbe, 0xa9,
+            0xfd, 0x7b, 0x01, 0xa9,
+            0xfd, 0x43, 0x00, 0x91,
+            0x28, 0x66, 0x8c, 0x52,
+            0xc8, 0x2e, 0xac, 0x72
+        };
+        NSString *bundlePath = [NSString stringWithFormat:@"%@/Frameworks/Module_Framework.framework", NSBundle.mainBundle.bundlePath];
+        NSBundle *bundle = [NSBundle bundleWithPath:bundlePath];
+        NSString *binary;
+        if (bundle) {
+            [bundle load];
+            binary = @"Module_Framework";
+        } else
+            binary = @"YouTube";
+        hasHAMVPXVideoDecoder = %c(HAMVPXVideoDecoder) != nil;
+        hasHAMDav1dVideoDecoder = %c(HAMDav1dVideoDecoder) != nil;
+        %init;
+        SupportsCodec = (BOOL (*)(CMVideoCodecType))libundirect_find(binary, pattern1, sizeof(pattern1), 0x28);
+        if (SupportsCodec == NULL) {
+            SupportsCodec = (BOOL (*)(CMVideoCodecType))libundirect_find(binary, pattern2, sizeof(pattern2), 0xf4);
+            HBLogDebug(@"YTUHD: SupportsCodec pattern2");
+        }
+        HBLogDebug(@"YTUHD: SupportsCodec: %d", SupportsCodec != NULL);
+        if (SupportsCodec) {
+            %init(Codec);
+        }
+        if (!IS_IOS_OR_NEWER(iOS_15_0)) {
+            %init(Spoofing);
+        }
     }
-    HBLogDebug(@"YTUHD: SupportsCodec: %d", SupportsCodec != NULL);
-    if (SupportsCodec) {
-        %init(Codec);
-    }
-    if (!IS_IOS_OR_NEWER(iOS_15_0)) {
-        %init(Spoofing);
+    if (DisableServerABR()) {
+        %init(ServerABR);
     }
 }

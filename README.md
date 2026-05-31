@@ -1,81 +1,95 @@
 # YTUHD
 
-Unlocks 1440p (2K) and 2160p (4K) resolutions in iOS YouTube app.
+YTUHD unlocks 1440p (2K) and 2160p (4K) options in the iOS YouTube app by expanding codec/media capability paths (VP9/AV1) that YouTube may otherwise gate by device, codec support, or app behavior.
 
-## Backstory
+## What It Does
 
-For a few years, YouTube had been testing 2K/4K resolutions on iOS as A/B (Alpha/Beta testing). The first group of users will see 2K/4K options while the others won't.
-There are certain prerequisites for those options to show:
+- Raises VP9/AV1 stream capability limits to 4K/60.
+- Preserves 1440p/2160p VP9 and AV1 formats during format filtering.
+- Routes VP9/AV1 decoding to a compatible path depending on device and YouTube version.
+- Hooks codec support checks so software decode paths can be used when needed.
+- Spoofs iOS version only on devices below iOS 15.
 
-1. Whether the iOS device support VP9 video decoding, which implies on Apple's end to be at least on iOS 14, and later YouTube says iOS 15 is the minimum requirement.
-2. Whether YouTube decides on their end to include those options for that particular iOS device. The obviously slow devices are excluded.
+## Compatibility
 
-YTUHD attempts to bypass those restrictions for all 64-bit devices running iOS 11 or higher.
+- iOS 11+
 
-## VP9
+## Decoder Paths
 
-Hardware accelerated VP9 decoder is technically added as of iOS 14 and YouTube has been utilizing it through a private entitlement `com.apple.coremedia.allow-alternate-video-decoder-selection` (alternatives: `com.apple.coremedia.allow-specifying-alternate-video-decoder-selection` and ``com.apple.developer.coremedia.allow-alternate-video-decoder-selection`) (All apps are equal is a lie).
-This decoder handles up to 4K, but only for A12 devices and later.
+### VP9
 
-Those old devices don't get `AppleAVD` driver (`/System/Library/Extensions/AppleAVD.kext`) which is essential for VP9 decoding to work.
-The driver availability is checked inside `/System/Library/VideoDecoders/AVD.videodecoder`.
-Provided that you can extract a functional `AVD.videodecoder` binary from a dyld shared cache, you will still encounter the error `AVDRegister - AppleAVDCheckPlatform() returned FALSE` trying to load it.
+- As of YouTube 20.47.3, the built-in software VP9 decoder (`HAMVPXVideoDecoder`) was removed.
+- On versions where `HAMVPXVideoDecoder` is absent, YTUHD provides `YTUHDVPXVideoDecoder` (libvpx-backed).
+- On devices with hardware VP9 decode support, VideoToolbox hardware decode is used.
+- On older devices, VP9 can still run through software decode.
 
-Fortunately, YouTube app has a fallback to software decoding, which is not as efficient as hardware, but it works.
-It can be utilized by disabling server ABR, as can be seen from the code.
+### AV1
 
-Update July 2025: Disabling server ABR is no longer necessary. See the section below.
-
-## AV1
-
-YouTube introduced the AV1 codec around late 2018. This codec is also capable of 2K/4K resolutions.
-YTUHD also attempts to enable AV1 as seen in the code.
-
-Starting from YouTube version 20.47.3, the software VP9 decoder (`HAMVPXVideoDecoder`) has been removed entirely.
-YTUHD reimplements this class as `YTUHDVPXVideoDecoder` using [libvpx](https://www.webmproject.org/code/) (statically linked), so VP9 continues to work on A11 and earlier devices with new YouTube versions.
-On A12 and later, the hardware VideoToolbox VP9 decoder is used instead.
-See `NOTICES` for the libvpx BSD-3-Clause license attribution.
+- As of YouTube 19.28.1, YTUHD adds a software AV1 decoder path (`YTUHDDav1dVideoDecoder`) for apps/devices that do not provide native AV1 software decode.
+- If hardware AV1 decode is unavailable and YouTube does not provide `HAMDav1dVideoDecoder`, YTUHD provides `YTUHDDav1dVideoDecoder` (dav1d-backed).
+- `Apply film grain` and decode thread controls are forwarded into the dav1d config.
 
 ## Server ABR
 
-If you look at the source code, there is an enforcement to not use server ABR. ABR stands for **A**daptive **B**it**R**ate. Its purpose is to fetch the available formats (resolutions) of a video.
+YTUHD can run with server-driven ABR disabled so format filtering is handled by the client ABR hooks.
 
-~~It is unknown how YouTube exactly decides which formats to serve when the server ABR is enabled.
-YTUHD has no control over that and has to disable it and relies on the client code that reliably allows for 2K/4K formats.
-More specifically, it enables the VP9 software streaming filter so that those formats will not be filtered out.~~
+- This mode is intended as a fallback/compatibility path.
+- Client-ABR-only behavior is reliable only on iOS 14+ and YouTube versions that include PoToken (Proof of Origin) implementation.
+- On older environments or app builds without PoToken support, server ABR should remain enabled.
 
-Update July 2025: The author discovered a technique to enable 2K/4K formats without disabling server ABR. From the code, the idea is to force software decoder over hardware decoder only when a decoder is initialized by hooking `SupportsCodec` function (this function actually is unnamed in YouTube binary, but is labeled here for clarity) that toggles the return value. Specifically, `SupportsCodec` returns `NO` for AV1, and for VP9 when there is no hardware VP9 decoder support (A11 and earlier on new YouTube, or when the native libvpx-backed `HAMVPXVideoDecoder` handles it on older YouTube). In all other cases it returns `YES`.
+## Settings (In-App)
 
-## iOS version
+These options are shown in the YTUHD section inside YouTube settings:
 
-The history has shaped YTUHD to spoof the device as iOS 15 (or higher) for those running lower. The user agent gets changed from spoofing for YouTube server to respond with VP9 formats and all the goodies.
+- `Use VP9/AV1`: Enables the codec capability path used by YTUHD. Restart the app after changing.
+- `VP9 for all`: Keeps VP9 across all resolutions. If off, non-4K VP9/AV1 streams are filtered out.
+- `Use AV1 (dav1d)`: Shows only when hardware AV1 is unavailable and native YouTube dav1d is absent.
+- `Apply film grain`: Shows with `Use AV1 (dav1d)` and controls AV1 grain synthesis.
+- `Decode threads`: Software decode thread count (default: 2).
+- `Skip loop filter`, `Loop filter optimization`, `Row threading`: VP9 software decode tuning options.
 
-## Sideloading
+## iOS Version Spoofing
 
-Normally when an app is sideloaded, the private entitlements get removed (including `com.apple.coremedia.allow-alternate-video-decoder-selection`) and the app won't be allowed to access the hardware VP9 decoder. As for sideloaded YouTube, you will end up with only the software VP9 decoder, which can drain battery significantly. There is no known solution to bypass this, unless you can use [TrollStore](https://github.com/opa334/TrollStore) on your device to install the sideloaded YouTube IPA. TrollStore preserves the entitlements of the app.
+On iOS versions below 15, YTUHD applies iOS version/build spoofing so YouTube requests the modern capability/format path.
 
-Update July 2025: [libundirect](https://github.com/opa334/libundirect) is now used by YTUHD. If you want to sideload YouTube IPA with YTUHD that uses `libundirect`, the simplest solution is to add `SIDELOAD=1` when building the package with Theos.
+## Sideloading Notes
 
-## AV1 Software Decoding
+Sideloaded apps often lose private entitlements required for hardware VP9 decode, so software decode may be used more often (higher battery cost).
 
-For old YouTube versions (19.26.5 and lower) that have no built-in AV1 software decoder, YTUHD now reimplements AV1 decoding as `YTUHDDav1dVideoDecoder` using [dav1d](https://code.videolan.org/videolan/dav1d) (statically linked). This enables AV1 playback on devices without hardware AV1 support (A16 and earlier).
-See `NOTICES` for the dav1d BSD-2-Clause license attribution.
+YTUHD uses [libundirect](https://github.com/opa334/libundirect). For sideload builds, use:
 
-## Building
+```sh
+make SIDELOAD=1
+```
 
-Building YTUHD requires [Theos](https://theos.dev). The VP9 software decoder (`YTUHDVPXVideoDecoder`) and AV1 software decoder (`YTUHDDav1dVideoDecoder`) statically link [libvpx](https://www.webmproject.org/code/) and [dav1d](https://code.videolan.org/videolan/dav1d) respectively, which are built automatically on first `make`.
+Using TrollStore can help preserve entitlements for sideloaded YouTube builds.
 
-Building dav1d requires **meson** and **ninja**. Install them via Homebrew before building:
+## Build
+
+YTUHD requires [Theos](https://theos.dev). Static libraries are built automatically on first `make`:
+
+- VP9: [libvpx](https://www.webmproject.org/code/)
+- AV1: [dav1d](https://code.videolan.org/videolan/dav1d)
+
+Install build tools for dav1d first:
 
 ```sh
 brew install meson ninja
 ```
 
-Then build as usual.
-
-To rebuild the static libraries explicitly:
+Build:
 
 ```sh
-make libvpx   # rebuilds vendor/libvpx_ios/libvpx.a
-make dav1d    # rebuilds vendor/dav1d_ios/libdav1d.a
+make package
 ```
+
+Rebuild third-party static libraries explicitly:
+
+```sh
+make libvpx   # vendor/libvpx_ios/libvpx.a
+make dav1d    # vendor/dav1d_ios/libdav1d.a
+```
+
+## Licenses
+
+Third-party notices are documented in `NOTICES`.
