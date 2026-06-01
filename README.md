@@ -7,7 +7,7 @@ YTUHD unlocks 1440p (2K) and 2160p (4K) options in the iOS YouTube app by expand
 - Raises VP9/AV1 stream capability limits to 4K/60.
 - Preserves 1440p/2160p VP9 and AV1 formats during format filtering.
 - Routes VP9/AV1 decoding to a compatible path depending on device and YouTube version.
-- Hooks codec support checks so software decode paths can be used when needed.
+- Hooks codec support checks so software decode paths can be used correctly.
 
 ## Compatibility
 
@@ -18,14 +18,15 @@ YTUHD unlocks 1440p (2K) and 2160p (4K) options in the iOS YouTube app by expand
 ### VP9
 
 - As of YouTube 20.47.3, the built-in software VP9 decoder (`HAMVPXVideoDecoder`) was removed.
-- On versions where `HAMVPXVideoDecoder` is absent, YTUHD provides `YTUHDVPXVideoDecoder` (libvpx-backed).
+- YTUHD provides `YTUHDVPXVideoDecoder` (libvpx-backed) and replaces the original `HAMVPXVideoDecoder` on app versions that still have it.
 - On devices with hardware VP9 decode support, VideoToolbox hardware decode is used.
-- On older devices, VP9 can still run through software decode.
+- On older devices, VP9 can still run through software decode (`YTUHDVPXVideoDecoder`).
 
 ### AV1
 
-- As of YouTube 19.28.1, YTUHD adds a software AV1 decoder path (`YTUHDDav1dVideoDecoder`) for apps/devices that do not provide native AV1 software decode.
+- As of YouTube 19.28.1, YTUHD adds a software AV1 decoder path (`YTUHDDav1dVideoDecoder`) for devices that do not provide native AV1 software decode.
 - If hardware AV1 decode is unavailable and YouTube does not provide `HAMDav1dVideoDecoder`, YTUHD provides `YTUHDDav1dVideoDecoder` (dav1d-backed).
+- `YTUHDDav1dVideoDecoder` replaces the original `HAMDav1dVideoDecoder` on app versions that have it.
 - `Apply film grain` and decode thread controls are forwarded into the dav1d config.
 
 ## Server ABR
@@ -49,7 +50,7 @@ These options are shown in the YTUHD section inside YouTube settings:
 
 ## Sideloading Notes
 
-Sideloaded apps often lose private entitlements required for hardware VP9 decode, so software decode may be used more often (higher battery cost).
+Sideloaded apps often lose private entitlements required for hardware VP9 decode, so software decode will be used instead (higher battery cost).
 
 YTUHD uses [libundirect](https://github.com/opa334/libundirect). For sideload builds to work correctly with it, use:
 
