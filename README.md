@@ -8,7 +8,6 @@ YTUHD unlocks 1440p (2K) and 2160p (4K) options in the iOS YouTube app by expand
 - Preserves 1440p/2160p VP9 and AV1 formats during format filtering.
 - Routes VP9/AV1 decoding to a compatible path depending on device and YouTube version.
 - Hooks codec support checks so software decode paths can be used when needed.
-- Spoofs iOS version only on devices below iOS 15.
 
 ## Compatibility
 
@@ -48,15 +47,11 @@ These options are shown in the YTUHD section inside YouTube settings:
 - `Decode threads`: Software decode thread count (default: 2).
 - `Skip loop filter`, `Loop filter optimization`, `Row threading`: VP9 software decode tuning options.
 
-## iOS Version Spoofing
-
-On iOS versions below 15, YTUHD applies iOS version/build spoofing so YouTube requests the modern capability/format path.
-
 ## Sideloading Notes
 
 Sideloaded apps often lose private entitlements required for hardware VP9 decode, so software decode may be used more often (higher battery cost).
 
-YTUHD uses [libundirect](https://github.com/opa334/libundirect). For sideload builds, use:
+YTUHD uses [libundirect](https://github.com/opa334/libundirect). For sideload builds to work correctly with it, use:
 
 ```sh
 make SIDELOAD=1

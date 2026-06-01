@@ -19,7 +19,6 @@
 #import <YouTubeHeader/YTSingleVideoController.h>
 #import <objc/runtime.h>
 
-#define IOS_BUILD "19H422"
 #define MAX_FPS 60
 #define MAX_HEIGHT 2160 // 4k
 #define MAX_PIXELS 8294400 // 3840 x 2160 (4k)

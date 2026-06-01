@@ -1,12 +1,8 @@
 #import <CoreMedia/CoreMedia.h>
-#import <Foundation/NSProcessInfo.h>
-#import <Foundation/NSString.h>
 #import <VideoToolbox/VideoToolbox.h>
 #import <HBLog.h>
 #import <substrate.h>
 #import <libundirect/libundirect.h>
-#import <sys/sysctl.h>
-#import <version.h>
 #import "Header.h"
 
 typedef struct {
@@ -115,16 +111,10 @@ static id YTUHDCreateDav1dDecoder(MLVideoDecoderFactory *self, id delegate, id d
 
 // Remove any <= 1080p VP9 formats if AllVP9 is disabled.
 NSArray <MLFormat *> *filteredFormats(NSArray <MLFormat *> *formats) {
-    // VP9 is always decodable when UseVP9 is enabled:
-    //   old YT  -> native HAMVPXVideoDecoder (libvpx)
-    //   new YT  -> hardware VideoToolbox (A12+) or YTUHDVPXVideoDecoder (A11-)
-    BOOL canDecodeVP9 = YES;
-    if (AllVP9() && canDecodeVP9) return formats;
+    if (AllVP9()) return formats;
     NSPredicate *predicate = [NSPredicate predicateWithBlock:^BOOL(MLFormat *format, NSDictionary *bindings) {
         if (![format isKindOfClass:%c(MLFormat)]) return YES;
         BOOL isVP9 = [[format MIMEType] videoCodec] == 'vp09';
-        // Always strip VP9 when nothing can decode it
-        if (isVP9 && !canDecodeVP9) return NO;
         NSString *qualityLabel = [format qualityLabel];
         BOOL isHighRes = [qualityLabel hasPrefix:@"2160p"] || [qualityLabel hasPrefix:@"1440p"];
         BOOL isVP9orAV1 = isVP9 || [[format MIMEType] videoCodec] == 'av01';
@@ -142,8 +132,6 @@ static void hookFormatsBase(YTIHamplayerConfig *config) {
     filter.enableVideoCodecSplicing = YES;
     filter.av1.maxArea = MAX_PIXELS;
     filter.av1.maxFps = MAX_FPS;
-    // Advertise VP9 capability — covered by native decoder, hardware VT, or
-    // our YTUHDVPXVideoDecoder backport depending on the YouTube version.
     filter.vp9.maxArea = MAX_PIXELS;
     filter.vp9.maxFps = MAX_FPS;
 }
@@ -487,42 +475,6 @@ BOOL (*SupportsCodec)(CMVideoCodecType codec) = NULL;
 
 %end
 
-%group Spoofing
-
-%hook UIDevice
-
-- (NSString *)systemVersion {
-    return @"15.8.8";
-}
-
-%end
-
-%hook NSProcessInfo
-
-- (NSOperatingSystemVersion)operatingSystemVersion {
-    NSOperatingSystemVersion version;
-    version.majorVersion = 15;
-    version.minorVersion = 8;
-    version.patchVersion = 8;
-    return version;
-}
-
-%end
-
-%hookf(int, sysctlbyname, const char *name, void *oldp, size_t *oldlenp, void *newp, size_t newlen) {
-    if (strcmp(name, "kern.osversion") == 0) {
-        int ret = %orig;
-        if (oldp) {
-            strcpy((char *)oldp, IOS_BUILD);
-            *oldlenp = strlen(IOS_BUILD);
-        }
-        return ret;
-    }
-    return %orig;
-}
-
-%end
-
 %ctor {
     vtSupportsVP9 = VTIsHardwareDecodeSupported(kCMVideoCodecType_VP9);
     vtSupportsAV1 = VTIsHardwareDecodeSupported(kCMVideoCodecType_AV1);
@@ -562,9 +514,6 @@ BOOL (*SupportsCodec)(CMVideoCodecType codec) = NULL;
         HBLogDebug(@"YTUHD: SupportsCodec: %d", SupportsCodec != NULL);
         if (SupportsCodec) {
             %init(Codec);
-        }
-        if (!IS_IOS_OR_NEWER(iOS_15_0)) {
-            %init(Spoofing);
         }
     }
     if (DisableServerABR()) {
