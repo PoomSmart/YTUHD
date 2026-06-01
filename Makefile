@@ -33,9 +33,6 @@ $(TWEAK_NAME)_CFLAGS = -fobjc-arc \
     -I$(LIBVPX_BUILD) \
     -I$(THEOS_PROJECT_DIR)/vendor/dav1d/include \
     -I$(DAV1D_BUILD)/install/include
-ifeq ($(SIDELOAD),1)
-$(TWEAK_NAME)_CFLAGS += -DSIDELOAD=1
-endif
 $(TWEAK_NAME)_LDFLAGS = $(LIBVPX_A) $(DAV1D_A)
 ifeq ($(SIDELOAD),1)
 $(TWEAK_NAME)_FILES += vendor/libundirect/libundirect.m vendor/libundirect/HookCompat.m
