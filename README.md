@@ -43,6 +43,7 @@ These options are shown in the YTUHD section inside YouTube settings:
 
 - `Use VP9/AV1`: Enables the codec capability path used by YTUHD. Restart the app after changing.
 - `VP9 for all`: Keeps VP9 across all resolutions. If off, non-4K VP9/AV1 streams are filtered out.
+- `Disable server ABR`: Forces the client ABR path. Keep this off unless you need compatibility fallback behavior.
 - `Use AV1 (dav1d)`: Shows only when hardware AV1 is unavailable.
 - `Apply film grain`: Shows with `Use AV1 (dav1d)` and controls AV1 grain synthesis.
 - `Decode threads`: Software decode thread count (default: 2).
@@ -66,6 +67,7 @@ YTUHD requires [Theos](https://theos.dev). Static libraries are built automatica
 
 - VP9: [libvpx](https://www.webmproject.org/code/)
 - AV1: [dav1d](https://code.videolan.org/videolan/dav1d)
+- Hooking support for sideload mode: [libundirect](https://github.com/opa334/libundirect)
 
 Install build tools for dav1d first:
 
@@ -88,7 +90,7 @@ make dav1d    # vendor/dav1d_ios/libdav1d.a
 
 ### Updating Vendor Libraries
 
-`vendor/libvpx` and `vendor/dav1d` are git submodules.
+`vendor/libvpx`, `vendor/dav1d`, and `vendor/libundirect` are git submodules.
 
 To pull newer upstream revisions:
 
