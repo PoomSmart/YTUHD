@@ -24,7 +24,7 @@ YTUHD unlocks 1440p (2K) and 2160p (4K) options in the iOS YouTube app by expand
 
 ### AV1
 
-- As of YouTube 19.28.1, YTUHD adds a software AV1 decoder path (`YTUHDDav1dVideoDecoder`) for devices that do not provide native AV1 hardware decode.
+- As of YouTube 19.28.1, YouTube adds a software AV1 decoder path (`HAMDav1dVideoDecoder`) for devices that do not provide native AV1 hardware decode.
 - If hardware AV1 decode is unavailable and YouTube does not provide `HAMDav1dVideoDecoder`, YTUHD provides `YTUHDDav1dVideoDecoder` (dav1d-backed).
 - `YTUHDDav1dVideoDecoder` replaces the original `HAMDav1dVideoDecoder` on app versions that have it.
 - `Apply film grain` and decode thread controls are forwarded into the dav1d config.
