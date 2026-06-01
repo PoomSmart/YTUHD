@@ -37,7 +37,9 @@ ifeq ($(SIDELOAD),1)
 $(TWEAK_NAME)_CFLAGS += -DSIDELOAD=1
 endif
 $(TWEAK_NAME)_LDFLAGS = $(LIBVPX_A) $(DAV1D_A)
-ifneq ($(SIDELOAD),1)
+ifeq ($(SIDELOAD),1)
+$(TWEAK_NAME)_FILES += vendor/libundirect/libundirect.m vendor/libundirect/HookCompat.m
+else
 $(TWEAK_NAME)_LIBRARIES = undirect
 endif
 $(TWEAK_NAME)_FRAMEWORKS = VideoToolbox

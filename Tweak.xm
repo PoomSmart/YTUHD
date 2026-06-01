@@ -4,11 +4,7 @@
 #import <VideoToolbox/VideoToolbox.h>
 #import <HBLog.h>
 #import <substrate.h>
-#ifdef SIDELOAD
-#import <libundirect/libundirect_dynamic.h>
-#else
 #import <libundirect/libundirect.h>
-#endif
 #import <sys/sysctl.h>
 #import <version.h>
 #import "Header.h"
