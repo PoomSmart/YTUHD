@@ -1,6 +1,7 @@
-"USE_VP9" = "Sử dụng bộ giải mã VP9/AV1";
+"USE_VP9_AV1" = "Sử dụng bộ giải mã VP9/AV1";
 "USE_VP9_DESC" = "Sử dụng bộ giải mã VP9/AV1 để có thể tải video với chất lượng 2K/4K. Hoạt động tốt nhất với chip A12 trở lên và ứng dụng được cài đặt bằng TrollStore. Cần khởi động lại ứng dụng.";
 "HW_VP9_SUPPORT" = "Hỗ trợ bộ giải mã VP9";
+"HW_AV1_SUPPORT" = "Hỗ trợ phần cứng AV1";
 
 "ALL_VP9" = "Sử dụng bộ giải mã VP9 cho tất cả";
 "ALL_VP9_DESC" = "Sử dụng bộ giải mã VP9 cho tất cả độ phân giải video. Bạn nên bật tính năng này cho các thiết bị hỗ trợ phần cứng VP9 (A12 trở lên) và khi ứng dụng YouTube có quyền VP9.";
@@ -18,8 +19,5 @@
 
 "ROW_THREADING" = "Row threading";
 
-"USE_AV1" = "Dùng AV1 (dav1d)";
-"USE_AV1_DESC" = "Bật giải mã phần mềm AV1 qua dav1d cho các thiết bị không hỗ trợ AV1 phần cứng (A16 trở xuống). Cho phép phát AV1 4K trên iPhone cũ hơn. Yêu cầu khởi động lại ứng dụng.";
-"HW_AV1_SUPPORT" = "Hỗ trợ phần cứng AV1";
 "APPLY_GRAIN" = "Áp dụng film grain";
 "APPLY_GRAIN_DESC" = "Áp dụng bộ lọc film grain AV1 trong khi giải mã.";

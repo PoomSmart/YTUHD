@@ -1,6 +1,7 @@
-"USE_VP9" = "Use VP9/AV1";
-"USE_VP9_DESC" = "Enables VP9/AV1 codec that supports up to 4K resolutions. Works best with devices with Apple CPU A12 and higher. App restart is required.";
+"USE_VP9_AV1" = "Use VP9/AV1";
+"USE_VP9_DESC" = "Enables VP9/AV1 codecs that support up to 4K resolutions. Works best with devices with Apple CPU A12 and higher. App restart is required.";
 "HW_VP9_SUPPORT" = "Hardware VP9 Support";
+"HW_AV1_SUPPORT" = "Hardware AV1 Support";
 
 "ALL_VP9" = "VP9 for all";
 "ALL_VP9_DESC" = "Uses VP9 codec for all video resolutions. This is recommended to be enabled for hardware VP9 supported devices (A12 and higher) AND when YouTube app has VP9 entitlement.";
@@ -18,8 +19,5 @@
 
 "ROW_THREADING" = "Row threading";
 
-"USE_AV1" = "Use AV1 (dav1d)";
-"USE_AV1_DESC" = "Enables AV1 software decoding via dav1d for devices without hardware AV1 support (A16 and earlier). Allows up to 4K AV1 playback on older iPhones. Requires more CPU than VP9. App restart is required.";
-"HW_AV1_SUPPORT" = "Hardware AV1 Support";
 "APPLY_GRAIN" = "Apply film grain";
 "APPLY_GRAIN_DESC" = "Applies the AV1 film grain filter during decoding. Disable to save CPU on very grainy videos.";

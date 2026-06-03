@@ -1,6 +1,7 @@
-"USE_VP9" = "Użyj VP9/AV1";
+"USE_VP9_AV1" = "Użyj VP9/AV1";
 "USE_VP9_DESC" = "Włącza kodek VP9/AV1, który wspiera rodzielczość do 4K. Działa najlepiej z urządzeniami Apple z CPU A12 i nowszymi. Wymagane jest ponowne uruchomienie aplikacji.";
 "HW_VP9_SUPPORT" = "Sprzętowe wsparcie VP9";
+"HW_AV1_SUPPORT" = "Sprzętowa obsługa AV1";
 
 "ALL_VP9" = "VP9 do wszystkiego";
 "ALL_VP9_DESC" = "Używa kodeku VP9 dla wszystkich rozdzielczości filmów. Zaleca się włączenie tej opcji na urządzeniach obsługujących sprzętowe wsparcie VP9 (CPU A12 i nowsze) ORAZ gdy aplikacja YouTube ma uprawnienia do obsługi VP9.";
@@ -18,8 +19,5 @@
 
 "ROW_THREADING" = "Row Threading";
 
-"USE_AV1" = "Użyj AV1 (dav1d)";
-"USE_AV1_DESC" = "Włącza programowe dekodowanie AV1 przez dav1d dla urządzeń bez sprzętowej obsługi AV1 (A16 i starsze). Umożliwia odtwarzanie AV1 w 4K na starszych iPhone'ach. Wymagany restart aplikacji.";
-"HW_AV1_SUPPORT" = "Sprzętowa obsługa AV1";
 "APPLY_GRAIN" = "Zastosuj ziarnistość filmu";
 "APPLY_GRAIN_DESC" = "Stosuje filtr ziarnistości AV1 podczas dekodowania.";

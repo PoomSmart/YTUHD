@@ -59,6 +59,12 @@ YTUHD uses [libundirect](https://github.com/opa334/libundirect). For sideload bu
 make SIDELOAD=1
 ```
 
+As package:
+
+```sh
+make package SIDELOAD=1
+```
+
 Using TrollStore can help preserve entitlements for sideloaded YouTube builds.
 
 ## Build

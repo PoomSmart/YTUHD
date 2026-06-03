@@ -12,6 +12,7 @@
 #import <YouTubeHeader/MLHAMQueuePlayer.h>
 #import <YouTubeHeader/MLHLSMasterPlaylist.h>
 #import <YouTubeHeader/MLHLSStreamSelector.h>
+#import <YouTubeHeader/MLQOEPingController.h>
 #import <YouTubeHeader/MLVideo.h>
 #import <YouTubeHeader/MLVideoDecoderFactory.h>
 #import <YouTubeHeader/YTIHamplayerConfig.h>
@@ -23,7 +24,7 @@
 #define MAX_HEIGHT 2160 // 4k
 #define MAX_PIXELS 8294400 // 3840 x 2160 (4k)
 
-#define UseVP9Key @"EnableVP9"
+#define UseVP9AV1Key @"EnableVP9AV1"
 #define AllVP9Key @"AllVP9"
 #define UseAV1Key @"EnableAV1"
 #define ApplyGrainKey @"Dav1dApplyGrain"

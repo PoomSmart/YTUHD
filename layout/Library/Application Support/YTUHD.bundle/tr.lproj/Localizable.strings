@@ -1,6 +1,7 @@
-"USE_VP9" = "VP9/AV1'u aç";
+"USE_VP9_AV1" = "VP9/AV1'u aç";
 "USE_VP9_DESC" = "4K çözünürlüğe kadar VP9/AV1 kodeğini aç. Apple A12 ve üstü cihazlarla en iyi çalışır. Uyg. yeniden başlatılmalı.";
 "HW_VP9_SUPPORT" = "Donanımsal VP9 Desteği";
+"HW_AV1_SUPPORT" = "Donanım AV1 Desteği";
 
 "ALL_VP9" = "Tüm videolar için VP9";
 "ALL_VP9_DESC" = "Tüm video çözünürlüklerinde VP9 kodeğini kullan. Donanım VP9 destekli cihazlar (A12 ve üstü) ve YouTube uygulaması VP9 yetkisine sahip olduğunda önerilir.";
@@ -18,8 +19,5 @@
 
 "ROW_THREADING" = "Row threading";
 
-"USE_AV1" = "AV1 Kullan (dav1d)";
-"USE_AV1_DESC" = "Donanım AV1 desteği olmayan cihazlarda (A16 ve öncesi) dav1d aracılığıyla AV1 yazılım kodçözümünü etkinleştirir. Eski iPhone'larda 4K AV1 oynatmayı mümkün kılar. Uygulama yeniden başlatma gerektirir.";
-"HW_AV1_SUPPORT" = "Donanım AV1 Desteği";
 "APPLY_GRAIN" = "Film tanesi uygula";
 "APPLY_GRAIN_DESC" = "Kodçözme sırasında AV1 film tanesi filtresini uygular.";

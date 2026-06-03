@@ -1,6 +1,7 @@
-"USE_VP9" = "VP9/AV1 사용";
+"USE_VP9_AV1" = "VP9/AV1 사용";
 "USE_VP9_DESC" = "VP9/AV1 코덱을 활성화하면 최대 4K 해상도를 지원합니다. Apple CPU A12 이상이 탑재된 기기에서 가장 잘 작동합니다. 앱 재시작이 필요합니다.";
 "HW_VP9_SUPPORT" = "VP9 하드웨어 지원";
+"HW_AV1_SUPPORT" = "하드웨어 AV1 지원";
 
 "ALL_VP9" = "모든 해상도에서 VP9 사용";
 "ALL_VP9_DESC" = "모든 비디오 해상도에 VP9 코덱을 사용합니다. VP9 하드웨어를 지원하는 기기(A12 이상)와 YouTube 앱이 VP9 권한을 가진 경우 활성화하는 것이 좋습니다.";
@@ -18,8 +19,5 @@
 
 "ROW_THREADING" = "Row threading";
 
-"USE_AV1" = "AV1 사용 (dav1d)";
-"USE_AV1_DESC" = "하드웨어 AV1 미지원 기기(A16 이하)에서 dav1d를 통한 AV1 소프트웨어 디코딩을 활성화합니다. 구형 iPhone에서 4K AV1 재생이 가능합니다. VP9보다 CPU를 더 사용합니다. 앱 재시작이 필요합니다.";
-"HW_AV1_SUPPORT" = "하드웨어 AV1 지원";
 "APPLY_GRAIN" = "필름 그레인 적용";
 "APPLY_GRAIN_DESC" = "디코딩 중 AV1 필름 그레인 필터를 적용합니다.";

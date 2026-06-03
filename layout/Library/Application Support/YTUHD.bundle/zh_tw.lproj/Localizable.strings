@@ -1,6 +1,7 @@
-"USE_VP9" = "使用 VP9/AV1 編碼";
+"USE_VP9_AV1" = "使用 VP9/AV1 編碼";
 "USE_VP9_DESC" = "支援 4K 解析度的 VP9/AV1 編解碼器並且建議使用 A12 晶片(含)以上的機型。需重新啟動應用程式。";
 "HW_VP9_SUPPORT" = "硬體 VP9 編碼支援狀態";
+"HW_AV1_SUPPORT" = "硬體 AV1 支援";
 
 "ALL_VP9" = "所有解析度使用 VP9";
 "ALL_VP9_DESC" = "所有影片解析度使用 VP9 編解碼器。建議在硬體支援 VP9 的裝置（A12 及以上）且 YouTube 應用程式具有 VP9 權限時啟用。";
@@ -18,8 +19,5 @@
 
 "ROW_THREADING" = "Row threading";
 
-"USE_AV1" = "使用 AV1 (dav1d)";
-"USE_AV1_DESC" = "透過 dav1d 為沒有硬體 AV1 支援的裝置（A16 及更舊）啟用 AV1 軟體解碼，讓舊款 iPhone 能播放 4K AV1 影片。比 VP9 需要更多 CPU。需要重新啟動應用程式。";
-"HW_AV1_SUPPORT" = "硬體 AV1 支援";
 "APPLY_GRAIN" = "套用底片顆粒";
 "APPLY_GRAIN_DESC" = "在解碼過程中套用 AV1 底片顆粒濾鏡。";

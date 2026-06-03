@@ -1,6 +1,7 @@
-"USE_VP9" = "Gebruik VP9/AV1";
+"USE_VP9_AV1" = "Gebruik VP9/AV1";
 "USE_VP9_DESC" = "Schakel het VP9/AV1-codec in die tot 4K resoluties ondersteunt. Werkt het beste met apparaten met Apple CPU A12 of hoger. App herstart is vereist.";
 "HW_VP9_SUPPORT" = "Hardware VP9-ondersteuning";
+"HW_AV1_SUPPORT" = "Hardware AV1-ondersteuning";
 
 "ALL_VP9" = "VP9 voor alles";
 "ALL_VP9_DESC" = "Gebruik VP9-codec voor alle videoresoluties. Dit wordt aanbevolen om in te schakelen voor apparaten met hardware VP9-ondersteuning (A12 en hoger) EN wanneer de YouTube-app VP9-rechten heeft.";
@@ -18,8 +19,5 @@
 
 "ROW_THREADING" = "Row threading";
 
-"USE_AV1" = "AV1 gebruiken (dav1d)";
-"USE_AV1_DESC" = "Schakelt AV1-softwaredecoding via dav1d in voor apparaten zonder hardware-AV1-ondersteuning (A16 en ouder). Maakt 4K AV1-weergave mogelijk op oudere iPhones. Vereist meer CPU dan VP9. App-herstart vereist.";
-"HW_AV1_SUPPORT" = "Hardware AV1-ondersteuning";
 "APPLY_GRAIN" = "Filmkorrel toepassen";
 "APPLY_GRAIN_DESC" = "Past het AV1-filmkorrelfilter toe tijdens het decoderen.";

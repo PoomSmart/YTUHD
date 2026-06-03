@@ -1,6 +1,7 @@
-"USE_VP9" = "Utilizare VP9/AV1";
+"USE_VP9_AV1" = "Utilizare VP9/AV1";
 "USE_VP9_DESC" = "Activare codec VP9/AV1, care suportă rezoluții până la 4K. Funcționează ideal cu dispozitive cu procesor Apple A12 sau ulterior. Este necesară repornirea aplicației.";
 "HW_VP9_SUPPORT" = "Suport VP9 Hardware";
+"HW_AV1_SUPPORT" = "Suport hardware AV1";
 
 "ALL_VP9" = "VP9 pentru toate";
 "ALL_VP9_DESC" = "Utilizați codec VP9 pentru toate rezoluțiile video. Este recomandat să fie activat pentru dispozitivele care suportă hardware VP9 (A12 și mai sus) ȘI când aplicația YouTube are dreptul VP9.";
@@ -18,8 +19,5 @@
 
 "ROW_THREADING" = "Row threading";
 
-"USE_AV1" = "Folosiți AV1 (dav1d)";
-"USE_AV1_DESC" = "Activează decodarea software AV1 prin dav1d pentru dispozitivele fără suport hardware AV1 (A16 și mai vechi). Permite redarea AV1 în 4K pe iPhone-uri mai vechi. Necesită repornirea aplicației.";
-"HW_AV1_SUPPORT" = "Suport hardware AV1";
 "APPLY_GRAIN" = "Aplică grain de film";
 "APPLY_GRAIN_DESC" = "Aplică filtrul de grain AV1 în timpul decodării.";

@@ -1,6 +1,7 @@
-"USE_VP9" = "Használja a VP9/AV1-et";
+"USE_VP9_AV1" = "Használja a VP9/AV1-et";
 "USE_VP9_DESC" = "Engedélyezze az akár 4K felbontást támogató VP9/AV1 kodeket. A legjobban az Apple CPU A12 vagy újabb CPU-val rendelkező eszközökkel működik. Az alkalmazás újraindítása szükséges.";
 "HW_VP9_SUPPORT" = "Hardveres VP9 támogatás";
+"HW_AV1_SUPPORT" = "Hardveres AV1 támogatás";
 
 "ALL_VP9" = "VP9 mindenhez";
 "ALL_VP9_DESC" = "Használja a VP9 kodeket minden videófelbontáshoz. Ajánlott engedélyezni hardveres VP9 támogatott eszközökön (A12 és újabb) ÉS amikor a YouTube alkalmazás rendelkezik VP9 jogosultsággal.";
@@ -18,8 +19,5 @@
 
 "ROW_THREADING" = "Row threading";
 
-"USE_AV1" = "AV1 használata (dav1d)";
-"USE_AV1_DESC" = "Engedélyezi az AV1 szoftveres dekódolást dav1d segítségével olyan eszközökön, amelyek nem támogatják az AV1 hardveres dekódolást (A16 és korábbi). Az app újraindítása szükséges.";
-"HW_AV1_SUPPORT" = "Hardveres AV1 támogatás";
 "APPLY_GRAIN" = "Filmzaj alkalmazása";
 "APPLY_GRAIN_DESC" = "Az AV1 filmzaj szűrőt alkalmazza dekódolás közben.";

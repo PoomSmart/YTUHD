@@ -21,8 +21,8 @@ static const NSInteger TweakSection = 'ythd';
 extern BOOL vtSupportsVP9;
 extern BOOL vtSupportsAV1;
 
-BOOL UseVP9() {
-    return [[NSUserDefaults standardUserDefaults] boolForKey:UseVP9Key];
+BOOL UseVP9AV1() {
+    return [[NSUserDefaults standardUserDefaults] boolForKey:UseVP9AV1Key];
 }
 
 BOOL AllVP9() {
@@ -47,10 +47,6 @@ BOOL LoopFilterOptimization() {
 
 BOOL RowThreading() {
     return [[NSUserDefaults standardUserDefaults] boolForKey:RowThreadingKey];
-}
-
-BOOL UseAV1() {
-    return [[NSUserDefaults standardUserDefaults] boolForKey:UseAV1Key];
 }
 
 BOOL ApplyGrain() {
@@ -103,29 +99,17 @@ NSBundle *YTUHDBundle() {
     Class YTSettingsSectionItemClass = %c(YTSettingsSectionItem);
     YTSettingsViewController *settingsViewController = [self valueForKey:@"_settingsViewControllerDelegate"];
 
-    // Use VP9
-    YTSettingsSectionItem *vp9 = [YTSettingsSectionItemClass switchItemWithTitle:LOC(@"USE_VP9")
-        titleDescription:[NSString stringWithFormat:@"%@\n\n%@: %d", LOC(@"USE_VP9_DESC"), LOC(@"HW_VP9_SUPPORT"), vtSupportsVP9]
+    // Use VP9/AV1
+    YTSettingsSectionItem *vp9av1 = [YTSettingsSectionItemClass switchItemWithTitle:LOC(@"USE_VP9_AV1")
+        titleDescription:[NSString stringWithFormat:@"%@\n\n%@: %d\n%@: %d", LOC(@"USE_VP9_DESC"), LOC(@"HW_VP9_SUPPORT"), vtSupportsVP9, LOC(@"HW_AV1_SUPPORT"), vtSupportsAV1]
         accessibilityIdentifier:nil
-        switchOn:UseVP9()
+        switchOn:UseVP9AV1()
         switchBlock:^BOOL (YTSettingsCell *cell, BOOL enabled) {
-            [[NSUserDefaults standardUserDefaults] setBool:enabled forKey:UseVP9Key];
+            [[NSUserDefaults standardUserDefaults] setBool:enabled forKey:UseVP9AV1Key];
             return YES;
         }
         settingItemId:0];
-    [sectionItems addObject:vp9];
-
-    // All VP9
-    YTSettingsSectionItem *allVP9 = [YTSettingsSectionItemClass switchItemWithTitle:LOC(@"ALL_VP9")
-        titleDescription:LOC(@"ALL_VP9_DESC")
-        accessibilityIdentifier:nil
-        switchOn:AllVP9()
-        switchBlock:^BOOL (YTSettingsCell *cell, BOOL enabled) {
-            [[NSUserDefaults standardUserDefaults] setBool:enabled forKey:AllVP9Key];
-            return YES;
-        }
-        settingItemId:0];
-    [sectionItems addObject:allVP9];
+    [sectionItems addObject:vp9av1];
 
     // Disable server ABR
     YTSettingsSectionItem *disableServerABR = [YTSettingsSectionItemClass switchItemWithTitle:LOC(@"DISABLE_SERVER_ABR")
@@ -139,30 +123,17 @@ NSBundle *YTUHDBundle() {
         settingItemId:0];
     [sectionItems addObject:disableServerABR];
 
-    if (!vtSupportsAV1) {
-        YTSettingsSectionItem *av1 = [YTSettingsSectionItemClass switchItemWithTitle:LOC(@"USE_AV1")
-            titleDescription:[NSString stringWithFormat:@"%@\n\n%@: %d", LOC(@"USE_AV1_DESC"), LOC(@"HW_AV1_SUPPORT"), vtSupportsAV1]
-            accessibilityIdentifier:nil
-            switchOn:UseAV1()
-            switchBlock:^BOOL (YTSettingsCell *cell, BOOL enabled) {
-                [[NSUserDefaults standardUserDefaults] setBool:enabled forKey:UseAV1Key];
-                return YES;
-            }
-            settingItemId:0];
-        [sectionItems addObject:av1];
-
-        // Apply film grain
-        YTSettingsSectionItem *applyGrain = [YTSettingsSectionItemClass switchItemWithTitle:LOC(@"APPLY_GRAIN")
-            titleDescription:LOC(@"APPLY_GRAIN_DESC")
-            accessibilityIdentifier:nil
-            switchOn:ApplyGrain()
-            switchBlock:^BOOL (YTSettingsCell *cell, BOOL enabled) {
-                [[NSUserDefaults standardUserDefaults] setBool:enabled forKey:ApplyGrainKey];
-                return YES;
-            }
-            settingItemId:0];
-        [sectionItems addObject:applyGrain];
-    }
+    // All VP9
+    YTSettingsSectionItem *allVP9 = [YTSettingsSectionItemClass switchItemWithTitle:LOC(@"ALL_VP9")
+        titleDescription:LOC(@"ALL_VP9_DESC")
+        accessibilityIdentifier:nil
+        switchOn:AllVP9()
+        switchBlock:^BOOL (YTSettingsCell *cell, BOOL enabled) {
+            [[NSUserDefaults standardUserDefaults] setBool:enabled forKey:AllVP9Key];
+            return YES;
+        }
+        settingItemId:0];
+    [sectionItems addObject:allVP9];
 
     if (!vtSupportsVP9) {
         // Decode threads
@@ -231,6 +202,20 @@ NSBundle *YTUHDBundle() {
             }
             settingItemId:0];
         [sectionItems addObject:rowThreading];
+    }
+
+    if (!vtSupportsAV1) {
+        // Apply film grain
+        YTSettingsSectionItem *applyGrain = [YTSettingsSectionItemClass switchItemWithTitle:LOC(@"APPLY_GRAIN")
+            titleDescription:LOC(@"APPLY_GRAIN_DESC")
+            accessibilityIdentifier:nil
+            switchOn:ApplyGrain()
+            switchBlock:^BOOL (YTSettingsCell *cell, BOOL enabled) {
+                [[NSUserDefaults standardUserDefaults] setBool:enabled forKey:ApplyGrainKey];
+                return YES;
+            }
+            settingItemId:0];
+        [sectionItems addObject:applyGrain];
     }
 
     if ([settingsViewController respondsToSelector:@selector(setSectionItems:forCategory:title:icon:titleDescription:headerHidden:)]) {

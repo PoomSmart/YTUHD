@@ -11,9 +11,8 @@ typedef struct {
 } Span;
 
 extern "C" {
-    BOOL UseVP9();
+    BOOL UseVP9AV1();
     BOOL AllVP9();
-    BOOL UseAV1();
     BOOL ApplyGrain();
     BOOL DisableServerABR();
     int DecodeThreads();
@@ -87,10 +86,6 @@ static id YTUHDCreateVPXDecoder(MLVideoDecoderFactory *self, id delegate, id del
              decodeQueue:decodeQueue
    pixelBufferAttributes:pixelBufferAttributes
                   config:YTUHDMakeConfig()];
-}
-
-static BOOL useSoftwareAV1(void) {
-    return vtSupportsAV1 ? NO : UseAV1();
 }
 
 static id YTUHDCreateDav1dDecoder(MLVideoDecoderFactory *self, id delegate, id delegateQueue, HAMFormatDescription *formatDescription, id pixelBufferAttributes) {
@@ -210,6 +205,15 @@ static void hookFormats(MLABRPolicy *self) {
 
 %group ServerABR
 
+%hook YTIHamplayerServerABRConfig
+
+%new(B@:)
+- (BOOL)skipFilterPreferredVideoFormats {
+    return NO;
+}
+
+%end
+
 %hook MLABRPolicy
 
 - (void)setFormats:(NSArray *)formats {
@@ -321,7 +325,7 @@ static void hookFormats(MLABRPolicy *self) {
 - (NSArray *)supportedCodecs {
     NSArray *orig = %orig;
     BOOL suppressVP9 = !vtSupportsVP9;
-    BOOL suppressAV1 = useSoftwareAV1();
+    BOOL suppressAV1 = !vtSupportsAV1;
     NSNumber *vp9 = @(kCMVideoCodecType_VP9);
     NSNumber *av1 = @(kCMVideoCodecType_AV1);
     NSMutableArray *filtered = [NSMutableArray arrayWithCapacity:orig.count];
@@ -347,7 +351,7 @@ BOOL overrideSupportsCodec = NO;
     HBLogDebug(@"YTUHD - MLVideoDecoderFactory videoDecoderWithDelegate called with codec: %d", codecType);
     if (!vtSupportsVP9 && codecType == kCMVideoCodecType_VP9)
         return YTUHDCreateVPXDecoder(self, delegate, delegateQueue, formatDescription, pixelBufferAttributes);
-    if (useSoftwareAV1() && codecType == kCMVideoCodecType_AV1)
+    if (!vtSupportsAV1 && codecType == kCMVideoCodecType_AV1)
         return YTUHDCreateDav1dDecoder(self, delegate, delegateQueue, formatDescription, pixelBufferAttributes);
     overrideSupportsCodec = YES;
     id decoder = %orig;
@@ -361,7 +365,7 @@ BOOL overrideSupportsCodec = NO;
     HBLogDebug(@"YTUHD - MLVideoDecoderFactory videoDecoderWithDelegate called with codec: %d", codecType);
     if (!vtSupportsVP9 && codecType == kCMVideoCodecType_VP9)
         return YTUHDCreateVPXDecoder(self, delegate, delegateQueue, formatDescription, pixelBufferAttributes);
-    if (useSoftwareAV1() && codecType == kCMVideoCodecType_AV1)
+    if (!vtSupportsAV1 && codecType == kCMVideoCodecType_AV1)
         return YTUHDCreateDav1dDecoder(self, delegate, delegateQueue, formatDescription, pixelBufferAttributes);
     overrideSupportsCodec = YES;
     id decoder = %orig;
@@ -375,7 +379,7 @@ BOOL overrideSupportsCodec = NO;
     HBLogDebug(@"YTUHD - MLVideoDecoderFactory videoDecoderWithDelegate called with codec: %d", codecType);
     if (!vtSupportsVP9 && codecType == kCMVideoCodecType_VP9)
         return YTUHDCreateVPXDecoder(self, delegate, delegateQueue, formatDescription, pixelBufferAttributes);
-    if (useSoftwareAV1() && codecType == kCMVideoCodecType_AV1)
+    if (!vtSupportsAV1 && codecType == kCMVideoCodecType_AV1)
         return YTUHDCreateDav1dDecoder(self, delegate, delegateQueue, formatDescription, pixelBufferAttributes);
     overrideSupportsCodec = YES;
     id decoder = %orig;
@@ -405,7 +409,7 @@ BOOL overrideSupportsCodec = NO;
     HBLogDebug(@"YTUHD - HAMDefaultVideoDecoderFactory videoDecoderWithDelegate called with codec: %d", codecType);
     if (!vtSupportsVP9 && codecType == kCMVideoCodecType_VP9)
         return YTUHDCreateVPXDecoder(nil, delegate, delegateQueue, nil, pixelBufferAttributes);
-    if (useSoftwareAV1() && codecType == kCMVideoCodecType_AV1)
+    if (!vtSupportsAV1 && codecType == kCMVideoCodecType_AV1)
         return YTUHDCreateDav1dDecoder(nil, delegate, delegateQueue, nil, pixelBufferAttributes);
     overrideSupportsCodec = YES;
     id decoder = %orig;
@@ -419,7 +423,7 @@ BOOL overrideSupportsCodec = NO;
     HBLogDebug(@"YTUHD - HAMDefaultVideoDecoderFactory videoDecoderWithDelegate called with codec: %d", codecType);
     if (!vtSupportsVP9 && codecType == kCMVideoCodecType_VP9)
         return YTUHDCreateVPXDecoder(nil, delegate, delegateQueue, nil, pixelBufferAttributes);
-    if (useSoftwareAV1() && codecType == kCMVideoCodecType_AV1)
+    if (!vtSupportsAV1 && codecType == kCMVideoCodecType_AV1)
         return YTUHDCreateDav1dDecoder(nil, delegate, delegateQueue, nil, pixelBufferAttributes);
     overrideSupportsCodec = YES;
     id decoder = %orig;
@@ -433,7 +437,7 @@ BOOL overrideSupportsCodec = NO;
     HBLogDebug(@"YTUHD - HAMDefaultVideoDecoderFactory videoDecoderWithDelegate called with codec: %d", codecType);
     if (!vtSupportsVP9 && codecType == kCMVideoCodecType_VP9)
         return YTUHDCreateVPXDecoder(nil, delegate, delegateQueue, nil, pixelBufferAttributes);
-    if (useSoftwareAV1() && codecType == kCMVideoCodecType_AV1)
+    if (!vtSupportsAV1 && codecType == kCMVideoCodecType_AV1)
         return YTUHDCreateDav1dDecoder(nil, delegate, delegateQueue, nil, pixelBufferAttributes);
     overrideSupportsCodec = YES;
     id decoder = %orig;
@@ -456,10 +460,8 @@ BOOL overrideSupportsCodec = NO;
 BOOL (*SupportsCodec)(CMVideoCodecType codec) = NULL;
 %hookf(BOOL, SupportsCodec, CMVideoCodecType codec) {
     if (overrideSupportsCodec) {
-        BOOL suppressVP9 = !vtSupportsVP9;
-        BOOL suppressAV1 = useSoftwareAV1();
-        BOOL suppressCodec = (codec == kCMVideoCodecType_AV1 && suppressAV1) ||
-                             (codec == kCMVideoCodecType_VP9 && suppressVP9);
+        BOOL suppressCodec = (codec == kCMVideoCodecType_AV1 && !vtSupportsAV1) ||
+                             (codec == kCMVideoCodecType_VP9 && !vtSupportsVP9);
         if (suppressCodec) {
             HBLogDebug(@"YTUHD - SupportsCodec called for codec: %d, returning NO", codec);
             return NO;
@@ -477,7 +479,7 @@ BOOL (*SupportsCodec)(CMVideoCodecType codec) = NULL;
         DecodeThreadsKey: @2,
         ApplyGrainKey:    @YES,
     }];
-    if (UseVP9() || UseAV1()) {
+    if (UseVP9AV1()) {
         uint8_t pattern1[] = {
             0x28, 0x66, 0x8c, 0x52,
             0xc8, 0x2e, 0xac, 0x72,
