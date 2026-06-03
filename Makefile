@@ -33,7 +33,7 @@ $(TWEAK_NAME)_CFLAGS = -fobjc-arc \
     -I$(DAV1D_BUILD)/install/include
 $(TWEAK_NAME)_LDFLAGS = $(LIBVPX_A) $(DAV1D_A)
 ifeq ($(SIDELOAD),1)
-$(TWEAK_NAME)_FILES += vendor/libundirect/libundirect.m vendor/libundirect/HookCompat.m
+$(TWEAK_NAME)_FILES += libundirect_compact.m
 else
 $(TWEAK_NAME)_LIBRARIES = undirect
 endif

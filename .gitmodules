@@ -4,6 +4,3 @@
 [submodule "vendor/dav1d"]
 	path = vendor/dav1d
 	url = https://github.com/videolan/dav1d
-[submodule "vendor/libundirect"]
-	path = vendor/libundirect
-	url = https://github.com/opa334/libundirect

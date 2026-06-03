@@ -53,7 +53,7 @@ These options are shown in the YTUHD section inside YouTube settings:
 
 Sideloaded apps often lose private entitlements required for hardware VP9 decode, so software decode will be used instead (higher battery cost).
 
-YTUHD uses [libundirect](https://github.com/opa334/libundirect). For sideload builds to work correctly with it, use:
+YTUHD uses [libundirect](https://github.com/opa334/libundirect). For sideload builds, use this command to build the tweak with the trimmed down version of libundirect:
 
 ```sh
 make SIDELOAD=1
@@ -67,7 +67,6 @@ YTUHD requires [Theos](https://theos.dev). Static libraries are built automatica
 
 - VP9: [libvpx](https://www.webmproject.org/code/)
 - AV1: [dav1d](https://code.videolan.org/videolan/dav1d)
-- Hooking support for sideload mode: [libundirect](https://github.com/opa334/libundirect)
 
 Install build tools for dav1d first:
 
@@ -90,7 +89,7 @@ make dav1d    # vendor/dav1d_ios/libdav1d.a
 
 ### Updating Vendor Libraries
 
-`vendor/libvpx`, `vendor/dav1d`, and `vendor/libundirect` are git submodules.
+`vendor/libvpx` and `vendor/dav1d` are git submodules.
 
 To pull newer upstream revisions:
 

@@ -456,12 +456,7 @@ BOOL overrideSupportsCodec = NO;
 BOOL (*SupportsCodec)(CMVideoCodecType codec) = NULL;
 %hookf(BOOL, SupportsCodec, CMVideoCodecType codec) {
     if (overrideSupportsCodec) {
-        // Suppress VP9 when libvpx decoder exists (old YT → routes to HAMVPXVideoDecoder),
-        // or when VT has no VP9 support (A11 and earlier on new YT — formats are already
-        // stripped by filteredFormats, this is just a belt-and-suspenders guard).
-        // When neither condition is true (new YT + A12+), let VT decode VP9 natively.
         BOOL suppressVP9 = !vtSupportsVP9;
-        // Suppress AV1 from the hardware/AVSBDL path when we are routing to dav1d.
         BOOL suppressAV1 = useSoftwareAV1();
         BOOL suppressCodec = (codec == kCMVideoCodecType_AV1 && suppressAV1) ||
                              (codec == kCMVideoCodecType_VP9 && suppressVP9);
