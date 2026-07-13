@@ -1,0 +1,66 @@
+name: Build YTUHD dylib
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+    branches: [master]
+  workflow_dispatch:
+
+concurrency:
+  group: build-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: macos-14
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Install build dependencies
+        run: brew install ldid dpkg meson ninja
+
+      - name: Cache Theos
+        id: theos-cache
+        uses: actions/cache@v4
+        with:
+          path: ~/theos
+          key: theos-${{ runner.os }}-v1
+
+      - name: Install Theos
+        if: steps.theos-cache.outputs.cache-hit != 'true'
+        run: git clone --recursive https://github.com/theos/theos.git ~/theos
+
+      - name: Set THEOS env
+        run: echo "THEOS=$HOME/theos" >> "$GITHUB_ENV"
+
+      - name: Record submodule revisions
+        run: git submodule status > .submodule-status
+
+      - name: Cache vendor static libraries
+        uses: actions/cache@v4
+        with:
+          path: |
+            vendor/libvpx_ios
+            vendor/dav1d_ios
+          key: vendor-${{ runner.os }}-${{ hashFiles('.submodule-status', 'vendor/build_libvpx.sh', 'vendor/build_dav1d.sh') }}
+
+      - name: Build YTUHD (self-contained SIDELOAD dylib)
+        run: make package SIDELOAD=1
+
+      - name: Collect artifacts
+        run: |
+          mkdir -p out
+          cp packages/*.deb out/ 2>/dev/null || true
+          find .theos/obj -name 'YTUHD.dylib' -exec cp {} out/ \;
+          ls -la out
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: YTUHD-${{ github.sha }}
+          path: out/*
+          if-no-files-found: error
