@@ -26,6 +26,10 @@ extern "C" {
 - (void)terminate;
 @end
 
+@interface MLMediaCapabilitiesProviderImpl : NSObject
+- (const void *)mediaCapabilities;
+@end
+
 static HAMVideoDecoder *prepareDecoder(MLVideoDecoderFactory *self, id delegate, id delegateQueue, HAMFormatDescription *formatDescription, NSDictionary *pixelBufferAttributes) {
     HAMVideoDecoder *preparedDecoder = [self valueForKey:@"_preparedDecoder"];
     if (preparedDecoder) {
@@ -390,12 +394,18 @@ BOOL overrideSupportsCodec = NO;
 }
 
 - (void)prepareDecoderForFormatDescription:(HAMFormatDescription *)formatDescription delegateQueue:(id)delegateQueue {
+    CMVideoCodecType codecType = [formatDescription mediaSubType];
+    if ((!vtSupportsVP9 && codecType == kCMVideoCodecType_VP9) ||
+        (!vtSupportsAV1 && codecType == kCMVideoCodecType_AV1)) return;
     overrideSupportsCodec = YES;
     %orig;
     overrideSupportsCodec = NO;
 }
 
 - (void)prepareDecoderForFormatDescription:(HAMFormatDescription *)formatDescription setPixelBufferTypeOnlyIfEmpty:(BOOL)setPixelBufferTypeOnlyIfEmpty delegateQueue:(id)delegateQueue {
+    CMVideoCodecType codecType = [formatDescription mediaSubType];
+    if ((!vtSupportsVP9 && codecType == kCMVideoCodecType_VP9) ||
+        (!vtSupportsAV1 && codecType == kCMVideoCodecType_AV1)) return;
     overrideSupportsCodec = YES;
     %orig;
     overrideSupportsCodec = NO;
@@ -458,18 +468,50 @@ BOOL overrideSupportsCodec = NO;
 
 %group Codec
 
-BOOL (*SupportsCodec)(CMVideoCodecType codec) = NULL;
-%hookf(BOOL, SupportsCodec, CMVideoCodecType codec) {
-    if (overrideSupportsCodec) {
-        BOOL suppressCodec = (codec == kCMVideoCodecType_AV1 && !vtSupportsAV1) ||
-                             (codec == kCMVideoCodecType_VP9 && !vtSupportsVP9);
-        if (suppressCodec) {
-            HBLogDebug(@"YTUHD - SupportsCodec called for codec: %d, returning NO", codec);
-            return NO;
-        }
-    }
-    return YES;
+static void *ptrFromAdrpLdr(const void *at) {
+    const uint32_t *insns = (const uint32_t *)at;
+    uint32_t adrp = insns[0];
+    uint32_t ldr  = insns[1];
+    int64_t imm = (int64_t)((((adrp >> 5) & 0x7FFFF) << 2) | ((adrp >> 29) & 0x3));
+    if (imm & (1 << 20)) imm -= (1 << 21);
+    uint64_t page = ((uint64_t)(uintptr_t)at & ~0xFFFULL) + ((uint64_t)imm << 12);
+    uint32_t size = (ldr >> 30) & 0x3;
+    uint32_t imm12 = (ldr >> 10) & 0xFFF;
+    return (void *)(uintptr_t)(page + ((uint64_t)imm12 << size));
 }
+
+static void forceCodecSupportTrue(void *supportsCodec) {
+    uint8_t *fn = (uint8_t *)supportsCodec;
+    void *predicate = ptrFromAdrpLdr(fn + 0x5C);
+    void *vp9Flag    = ptrFromAdrpLdr(fn + 0x8C);
+    void *av1Flag    = ptrFromAdrpLdr(fn + 0x98);
+    *(long *)predicate = -1;  // pretend SupportsCodec's dispatch_once already ran
+    *(uint8_t *)vp9Flag = 1;
+    *(uint8_t *)av1Flag = 1;
+}
+
+static void (*PopulateCodecCapability)(CMVideoCodecType codec, const void *caps) = NULL;
+
+static void injectMissingCodecCapabilities(const void *caps) {
+    static void *injected[4];
+    if (!caps || !PopulateCodecCapability) return;
+    for (int i = 0; i < 4; i++) {
+        if (injected[i] == caps) return;
+        if (!injected[i]) { injected[i] = (void *)caps; break; }
+    }
+    PopulateCodecCapability(kCMVideoCodecType_VP9, caps);
+    PopulateCodecCapability(kCMVideoCodecType_AV1, caps);
+}
+
+%hook MLMediaCapabilitiesProviderImpl
+
+- (const void *)mediaCapabilities {
+    const void *caps = %orig;
+    injectMissingCodecCapabilities(caps);
+    return caps;
+}
+
+%end
 
 %end
 
@@ -481,19 +523,28 @@ BOOL (*SupportsCodec)(CMVideoCodecType codec) = NULL;
         ApplyGrainKey:    @YES,
     }];
     if (UseVP9AV1()) {
-        uint8_t pattern1[] = {
+        uint8_t supportsCodecPattern[] = {
             0x28, 0x66, 0x8c, 0x52,
             0xc8, 0x2e, 0xac, 0x72,
             0x1f, 0x00, 0x08, 0x6b,
             0x61, 0x00, 0x00, 0x54,
             0x28, 0x00, 0x80, 0x52,
         };
-        uint8_t pattern2[] = {
-            0xf4, 0x4f, 0xbe, 0xa9,
-            0xfd, 0x7b, 0x01, 0xa9,
-            0xfd, 0x43, 0x00, 0x91,
+        uint8_t populateCapabilityPattern[] = {
+            0x08, 0x07, 0x8e, 0x52,
+            0xc8, 0x2e, 0xae, 0x72,
+            0xbf, 0x02, 0x08, 0x6b,
+            0x6c, 0x01, 0x00, 0x54,
+            0x28, 0x06, 0x86, 0x52,
+            0xc8, 0x2e, 0xac, 0x72,
+            0xbf, 0x02, 0x08, 0x6b,
+            0x80, 0x07, 0x00, 0x54,
             0x28, 0x66, 0x8c, 0x52,
-            0xc8, 0x2e, 0xac, 0x72
+            0xc8, 0x2e, 0xac, 0x72,
+            0xbf, 0x02, 0x08, 0x6b,
+            0xa1, 0x01, 0x00, 0x54,
+            0x56, 0x00, 0x80, 0x52,
+            0x0c, 0x00, 0x00, 0x14,
         };
         NSString *bundlePath = [NSString stringWithFormat:@"%@/Frameworks/Module_Framework.framework", NSBundle.mainBundle.bundlePath];
         NSBundle *bundle = [NSBundle bundleWithPath:bundlePath];
@@ -503,14 +554,18 @@ BOOL (*SupportsCodec)(CMVideoCodecType codec) = NULL;
             binary = @"Module_Framework";
         } else
             binary = @"YouTube";
-        %init;
-        SupportsCodec = (BOOL (*)(CMVideoCodecType))libundirect_find(binary, pattern1, sizeof(pattern1), 0x28);
-        if (SupportsCodec == NULL) {
-            SupportsCodec = (BOOL (*)(CMVideoCodecType))libundirect_find(binary, pattern2, sizeof(pattern2), 0xf4);
-            HBLogDebug(@"YTUHD: SupportsCodec pattern2");
+        void *supportsCodec = libundirect_find(binary, supportsCodecPattern, sizeof(supportsCodecPattern), 0x28);
+        HBLogDebug(@"YTUHD: SupportsCodec: %d", supportsCodec != NULL);
+        void *populateCapabilityMatch = libundirect_find(binary, populateCapabilityPattern, sizeof(populateCapabilityPattern), 0);
+        if (populateCapabilityMatch) {
+            PopulateCodecCapability = (void (*)(CMVideoCodecType, const void *))((uint8_t *)populateCapabilityMatch - 0x40);
         }
-        HBLogDebug(@"YTUHD: SupportsCodec: %d", SupportsCodec != NULL);
-        if (SupportsCodec) {
+        HBLogDebug(@"YTUHD: PopulateCodecCapability: %d", PopulateCodecCapability != NULL);
+        if (supportsCodec) {
+            forceCodecSupportTrue(supportsCodec);
+        }
+        %init;
+        if (supportsCodec && PopulateCodecCapability) {
             %init(Codec);
         }
     }
