@@ -474,7 +474,7 @@ static void *ptrFromAdrpLdr(const uint32_t *insns) {
 
 // Locate SupportsCodec's dispatch_once predicate and cached VP9/AV1 flags from
 // ADRP+LDR pairs instead of version-specific instruction offsets. Writes data
-// only; does not hook executable code (avoids AMFI panics on jailed iOS 26.5+).
+// only; does not hook executable code (avoids AMFI panics).
 static BOOL forceCodecSupportTrue(void *supportsCodec) {
     const uint32_t *insns = (const uint32_t *)supportsCodec;
     void *predicate = NULL;
@@ -537,7 +537,7 @@ static BOOL forceCodecSupportTrue(void *supportsCodec) {
             supportsCodec = libundirect_find(binary, pattern2, sizeof(pattern2), 0xf4);
             HBLogDebug(@"YTUHD: SupportsCodec pattern2");
         }
-        BOOL forced = supportsCodec && forceCodecSupportTrue(supportsCodec);
+        __unused BOOL forced = supportsCodec && forceCodecSupportTrue(supportsCodec);
         HBLogDebug(@"YTUHD: SupportsCodec: %d forced: %d", supportsCodec != NULL, forced);
         %init;
     }
