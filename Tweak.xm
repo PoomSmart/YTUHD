@@ -343,7 +343,10 @@ static void hookFormats(MLABRPolicy *self) {
 
 %end
 
-BOOL overrideSupportsCodec = NO;
+static BOOL isSoftwareOnlyCodec(CMVideoCodecType codecType) {
+    return (!vtSupportsVP9 && codecType == kCMVideoCodecType_VP9) ||
+           (!vtSupportsAV1 && codecType == kCMVideoCodecType_AV1);
+}
 
 %hook MLVideoDecoderFactory
 
@@ -354,9 +357,7 @@ BOOL overrideSupportsCodec = NO;
         return YTUHDCreateVPXDecoder(self, delegate, delegateQueue, formatDescription, pixelBufferAttributes);
     if (!vtSupportsAV1 && codecType == kCMVideoCodecType_AV1)
         return YTUHDCreateDav1dDecoder(self, delegate, delegateQueue, formatDescription, pixelBufferAttributes);
-    overrideSupportsCodec = YES;
     id decoder = %orig;
-    overrideSupportsCodec = NO;
     if (error) HBLogDebug(@"YTUHD - Creating video decoder for codec: %d, error: %@", codecType, *error);
     return decoder;
 }
@@ -368,9 +369,7 @@ BOOL overrideSupportsCodec = NO;
         return YTUHDCreateVPXDecoder(self, delegate, delegateQueue, formatDescription, pixelBufferAttributes);
     if (!vtSupportsAV1 && codecType == kCMVideoCodecType_AV1)
         return YTUHDCreateDav1dDecoder(self, delegate, delegateQueue, formatDescription, pixelBufferAttributes);
-    overrideSupportsCodec = YES;
     id decoder = %orig;
-    overrideSupportsCodec = NO;
     if (error) HBLogDebug(@"YTUHD - Creating video decoder for codec: %d, error: %@", codecType, *error);
     return decoder;
 }
@@ -382,23 +381,19 @@ BOOL overrideSupportsCodec = NO;
         return YTUHDCreateVPXDecoder(self, delegate, delegateQueue, formatDescription, pixelBufferAttributes);
     if (!vtSupportsAV1 && codecType == kCMVideoCodecType_AV1)
         return YTUHDCreateDav1dDecoder(self, delegate, delegateQueue, formatDescription, pixelBufferAttributes);
-    overrideSupportsCodec = YES;
     id decoder = %orig;
-    overrideSupportsCodec = NO;
     if (error) HBLogDebug(@"YTUHD - Creating video decoder for codec: %d, error: %@", codecType, *error);
     return decoder;
 }
 
 - (void)prepareDecoderForFormatDescription:(HAMFormatDescription *)formatDescription delegateQueue:(id)delegateQueue {
-    overrideSupportsCodec = YES;
+    if (isSoftwareOnlyCodec([formatDescription mediaSubType])) return;
     %orig;
-    overrideSupportsCodec = NO;
 }
 
 - (void)prepareDecoderForFormatDescription:(HAMFormatDescription *)formatDescription setPixelBufferTypeOnlyIfEmpty:(BOOL)setPixelBufferTypeOnlyIfEmpty delegateQueue:(id)delegateQueue {
-    overrideSupportsCodec = YES;
+    if (isSoftwareOnlyCodec([formatDescription mediaSubType])) return;
     %orig;
-    overrideSupportsCodec = NO;
 }
 
 %end
@@ -412,9 +407,7 @@ BOOL overrideSupportsCodec = NO;
         return YTUHDCreateVPXDecoder(nil, delegate, delegateQueue, nil, pixelBufferAttributes);
     if (!vtSupportsAV1 && codecType == kCMVideoCodecType_AV1)
         return YTUHDCreateDav1dDecoder(nil, delegate, delegateQueue, nil, pixelBufferAttributes);
-    overrideSupportsCodec = YES;
     id decoder = %orig;
-    overrideSupportsCodec = NO;
     if (error) HBLogDebug(@"YTUHD - Creating video decoder for codec: %d, error: %@", codecType, *error);
     return decoder;
 }
@@ -426,9 +419,7 @@ BOOL overrideSupportsCodec = NO;
         return YTUHDCreateVPXDecoder(nil, delegate, delegateQueue, nil, pixelBufferAttributes);
     if (!vtSupportsAV1 && codecType == kCMVideoCodecType_AV1)
         return YTUHDCreateDav1dDecoder(nil, delegate, delegateQueue, nil, pixelBufferAttributes);
-    overrideSupportsCodec = YES;
     id decoder = %orig;
-    overrideSupportsCodec = NO;
     if (error) HBLogDebug(@"YTUHD - Creating video decoder for codec: %d, error: %@", codecType, *error);
     return decoder;
 }
@@ -440,9 +431,7 @@ BOOL overrideSupportsCodec = NO;
         return YTUHDCreateVPXDecoder(nil, delegate, delegateQueue, nil, pixelBufferAttributes);
     if (!vtSupportsAV1 && codecType == kCMVideoCodecType_AV1)
         return YTUHDCreateDav1dDecoder(nil, delegate, delegateQueue, nil, pixelBufferAttributes);
-    overrideSupportsCodec = YES;
     id decoder = %orig;
-    overrideSupportsCodec = NO;
     if (error) HBLogDebug(@"YTUHD - Creating video decoder for codec: %d, error: %@", codecType, *error);
     return decoder;
 }
@@ -456,22 +445,62 @@ BOOL overrideSupportsCodec = NO;
 
 %end
 
-%group Codec
-
-BOOL (*SupportsCodec)(CMVideoCodecType codec) = NULL;
-%hookf(BOOL, SupportsCodec, CMVideoCodecType codec) {
-    if (overrideSupportsCodec) {
-        BOOL suppressCodec = (codec == kCMVideoCodecType_AV1 && !vtSupportsAV1) ||
-                             (codec == kCMVideoCodecType_VP9 && !vtSupportsVP9);
-        if (suppressCodec) {
-            HBLogDebug(@"YTUHD - SupportsCodec called for codec: %d, returning NO", codec);
-            return NO;
-        }
-    }
-    return YES;
+static BOOL isAdrp(uint32_t insn) {
+    return (insn & 0x9F000000) == 0x90000000;
 }
 
-%end
+static BOOL isLdr64(uint32_t insn) {
+    return (insn & 0xFFC00000) == 0xF9400000;
+}
+
+static BOOL isLdrb(uint32_t insn) {
+    return (insn & 0xFFC00000) == 0x39400000;
+}
+
+static BOOL isCmn1(uint32_t insn) {
+    return (insn & 0xFFFFFC1F) == 0xB100041F && ((insn >> 10) & 0xFFF) == 1;
+}
+
+static void *ptrFromAdrpLdr(const uint32_t *insns) {
+    uint32_t adrp = insns[0];
+    uint32_t ldr  = insns[1];
+    int64_t imm = (int64_t)((((adrp >> 5) & 0x7FFFF) << 2) | ((adrp >> 29) & 0x3));
+    if (imm & (1 << 20)) imm -= (1 << 21);
+    uint64_t page = ((uint64_t)(uintptr_t)insns & ~0xFFFULL) + ((uint64_t)imm << 12);
+    uint32_t size = (ldr >> 30) & 0x3;
+    uint32_t imm12 = (ldr >> 10) & 0xFFF;
+    return (void *)(uintptr_t)(page + ((uint64_t)imm12 << size));
+}
+
+// Locate SupportsCodec's dispatch_once predicate and cached VP9/AV1 flags from
+// ADRP+LDR pairs instead of version-specific instruction offsets. Writes data
+// only; does not hook executable code (avoids AMFI panics on jailed iOS 26.5+).
+static BOOL forceCodecSupportTrue(void *supportsCodec) {
+    const uint32_t *insns = (const uint32_t *)supportsCodec;
+    void *predicate = NULL;
+    void *flags[2] = {0};
+    int flagCount = 0;
+    for (int i = 0; i < 64; i++) {
+        if (isAdrp(insns[i]) && isLdr64(insns[i + 1]) && isCmn1(insns[i + 2]))
+            predicate = ptrFromAdrpLdr(insns + i);
+        if (isAdrp(insns[i]) && isLdrb(insns[i + 1]) && flagCount < 2)
+            flags[flagCount++] = ptrFromAdrpLdr(insns + i);
+    }
+    if (!predicate || flagCount != 2) return NO;
+    uintptr_t a = (uintptr_t)flags[0];
+    uintptr_t b = (uintptr_t)flags[1];
+    if (a > b) {
+        uintptr_t tmp = a;
+        a = b;
+        b = tmp;
+    }
+    if (b - a != 1) return NO;
+    if ((uintptr_t)predicate < a || (uintptr_t)predicate - a > 0x20) return NO;
+    *(long *)predicate = -1;
+    *(uint8_t *)a = 1;
+    *(uint8_t *)b = 1;
+    return YES;
+}
 
 %ctor {
     vtSupportsVP9 = VTIsHardwareDecodeSupported(kCMVideoCodecType_VP9);
@@ -503,16 +532,14 @@ BOOL (*SupportsCodec)(CMVideoCodecType codec) = NULL;
             binary = @"Module_Framework";
         } else
             binary = @"YouTube";
-        %init;
-        SupportsCodec = (BOOL (*)(CMVideoCodecType))libundirect_find(binary, pattern1, sizeof(pattern1), 0x28);
-        if (SupportsCodec == NULL) {
-            SupportsCodec = (BOOL (*)(CMVideoCodecType))libundirect_find(binary, pattern2, sizeof(pattern2), 0xf4);
+        void *supportsCodec = libundirect_find(binary, pattern1, sizeof(pattern1), 0x28);
+        if (supportsCodec == NULL) {
+            supportsCodec = libundirect_find(binary, pattern2, sizeof(pattern2), 0xf4);
             HBLogDebug(@"YTUHD: SupportsCodec pattern2");
         }
-        HBLogDebug(@"YTUHD: SupportsCodec: %d", SupportsCodec != NULL);
-        if (SupportsCodec) {
-            %init(Codec);
-        }
+        BOOL forced = supportsCodec && forceCodecSupportTrue(supportsCodec);
+        HBLogDebug(@"YTUHD: SupportsCodec: %d forced: %d", supportsCodec != NULL, forced);
+        %init;
     }
     if (DisableServerABR()) {
         %init(ServerABR);
