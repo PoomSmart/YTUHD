@@ -41,6 +41,8 @@ typedef id (*_PixelBufLongFn)(id, SEL,
     NSError **
 );
 
+typedef struct { const uint32_t *data; size_t size; } YTUHDSpan;
+
 @interface YTUHDDav1dVideoDecoder : NSObject
 - (instancetype)initWithDelegate:(id<HAMVideoDecoderDelegate>)delegate
                    delegateQueue:(dispatch_queue_t)delegateQueue
@@ -54,6 +56,7 @@ typedef id (*_PixelBufLongFn)(id, SEL,
 - (BOOL)canAcceptFormatWithDescription:(id)formatDescription;
 - (void)decodeSampleBuffer:(id)sampleBuffer completionHandler:(id)completionHandler;
 - (NSInteger)samplesPendingDecode;
+- (void)drain;
 @end
 
 @interface YTUHDDav1dVideoDecoder () {
@@ -127,6 +130,14 @@ typedef id (*_PixelBufLongFn)(id, SEL,
 
 - (NSInteger)samplesPendingDecode {
     return (NSInteger)atomic_load(&_samplesPendingDecode);
+}
+
+// YouTube 21.45+ calls drain at end of stream. Frames are emitted as soon as they are decoded, so nothing to flush.
+- (void)drain {}
+
+// NO makes the factory drop a prepared decoder and create a new one.
+- (BOOL)canAcceptPreferredOutputFormats:(YTUHDSpan)formats {
+    return NO;
 }
 
 - (void)decodeSampleBuffer:(id)sampleBuffer completionHandler:(id)completionHandler {
